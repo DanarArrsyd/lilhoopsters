@@ -20,6 +20,8 @@ return new class extends Migration {
             $table->foreignId('reviewed_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('reviewed_at')->nullable();
             $table->timestamp('auto_approve_at')->useCurrent(); // created_at + 72h, always overridden on insert
+            $table->index(['child_id', 'leave_date']);
+            $table->index(['enrollment_id', 'leave_date']);
             $table->timestamps();
         });
 

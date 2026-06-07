@@ -8,9 +8,9 @@ return new class extends Migration {
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('child_id')->constrained('children');
-            $table->foreignId('package_id')->constrained('packages');
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('child_id')->nullable()->constrained('children')->nullOnDelete();
+            $table->foreignId('package_id')->nullable()->constrained('packages')->nullOnDelete();
             $table->unsignedBigInteger('enrollment_id')->nullable(); // FK added after enrollments table
             $table->string('transaction_code')->unique();
             $table->unsignedInteger('amount');

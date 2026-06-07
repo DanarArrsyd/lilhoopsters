@@ -9,7 +9,7 @@ return new class extends Migration {
         Schema::create('make_up_classes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('child_id')->constrained('children')->cascadeOnDelete();
-            $table->foreignId('enrollment_id')->constrained('enrollments');
+            $table->foreignId('enrollment_id')->constrained('enrollments')->cascadeOnDelete();
             $table->foreignId('leave_request_id')->constrained('leave_requests');
             $table->foreignId('target_schedule_id')->constrained('schedules');
             $table->date('target_date');

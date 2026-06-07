@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->json('data')->nullable();
             $table->boolean('is_read')->default(false);
             $table->timestamp('read_at')->nullable();
+            $table->index(['user_id', 'is_read']);
             $table->timestamps();
         });
     }

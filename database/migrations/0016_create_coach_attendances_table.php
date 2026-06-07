@@ -14,6 +14,7 @@ return new class extends Migration {
             $table->timestamp('checked_out_at')->nullable();
             $table->timestamp('expires_at')->useCurrent(); // checked_in_at + 8 hours, always overridden on insert
             $table->text('notes')->nullable();
+            $table->index(['coach_id', 'checked_in_at']);
             $table->timestamps();
         });
     }
