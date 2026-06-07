@@ -2,48 +2,70 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
+        'role_id', 'name', 'email', 'password',
+        'google_id', 'avatar', 'profile_photo',
+        'whatsapp_number', 'address', 'occupation',
+        'is_active', 'registration_status',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
+    protected $hidden = ['password', 'remember_token'];
+
+    protected $casts = [
+        'is_active'           => 'boolean',
+        'password'            => 'hashed',
+        'registration_status' => 'string',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    public function role(): BelongsTo
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->belongsTo(Role::class);
+    }
+
+    public function children(): HasMany
+    {
+        return $this->hasMany(Child::class);
+    }
+
+    public function coach(): HasOne
+    {
+        return $this->hasOne(Coach::class);
+    }
+
+    public function appNotifications(): HasMany
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    public function hasRole(string $role): bool
+    {
+        return $this->role?->name === $role;
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->registration_status === 'approved';
+    }
+
+    public function redirectRouteName(): string
+    {
+        return match ($this->role?->name) {
+            'super_admin' => 'superadmin.dashboard',
+            'admin'       => 'admin.dashboard',
+            'coach'       => 'coach.dashboard',
+            'parent'      => 'parent.dashboard',
+            default       => 'login',
+        };
     }
 }
