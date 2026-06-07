@@ -23,9 +23,8 @@ class User extends Authenticatable
     protected $hidden = ['password', 'remember_token'];
 
     protected $casts = [
-        'is_active'           => 'boolean',
-        'password'            => 'hashed',
-        'registration_status' => 'string',
+        'is_active' => 'boolean',
+        'password'  => 'hashed',
     ];
 
     public function role(): BelongsTo

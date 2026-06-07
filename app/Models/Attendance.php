@@ -17,6 +17,8 @@ class Attendance extends Model
     protected $casts = [
         'attended_at'      => 'datetime',
         'session_deducted' => 'boolean',
+        'latitude'         => 'decimal:8',
+        'longitude'        => 'decimal:8',
     ];
 
     public function child(): BelongsTo        { return $this->belongsTo(Child::class); }

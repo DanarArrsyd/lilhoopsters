@@ -22,7 +22,9 @@ class CoachAttendance extends Model
     {
         parent::boot();
         static::creating(function (CoachAttendance $ca) {
-            $ca->expires_at = now()->addHours(8);
+            if (empty($ca->expires_at)) {
+                $ca->expires_at = now()->addHours(8);
+            }
         });
     }
 

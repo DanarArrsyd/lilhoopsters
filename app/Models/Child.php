@@ -60,7 +60,9 @@ class Child extends Model
 
     public function ageInMonths(): int
     {
-        return (int) $this->birth_date->diffInMonths(now());
+        return $this->birth_date
+            ? (int) $this->birth_date->diffInMonths(now())
+            : 0;
     }
 
     public function isActive(): bool

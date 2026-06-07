@@ -9,5 +9,7 @@ class ReportCardScore extends Model
 {
     protected $fillable = ['report_card_id', 'category', 'score', 'notes'];
 
+    protected $casts = ['score' => 'integer'];
+
     public function reportCard(): BelongsTo { return $this->belongsTo(ReportCard::class); }
 }

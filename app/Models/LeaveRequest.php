@@ -24,7 +24,9 @@ class LeaveRequest extends Model
     {
         parent::boot();
         static::creating(function (LeaveRequest $lr) {
-            $lr->auto_approve_at = now()->addHours(72);
+            if (empty($lr->auto_approve_at)) {
+                $lr->auto_approve_at = now()->addHours(72);
+            }
         });
     }
 
