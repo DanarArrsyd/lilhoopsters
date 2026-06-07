@@ -30,7 +30,7 @@ class LoginController extends Controller
 
         $request->session()->regenerate();
 
-        $user = Auth::user();
+        $user = Auth::user()->load('role');
 
         if ($user->registration_status === 'pending') {
             return redirect()->route('pending');

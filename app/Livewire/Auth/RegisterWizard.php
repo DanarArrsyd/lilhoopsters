@@ -6,6 +6,7 @@ use App\Models\Child;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
 
@@ -74,27 +75,31 @@ class RegisterWizard extends Component
     {
         $this->validate();
 
-        $parentRole = Role::where('name', 'parent')->firstOrFail();
+        $user = DB::transaction(function () {
+            $parentRole = Role::where('name', 'parent')->firstOrFail();
 
-        $user = User::create([
-            'role_id'             => $parentRole->id,
-            'name'                => $this->name,
-            'email'               => $this->email,
-            'password'            => Hash::make($this->password),
-            'whatsapp_number'     => $this->whatsapp_number,
-            'address'             => $this->address ?: null,
-            'occupation'          => $this->occupation ?: null,
-            'registration_status' => 'pending',
-        ]);
+            $user = User::create([
+                'role_id'             => $parentRole->id,
+                'name'                => $this->name,
+                'email'               => $this->email,
+                'password'            => Hash::make($this->password),
+                'whatsapp_number'     => $this->whatsapp_number,
+                'address'             => $this->address ?: null,
+                'occupation'          => $this->occupation ?: null,
+                'registration_status' => 'pending',
+            ]);
 
-        Child::create([
-            'user_id'    => $user->id,
-            'name'       => $this->child_name,
-            'birth_date' => $this->child_birth_date,
-            'gender'     => $this->child_gender,
-            'school'     => $this->child_school ?: null,
-            'status'     => 'unregistered',
-        ]);
+            Child::create([
+                'user_id'    => $user->id,
+                'name'       => $this->child_name,
+                'birth_date' => $this->child_birth_date,
+                'gender'     => $this->child_gender,
+                'school'     => $this->child_school ?: null,
+                'status'     => 'unregistered',
+            ]);
+
+            return $user;
+        });
 
         Auth::login($user);
 

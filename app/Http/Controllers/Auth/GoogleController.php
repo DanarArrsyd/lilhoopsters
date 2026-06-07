@@ -24,15 +24,17 @@ class GoogleController extends Controller
             return redirect()->route('login')->with('error', 'Login Google gagal. Silakan coba lagi.');
         }
 
-        $user = User::where('google_id', $googleUser->getId())
-            ->orWhere('email', $googleUser->getEmail())
-            ->first();
+        // Find by google_id first, then by email (separate queries to avoid account hijack)
+        $user = User::where('google_id', $googleUser->getId())->first()
+            ?? User::where('email', $googleUser->getEmail())->first();
 
         if ($user) {
+            // Link google_id to an existing email account (user chose to connect Google)
             if (! $user->google_id) {
                 $user->update(['google_id' => $googleUser->getId(), 'avatar' => $googleUser->getAvatar()]);
             }
         } else {
+            // New user — create with parent role, pending status
             $parentRole = Role::where('name', 'parent')->firstOrFail();
 
             $user = User::create([
@@ -49,17 +51,17 @@ class GoogleController extends Controller
             return redirect()->route('login')->with('error', 'Akun Anda dinonaktifkan.');
         }
 
+        // Check rejected BEFORE logging in (avoid creating then destroying session)
+        if ($user->registration_status === 'rejected') {
+            return redirect()->route('login')->with('error', 'Pendaftaran Anda ditolak.');
+        }
+
         Auth::login($user, remember: true);
 
         if ($user->registration_status === 'pending') {
             return redirect()->route('pending');
         }
 
-        if ($user->registration_status === 'rejected') {
-            Auth::logout();
-            return redirect()->route('login')->with('error', 'Pendaftaran Anda ditolak.');
-        }
-
-        return redirect()->route($user->redirectRouteName());
+        return redirect()->route($user->load('role')->redirectRouteName());
     }
 }

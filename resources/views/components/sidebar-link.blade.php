@@ -1,7 +1,8 @@
 @props(['href', 'active' => false, 'badge' => null])
 
 @php
-$isActive = $active || request()->is(ltrim(parse_url($href, PHP_URL_PATH), '/') . '*');
+$path = ltrim(parse_url($href, PHP_URL_PATH), '/');
+$isActive = $active || request()->is($path) || request()->is($path . '/*');
 @endphp
 
 <a href="{{ $href }}"
