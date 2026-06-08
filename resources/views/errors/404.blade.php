@@ -1,4 +1,4 @@
-<x-auth title="Halaman Tidak Ditemukan">
+<x-auth title="Page Not Found">
     <div class="text-center">
         <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -6,8 +6,8 @@
             </svg>
         </div>
         <h2 class="text-2xl font-bold text-slate-900 mb-2">404</h2>
-        <p class="text-sm font-medium text-slate-700 mb-1">Halaman Tidak Ditemukan</p>
-        <p class="text-sm text-slate-400 mb-6">Halaman yang Anda cari tidak ada atau telah dipindahkan.</p>
-        <x-btn href="{{ route('login') }}">Ke Halaman Utama</x-btn>
+        <p class="text-sm font-medium text-slate-700 mb-1">Page Not Found</p>
+        <p class="text-sm text-slate-400 mb-6">The page you're looking for doesn't exist or has been moved.</p>
+        <x-btn href="{{ route('login') }}">Go to Homepage</x-btn>
     </div>
 </x-auth>

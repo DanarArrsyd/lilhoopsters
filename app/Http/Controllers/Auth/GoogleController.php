@@ -21,7 +21,7 @@ class GoogleController extends Controller
         try {
             $googleUser = Socialite::driver('google')->user();
         } catch (\Exception $e) {
-            return redirect()->route('login')->with('error', 'Login Google gagal. Silakan coba lagi.');
+            return redirect()->route('login')->with('error', 'Google sign-in failed. Please try again.');
         }
 
         // Find by google_id first, then by email (separate queries to avoid account hijack)
@@ -48,12 +48,12 @@ class GoogleController extends Controller
         }
 
         if (! $user->is_active) {
-            return redirect()->route('login')->with('error', 'Akun Anda dinonaktifkan.');
+            return redirect()->route('login')->with('error', 'Your account has been deactivated.');
         }
 
         // Check rejected BEFORE logging in (avoid creating then destroying session)
         if ($user->registration_status === 'rejected') {
-            return redirect()->route('login')->with('error', 'Pendaftaran Anda ditolak.');
+            return redirect()->route('login')->with('error', 'Your registration has been rejected.');
         }
 
         Auth::login($user, remember: true);

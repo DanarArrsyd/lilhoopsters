@@ -7,6 +7,6 @@
     </x-slot>
 
     <x-card title="Dashboard Admin">
-        <p class="text-slate-500">Selamat datang di Admin Panel BasketManage.</p>
+        <p class="text-slate-500">Welcome to the Admin Panel.</p>
     </x-card>
 </x-admin>

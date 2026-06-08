@@ -21,11 +21,11 @@ class RegistrationStatusMiddleware
         }
 
         if ($user->registration_status === 'rejected') {
-            abort(403, 'Pendaftaran Anda ditolak. Hubungi admin untuk informasi lebih lanjut.');
+            abort(403, 'Your registration has been rejected. Please contact admin for more information.');
         }
 
         if (! $user->is_active) {
-            abort(403, 'Akun Anda dinonaktifkan. Hubungi admin.');
+            abort(403, 'Your account has been deactivated. Please contact admin.');
         }
 
         return $next($request);

@@ -24,7 +24,7 @@ class LoginController extends Controller
 
         if (! Auth::attempt($credentials, $request->boolean('remember'))) {
             throw ValidationException::withMessages([
-                'email' => 'Email atau password salah.',
+                'email' => 'Incorrect email or password.',
             ]);
         }
 
@@ -39,7 +39,7 @@ class LoginController extends Controller
         if ($user->registration_status === 'rejected') {
             Auth::logout();
             throw ValidationException::withMessages([
-                'email' => 'Pendaftaran Anda ditolak. Hubungi admin.',
+                'email' => 'Your registration has been rejected. Please contact admin.',
             ]);
         }
 

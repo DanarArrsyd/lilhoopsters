@@ -1,6 +1,6 @@
-<x-auth title="Login">
-    <h2 class="text-xl font-bold text-slate-900 mb-1">Selamat datang!</h2>
-    <p class="text-sm text-slate-500 mb-6">Login ke akun Anda</p>
+<x-auth title="Sign In">
+    <h2 class="text-xl font-bold text-slate-900 mb-1">Welcome back!</h2>
+    <p class="text-sm text-slate-500 mb-6">Sign in to your account</p>
 
     @if (session('error'))
         <x-alert type="error" class="mb-4">{{ session('error') }}</x-alert>
@@ -14,28 +14,28 @@
             <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
             <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
         </svg>
-        Lanjutkan dengan Google
+        Continue with Google
     </a>
 
     <div class="flex items-center gap-3 mb-6">
         <div class="flex-1 h-px bg-slate-200"></div>
-        <span class="text-xs text-slate-400">atau</span>
+        <span class="text-xs text-slate-400">or</span>
         <div class="flex-1 h-px bg-slate-200"></div>
     </div>
 
     <form method="POST" action="{{ route('login.post') }}" class="space-y-4">
         @csrf
-        <x-input label="Email" type="email" name="email" value="{{ old('email') }}" placeholder="email@contoh.com" required autocomplete="email" :error="$errors->first('email')" />
+        <x-input label="Email" type="email" name="email" value="{{ old('email') }}" placeholder="you@example.com" required autocomplete="email" :error="$errors->first('email')" />
         <x-input label="Password" type="password" name="password" placeholder="••••••••" required autocomplete="current-password" :error="$errors->first('password')" />
         <div class="flex items-center justify-between">
             <label class="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
-                <input type="checkbox" name="remember" class="rounded border-slate-300 text-orange-500"> Ingat saya
+                <input type="checkbox" name="remember" class="rounded border-slate-300 text-orange-500"> Remember me
             </label>
         </div>
-        <x-btn type="submit" class="w-full justify-center">Masuk</x-btn>
+        <x-btn type="submit" class="w-full justify-center">Sign In</x-btn>
     </form>
 
     <p class="text-center text-sm text-slate-500 mt-6">
-        Belum punya akun? <a href="{{ route('register') }}" class="text-orange-500 hover:text-orange-600 font-medium">Daftar sekarang</a>
+        New here? <a href="{{ route('register') }}" class="text-orange-500 hover:text-orange-600 font-medium">Create an account</a>
     </p>
 </x-auth>
