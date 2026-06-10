@@ -1,13 +1,13 @@
 <x-auth title="Sign In">
-    <h2 class="text-xl font-bold text-slate-900 mb-1">Welcome back!</h2>
-    <p class="text-sm text-slate-500 mb-6">Sign in to your account</p>
+    <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy mb-1">Welcome back</h2>
+    <p class="text-sm text-muted mb-6">Sign in to your account</p>
 
     @if (session('error'))
         <x-alert type="error" class="mb-4">{{ session('error') }}</x-alert>
     @endif
 
     <a href="{{ route('auth.google') }}"
-       class="flex items-center justify-center gap-3 w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors mb-6">
+       class="flex items-center justify-center gap-3 w-full border border-line rounded-xl px-4 py-3 text-sm font-semibold text-ink hover:bg-off transition-colors mb-6">
         <svg class="w-5 h-5" viewBox="0 0 24 24">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
             <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -18,9 +18,9 @@
     </a>
 
     <div class="flex items-center gap-3 mb-6">
-        <div class="flex-1 h-px bg-slate-200"></div>
-        <span class="text-xs text-slate-400">or</span>
-        <div class="flex-1 h-px bg-slate-200"></div>
+        <div class="flex-1 h-px bg-line"></div>
+        <span class="text-xs text-faint uppercase tracking-wide">or</span>
+        <div class="flex-1 h-px bg-line"></div>
     </div>
 
     <form method="POST" action="{{ route('login.post') }}" class="space-y-4">
@@ -28,14 +28,14 @@
         <x-input label="Email" type="email" name="email" value="{{ old('email') }}" placeholder="you@example.com" required autocomplete="email" :error="$errors->first('email')" />
         <x-input label="Password" type="password" name="password" placeholder="••••••••" required autocomplete="current-password" :error="$errors->first('password')" />
         <div class="flex items-center justify-between">
-            <label class="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
-                <input type="checkbox" name="remember" class="rounded border-slate-300 text-orange-500"> Remember me
+            <label class="flex items-center gap-2 text-sm text-muted cursor-pointer">
+                <input type="checkbox" name="remember" class="rounded border-line text-navy focus:ring-navy/20"> Remember me
             </label>
         </div>
-        <x-btn type="submit" class="w-full justify-center">Sign In</x-btn>
+        <x-btn type="submit" class="w-full">Sign In</x-btn>
     </form>
 
-    <p class="text-center text-sm text-slate-500 mt-6">
-        New here? <a href="{{ route('register') }}" class="text-orange-500 hover:text-orange-600 font-medium">Create an account</a>
+    <p class="text-center text-sm text-muted mt-6">
+        New here? <a href="{{ route('register') }}" class="text-navy font-bold hover:underline">Create an account</a>
     </p>
 </x-auth>
