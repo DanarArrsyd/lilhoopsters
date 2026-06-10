@@ -2,11 +2,11 @@
 
 @php
 $classes = match($type) {
-    'success' => 'border-l-4 border-green-500 bg-green-50 text-green-800',
-    'error'   => 'border-l-4 border-red-500 bg-red-50 text-red-800',
-    'warning' => 'border-l-4 border-amber-500 bg-amber-50 text-amber-800',
-    'info'    => 'border-l-4 border-blue-500 bg-blue-50 text-blue-800',
-    default   => 'border-l-4 border-green-500 bg-green-50 text-green-800',
+    'success' => 'border-l-4 border-[#15803D] bg-[#15803D]/8 text-[#15803D]',
+    'error'   => 'border-l-4 border-[#B91C1C] bg-[#B91C1C]/8 text-[#B91C1C]',
+    'warning' => 'border-l-4 border-[#B45309] bg-[#B45309]/8 text-[#B45309]',
+    'info'    => 'border-l-4 border-[#1D4ED8] bg-[#1D4ED8]/8 text-[#1D4ED8]',
+    default   => 'border-l-4 border-[#15803D] bg-[#15803D]/8 text-[#15803D]',
 };
 @endphp
 
