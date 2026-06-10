@@ -44,7 +44,7 @@
             </thead>
             <tbody class="divide-y divide-line">
                 @forelse ($packages as $package)
-                    <tr class="hover:bg-navy/8 transition-colors">
+                    <tr class="hover:bg-off transition-colors">
                         <td class="py-3 px-4">
                             <div class="font-semibold text-ink">{{ $package->name }}</div>
                             @if ($package->is_popular)
