@@ -14,7 +14,7 @@
     /* Text */
     --color-ink:     #0A0F1E;
     --color-muted:   #6B7280;
-    --color-faint:   #9AA0AC;
+    --color-faint:   #9AA0AC; /* decorative / placeholder only — fails AA for body text */
 
     /* Functional status (small doses only) */
     --color-success: #15803D;

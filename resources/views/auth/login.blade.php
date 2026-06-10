@@ -29,7 +29,7 @@
         <x-input label="Password" type="password" name="password" placeholder="••••••••" required autocomplete="current-password" :error="$errors->first('password')" />
         <div class="flex items-center justify-between">
             <label class="flex items-center gap-2 text-sm text-muted cursor-pointer">
-                <input type="checkbox" name="remember" class="rounded border-line text-navy focus:ring-navy/20"> Remember me
+                <input type="checkbox" name="remember" class="rounded border-line accent-navy focus:ring-navy/20"> Remember me
             </label>
         </div>
         <x-btn type="submit" class="w-full">Sign In</x-btn>
