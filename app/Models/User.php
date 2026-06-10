@@ -42,6 +42,11 @@ class User extends Authenticatable
         return $this->hasOne(Coach::class);
     }
 
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
     public function appNotifications(): HasMany
     {
         return $this->hasMany(Notification::class);
