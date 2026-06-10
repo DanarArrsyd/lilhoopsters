@@ -47,7 +47,8 @@
                             </td>
                             <td class="py-3 px-4">
                                 <div class="flex items-center gap-2 justify-end">
-                                    <x-btn variant="ghost" size="sm" wire:click="openEdit({{ $program->id }})">Edit</x-btn>
+                                    <x-btn variant="ghost" size="sm" wire:click="openEdit({{ $program->id }})"
+                                           wire:loading.attr="disabled">Edit</x-btn>
                                     <x-btn variant="ghost" size="sm"
                                            wire:click="toggleActive({{ $program->id }})"
                                            wire:loading.attr="disabled"
