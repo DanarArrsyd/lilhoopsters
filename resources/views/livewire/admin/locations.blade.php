@@ -34,7 +34,7 @@
                 <tbody class="divide-y divide-line">
                     @forelse ($locations as $location)
                         <tr class="hover:bg-off transition-colors">
-                            <td class="py-3 px-4 font-medium text-navy">{{ $location->name }}</td>
+                            <td class="py-3 px-4 font-semibold text-ink">{{ $location->name }}</td>
                             <td class="py-3 px-4 text-muted max-w-xs truncate">{{ $location->address }}</td>
                             <td class="py-3 px-4 text-muted">{{ $location->city }}</td>
                             <td class="py-3 px-4">
@@ -45,12 +45,14 @@
                             <td class="py-3 px-4">
                                 <div class="flex items-center gap-2 justify-end">
                                     <x-btn variant="ghost" size="sm" wire:click="openEdit({{ $location->id }})">Edit</x-btn>
-                                    <x-btn variant="ghost" size="sm" wire:click="toggleActive({{ $location->id }})">
+                                    <x-btn variant="ghost" size="sm" wire:click="toggleActive({{ $location->id }})"
+                                           wire:loading.attr="disabled">
                                         {{ $location->is_active ? 'Deactivate' : 'Activate' }}
                                     </x-btn>
-                                    <x-btn variant="danger" size="sm"
+                                    <x-btn variant="ghost" size="sm"
                                            wire:click="confirmDelete({{ $location->id }})"
-                                           wire:confirm="Delete this location?">Delete</x-btn>
+                                           wire:confirm="Delete this location?"
+                                           wire:loading.attr="disabled">Delete</x-btn>
                                 </div>
                             </td>
                         </tr>
