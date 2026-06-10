@@ -3,7 +3,5 @@
         <x-admin-nav />
     </x-slot>
 
-    <x-card title="Dashboard">
-        <p class="text-slate-500">Welcome to the Admin Panel.</p>
-    </x-card>
+    <livewire:admin.dashboard />
 </x-admin>
