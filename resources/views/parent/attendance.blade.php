@@ -3,5 +3,5 @@
         <x-parent-nav />
     </x-slot>
 
-    <livewire:portal.attendance />
+    <livewire:portal.attendance-history />
 </x-parent-portal>
