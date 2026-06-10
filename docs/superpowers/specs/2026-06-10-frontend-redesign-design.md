@@ -68,7 +68,7 @@ Existing component files to redesign (keep names so views don't break): `btn`, `
 ### 2.5 Responsive rules (mobile-first, all screens)
 - Authored mobile-first; scale up with `sm: md: lg:` breakpoints.
 - **< 768px:** every multi-column layout collapses to single column. No horizontal scroll anywhere.
-- **Sidebars:** off-canvas drawer on mobile (existing hamburger pattern kept), fixed on `lg:`.
+- **Sidebars:** off-white background with `--color-line` right border; **active nav item = navy fill, off-white text**, inactive = navy text on transparent with subtle hover tint. Off-canvas drawer on mobile (existing hamburger pattern kept), fixed on `lg:`.
 - **Parent portal mobile:** bottom tab nav for thumb reach + off-canvas for secondary items.
 - **Tables → cards** on mobile.
 - Headlines via `clamp()`; section vertical gaps via `clamp(2rem, 6vw, 4rem)`.
@@ -76,9 +76,9 @@ Existing component files to redesign (keep names so views don't break): `btn`, `
 - All interactive elements ≥ 44px tap target.
 
 ### 2.6 Layout shells (`resources/views/components/`)
-All four shells (`admin`, `coach`, `parent-portal`, `superadmin`) and `auth` move to the **light theme**: off-white content background, navy sidebar retained (sidebar stays dark navy as the brand anchor; content is light). Topbar white. `auth` becomes a light card on a soft neutral/off-white backdrop with prominent navy logo (replacing the current dark gradient).
+All four shells (`admin`, `coach`, `parent-portal`, `superadmin`) and `auth` move to the **light theme**: off-white content background, **off-white sidebar** (with a `--color-line` right border) whose **active item is navy-filled**. Topbar white. `auth` becomes a light card on a soft neutral/off-white backdrop with prominent navy logo (replacing the current dark gradient).
 
-> Decision: per the approved direction, page **backgrounds** are light everywhere. The **sidebar remains navy** (brand anchor + nav contrast). The parent portal may use a navy header *band* on mobile for contrast — confirmed acceptable.
+> Decision: per the approved direction, everything is light — including the sidebar (off-white, navy active item). Navy is used for the active nav state, primary buttons, headings, and small accent surfaces. The parent portal may use a navy header *band* on mobile for contrast — confirmed acceptable.
 
 ---
 
@@ -108,17 +108,23 @@ All UI copy → **full native English** across every view (several views/nav cur
 
 ---
 
-## 4. Rollout (phased)
+## 4. Rollout (incremental, page-by-page)
 
-Each phase is independently shippable and verifiable in the browser. Phase 1 must land before others since everything depends on the tokens/components.
+We build **one page at a time**, each its own task, verifiable in the browser before moving on. We start with **Login**. Foundations (tokens + the handful of components a page needs) are introduced lazily — established the first time a page needs them, then reused.
 
-1. **Phase 1 — Foundations:** rewrite `app.css` tokens (two-tone + status, Arial), redesign shared `x-` components (btn, card, badge, input, alert, empty-state, sidebar-link/section), and the layout shells (admin, coach, parent-portal, superadmin, auth). Convert nav grouping (admin) + English labels (coach).
-2. **Phase 2 — Auth:** login, register wizard, pending — immersive light, prominent logo.
-3. **Phase 3 — Admin + Superadmin:** all admin CRUD/list pages + superadmin pages, using the new components.
-4. **Phase 4 — Coach:** dashboard (with QR quick action), QR scanner, check-in, roster, schedules, take-attendance, report-cards.
-5. **Phase 5 — Parent Portal:** consolidated per-child page + supporting drill-down pages, mobile bottom-nav.
+**Task 1 — Login page (first).** Redesign `auth/login.blade.php` + the `auth` layout shell. This task also lands the *minimal* foundations the login page depends on, so they're ready for everything after:
+- `app.css` tokens: two-tone palette + status colors + Arial stack; drop the Inter `<link>` and Inter token.
+- `x-btn` (primary/secondary) and `x-input` redesigned.
+- `auth` shell: light backdrop, prominent navy logo, light card, English copy.
 
-Phase 1 will be turned into the first detailed implementation plan; later phases get their own plans as we reach them.
+**Subsequent tasks (one page each, order flexible):**
+2. Register wizard, 3. Pending page.
+4. Shared shells + nav (admin off-white sidebar w/ grouped nav, coach off-white sidebar w/ English labels, superadmin, parent-portal) + remaining shared components (card, badge, alert, empty-state, sidebar-link/section) — folded in as the first admin/coach/portal page is built.
+5+. Admin pages (dashboard, then list/CRUD pages), Superadmin pages.
+N. Coach pages (dashboard w/ QR quick action, qr-scanner, check-in, roster, schedules, take-attendance, report-cards).
+N. Parent portal: consolidated per-child page + drill-down pages, mobile bottom-nav.
+
+Each task gets verified (build + render + tests green) before the next. We'll write a focused implementation plan for **Task 1 (Login)** now; later tasks get planned as we reach them.
 
 ---
 
