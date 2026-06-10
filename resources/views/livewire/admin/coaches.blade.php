@@ -1,9 +1,9 @@
 <div>
     {{-- Header --}}
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex items-start justify-between gap-4 mb-6">
         <div>
-            <h2 class="text-lg font-semibold text-slate-900">Coaches</h2>
-            <p class="text-sm text-slate-500">Manage coach accounts and location assignments</p>
+            <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Coaches</h2>
+            <p class="text-sm text-muted">Manage coach accounts and location assignments.</p>
         </div>
         <x-btn wire:click="openCreate">+ Add Coach</x-btn>
     </div>
@@ -16,68 +16,74 @@
         <x-input wire:model.live.debounce.300ms="search" placeholder="Search by name or email..." />
     </x-card>
 
-    <x-card>
-        <table class="w-full text-sm">
-            <thead>
-                <tr class="border-b border-slate-100">
-                    <th class="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wide">Coach</th>
-                    <th class="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wide">Phone</th>
-                    <th class="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wide">Specialization</th>
-                    <th class="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wide">Locations</th>
-                    <th class="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wide">Status</th>
-                    <th class="py-3 px-4"></th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-50">
-                @forelse ($coaches as $coach)
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="py-3 px-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 font-semibold text-sm shrink-0">
-                                    {{ strtoupper(substr($coach->user->name, 0, 1)) }}
-                                </div>
-                                <div>
-                                    <p class="font-medium text-slate-900">{{ $coach->user->name }}</p>
-                                    <p class="text-xs text-slate-400">{{ $coach->user->email }}</p>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="py-3 px-4 text-slate-600">{{ $coach->phone }}</td>
-                        <td class="py-3 px-4 text-slate-500">{{ $coach->specialization ?? '—' }}</td>
-                        <td class="py-3 px-4">
-                            @forelse ($coach->locations as $loc)
-                                <span class="inline-flex items-center rounded-full bg-blue-50 text-blue-700 text-[11px] font-medium px-2 py-0.5 mr-1">
-                                    {{ $loc->name }}
-                                </span>
-                            @empty
-                                <span class="text-slate-400 text-xs">—</span>
-                            @endforelse
-                        </td>
-                        <td class="py-3 px-4">
-                            <x-badge :status="$coach->is_active ? 'active' : 'inactive'">
-                                {{ $coach->is_active ? 'Active' : 'Inactive' }}
-                            </x-badge>
-                        </td>
-                        <td class="py-3 px-4">
-                            <div class="flex items-center gap-2 justify-end">
-                                <x-btn variant="ghost" size="sm" wire:click="openEdit({{ $coach->id }})">Edit</x-btn>
-                                <x-btn variant="ghost" size="sm" wire:click="toggleActive({{ $coach->id }})">
-                                    {{ $coach->is_active ? 'Deactivate' : 'Activate' }}
-                                </x-btn>
-                            </div>
-                        </td>
+    <x-card padding="p-0">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm min-w-[640px]">
+                <thead>
+                    <tr class="border-b border-line">
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Coach</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Phone</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Specialization</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Locations</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Status</th>
+                        <th class="py-3 px-4"></th>
                     </tr>
-                @empty
-                    <tr>
-                        <td colspan="6" class="py-2">
-                            <x-empty-state title="No coaches yet" description="Add your first coach account." />
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+                </thead>
+                <tbody class="divide-y divide-line">
+                    @forelse ($coaches as $coach)
+                        <tr class="hover:bg-off transition-colors">
+                            <td class="py-3 px-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 bg-navy/8 text-navy">
+                                        {{ strtoupper(substr($coach->user->name, 0, 1)) }}
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-ink">{{ $coach->user->name }}</p>
+                                        <p class="text-xs text-faint">{{ $coach->user->email }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-3 px-4 text-muted">{{ $coach->phone }}</td>
+                            <td class="py-3 px-4 text-muted">{{ $coach->specialization ?? '—' }}</td>
+                            <td class="py-3 px-4">
+                                @forelse ($coach->locations as $loc)
+                                    <span class="inline-flex items-center bg-navy/8 text-navy text-[11px] font-semibold px-2 py-0.5 rounded-full mr-1">
+                                        {{ $loc->name }}
+                                    </span>
+                                @empty
+                                    <span class="text-faint text-xs">—</span>
+                                @endforelse
+                            </td>
+                            <td class="py-3 px-4">
+                                <x-badge :status="$coach->is_active ? 'active' : 'inactive'">
+                                    {{ $coach->is_active ? 'Active' : 'Inactive' }}
+                                </x-badge>
+                            </td>
+                            <td class="py-3 px-4">
+                                <div class="flex items-center gap-2 justify-end">
+                                    <x-btn variant="ghost" size="sm"
+                                        wire:click="openEdit({{ $coach->id }})"
+                                        wire:loading.attr="disabled">Edit</x-btn>
+                                    <x-btn variant="ghost" size="sm"
+                                        wire:click="toggleActive({{ $coach->id }})"
+                                        wire:loading.attr="disabled">
+                                        {{ $coach->is_active ? 'Deactivate' : 'Activate' }}
+                                    </x-btn>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="py-2">
+                                <x-empty-state title="No coaches yet" description="Add your first coach account." />
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
         @if ($coaches->hasPages())
-            <div class="px-4 py-3 border-t border-slate-100">
+            <div class="px-4 py-3 border-t border-line">
                 {{ $coaches->links() }}
             </div>
         @endif
@@ -85,15 +91,12 @@
 
     {{-- Modal --}}
     @if ($showModal)
-        <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-            <div class="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-                <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 sticky top-0 bg-white">
-                    <h3 class="font-semibold text-slate-900">{{ $editingId ? 'Edit Coach' : 'Add Coach' }}</h3>
-                    <button wire:click="$set('showModal', false)" class="text-slate-400 hover:text-slate-600 transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                    </button>
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-navy/40" wire:click="$set('showModal', false)"></div>
+            <div class="relative bg-surface rounded-2xl border border-line shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+                <div class="sticky top-0 bg-surface flex items-center justify-between px-6 py-4 border-b border-line z-10">
+                    <h3 class="text-lg font-extrabold uppercase tracking-tight text-navy">{{ $editingId ? 'Edit Coach' : 'New Coach' }}</h3>
+                    <button wire:click="$set('showModal', false)" class="text-muted hover:text-navy p-1 leading-none">✕</button>
                 </div>
                 <div class="p-6 space-y-4">
                     <x-input wire:model="coach_name" label="Full Name" placeholder="Coach name"
@@ -112,28 +115,26 @@
 
                     @if ($locations->count() > 0)
                         <div class="space-y-2">
-                            <label class="block text-sm font-medium text-slate-700">Assigned Locations</label>
-                            <div class="space-y-1.5 border border-slate-200 rounded-lg p-3">
+                            <label class="block text-xs font-semibold uppercase tracking-wide text-navy">Assigned Locations</label>
+                            <div class="space-y-1.5 border border-line rounded-xl p-3">
                                 @foreach ($locations as $loc)
-                                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
-                                        <input type="checkbox" wire:model="selectedLocations" value="{{ $loc->id }}"
-                                               class="rounded border-slate-300 text-orange-500 focus:ring-orange-500">
+                                    <label class="flex items-center gap-2 text-sm text-ink cursor-pointer">
+                                        <input type="checkbox" wire:model="selectedLocations" value="{{ $loc->id }}" class="rounded accent-navy">
                                         {{ $loc->name }}
-                                        <span class="text-xs text-slate-400">{{ $loc->city }}</span>
+                                        <span class="text-xs text-faint">{{ $loc->city }}</span>
                                     </label>
                                 @endforeach
                             </div>
                         </div>
                     @endif
 
-                    <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
-                        <input type="checkbox" wire:model="is_active" class="rounded border-slate-300 text-orange-500 focus:ring-orange-500">
-                        Active
+                    <label class="flex items-center gap-2 text-sm text-ink cursor-pointer">
+                        <input type="checkbox" wire:model="is_active" class="rounded accent-navy"> Active
                     </label>
                 </div>
                 <div class="flex gap-3 px-6 pb-6">
-                    <x-btn variant="secondary" class="flex-1 justify-center" wire:click="$set('showModal', false)">Cancel</x-btn>
-                    <x-btn class="flex-1 justify-center" wire:click="save" wire:loading.attr="disabled">
+                    <x-btn variant="secondary" class="flex-1" wire:click="$set('showModal', false)">Cancel</x-btn>
+                    <x-btn class="flex-1" wire:click="save" wire:loading.attr="disabled">
                         <span wire:loading.remove wire:target="save">{{ $editingId ? 'Update' : 'Create' }}</span>
                         <span wire:loading wire:target="save">Saving...</span>
                     </x-btn>
