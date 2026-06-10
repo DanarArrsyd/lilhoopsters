@@ -65,5 +65,11 @@ Route::middleware(['auth', 'role:parent', 'registration.status'])
     ->prefix('parent')
     ->name('parent.')
     ->group(function () {
-        Route::get('/dashboard', fn() => view('parent.dashboard'))->name('dashboard');
+        Route::get('/dashboard',  fn() => view('parent.dashboard'))->name('dashboard');
+        Route::get('/players',    fn() => view('parent.players'))->name('players');
+        Route::get('/enroll',     fn() => view('parent.enroll'))->name('enroll');
+        Route::get('/payments',   fn() => view('parent.payments'))->name('payments');
+        Route::get('/leaves',     fn() => view('parent.leaves'))->name('leaves');
+        Route::get('/attendance', fn() => view('parent.attendance'))->name('attendance');
+        Route::get('/profile',    fn() => view('parent.profile'))->name('profile');
     });

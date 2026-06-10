@@ -1,7 +1,7 @@
-<x-parent-portal title="Dashboard">
+<x-parent-portal title="Payments">
     <x-slot name="navigation">
         <x-parent-nav />
     </x-slot>
 
-    <livewire:portal.dashboard />
+    <livewire:portal.payments />
 </x-parent-portal>
