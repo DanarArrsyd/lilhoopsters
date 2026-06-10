@@ -77,7 +77,8 @@
                                     @if ($trx->status === 'pending')
                                         <x-btn variant="primary" size="sm" wire:click="verify({{ $trx->id }})"
                                                wire:loading.attr="disabled">Verify</x-btn>
-                                        <x-btn variant="danger" size="sm" wire:click="reject({{ $trx->id }})">Reject</x-btn>
+                                        <x-btn variant="danger" size="sm" wire:click="reject({{ $trx->id }})"
+                                               wire:loading.attr="disabled">Reject</x-btn>
                                     @endif
                                 </div>
                             </td>
@@ -109,6 +110,7 @@
             <div class="p-6 space-y-4">
                 <p class="text-sm text-muted">Optionally add a note for the parent:</p>
                 <textarea wire:model="adminNote" rows="3"
+                          aria-label="Rejection note for parent"
                           class="block w-full rounded-xl border border-line bg-surface px-3.5 py-3 text-sm text-ink placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-navy/15 focus:border-navy resize-none"
                           placeholder="e.g. Payment proof unclear, please re-upload..."></textarea>
             </div>
