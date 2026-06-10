@@ -8,6 +8,11 @@
         <x-btn wire:click="openCreate">+ Add Schedule</x-btn>
     </div>
 
+    {{-- Flash --}}
+    @if (session('success'))
+        <x-alert type="success" class="mb-4">{{ session('success') }}</x-alert>
+    @endif
+
     {{-- Filters --}}
     <x-card class="mb-4" padding="p-4">
         <div class="flex flex-col sm:flex-row gap-3">
