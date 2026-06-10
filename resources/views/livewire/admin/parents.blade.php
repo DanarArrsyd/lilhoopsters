@@ -50,7 +50,7 @@
                                         {{ strtoupper(substr($parent->name, 0, 1)) }}
                                     </div>
                                     <div>
-                                        <p class="font-medium text-ink">{{ $parent->name }}</p>
+                                        <p class="font-semibold text-ink">{{ $parent->name }}</p>
                                         <p class="text-xs text-faint">{{ $parent->email }}</p>
                                     </div>
                                 </div>
@@ -73,9 +73,11 @@
                                                wire:loading.attr="disabled">Reject</x-btn>
                                     @elseif ($parent->registration_status === 'approved')
                                         <x-btn variant="ghost" size="sm" wire:click="reject({{ $parent->id }})"
-                                               wire:confirm="Revoke this approval?">Revoke</x-btn>
+                                               wire:confirm="Revoke this approval?"
+                                               wire:loading.attr="disabled">Revoke</x-btn>
                                     @elseif ($parent->registration_status === 'rejected')
-                                        <x-btn variant="ghost" size="sm" wire:click="approve({{ $parent->id }})">Re-approve</x-btn>
+                                        <x-btn variant="ghost" size="sm" wire:click="approve({{ $parent->id }})"
+                                               wire:loading.attr="disabled">Re-approve</x-btn>
                                     @endif
                                 </div>
                             </td>
