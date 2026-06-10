@@ -30,15 +30,16 @@
     </x-card>
 
     {{-- Table --}}
-    <x-card>
-        <table class="w-full text-sm">
+    <x-card padding="p-0">
+        <div class="overflow-x-auto">
+        <table class="w-full text-sm min-w-[640px]">
             <thead>
                 <tr class="border-b border-line">
-                    <th class="text-left py-3 px-4 text-xs font-semibold text-muted uppercase tracking-wide">Package</th>
-                    <th class="text-left py-3 px-4 text-xs font-semibold text-muted uppercase tracking-wide">Location</th>
-                    <th class="text-left py-3 px-4 text-xs font-semibold text-muted uppercase tracking-wide">Type</th>
-                    <th class="text-left py-3 px-4 text-xs font-semibold text-muted uppercase tracking-wide">Price</th>
-                    <th class="text-left py-3 px-4 text-xs font-semibold text-muted uppercase tracking-wide">Status</th>
+                    <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Package</th>
+                    <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Location</th>
+                    <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Type</th>
+                    <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Price</th>
+                    <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Status</th>
                     <th class="py-3 px-4"></th>
                 </tr>
             </thead>
@@ -87,6 +88,7 @@
                 @endforelse
             </tbody>
         </table>
+        </div>
         @if ($packages->hasPages())
             <div class="px-4 py-3 border-t border-line">
                 {{ $packages->links() }}
@@ -113,7 +115,7 @@
 
                 <x-input wire:model="name" label="Package Name" placeholder="e.g. Regular Apr–Mei" required :error="$errors->first('name')" />
 
-                <x-select wire:model.live="type" label="Type">
+                <x-select wire:model.live="type" label="Type" :error="$errors->first('type')">
                     <option value="registration">Registration</option>
                     <option value="regular">Regular</option>
                     <option value="drop_in">Drop-in</option>
