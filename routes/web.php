@@ -32,7 +32,16 @@ Route::middleware(['auth', 'role:admin,super_admin', 'registration.status'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
-        Route::get('/dashboard', fn() => view('admin.dashboard'))->name('dashboard');
+        Route::get('/dashboard',   fn() => view('admin.dashboard'))->name('dashboard');
+        Route::get('/locations',   fn() => view('admin.locations'))->name('locations');
+        Route::get('/programs',    fn() => view('admin.programs'))->name('programs');
+        Route::get('/packages',    fn() => view('admin.packages'))->name('packages');
+        Route::get('/coaches',     fn() => view('admin.coaches'))->name('coaches');
+        Route::get('/schedules',   fn() => view('admin.schedules'))->name('schedules');
+        Route::get('/parents',     fn() => view('admin.parents'))->name('parents');
+        Route::get('/players',     fn() => view('admin.players'))->name('players');
+        Route::get('/enrollments', fn() => view('admin.enrollments'))->name('enrollments');
+        Route::get('/payments',    fn() => view('admin.payments'))->name('payments');
     });
 
 // ─── Super Admin routes ───────────────────────────────────────────────
