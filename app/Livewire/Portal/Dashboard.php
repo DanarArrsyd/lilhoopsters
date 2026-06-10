@@ -26,7 +26,7 @@ class Dashboard extends Component
             'active_children'     => $user->children()->where('status', 'active')->count(),
             'pending_children'    => $user->children()->where('status', 'pending')->count(),
             'pending_enrollments' => Enrollment::whereIn('child_id', $childIds)->where('status', 'pending')->count(),
-            'active_enrollments'  => Enrollment::whereIn('child_id', $childIds)->where('status', 'active')->count(),
+            'active_enrollments'  => Enrollment::whereIn('child_id', $childIds)->where('status', 'approved')->count(),
             'pending_payments'    => Transaction::where('user_id', $user->id)->where('status', 'pending')->count(),
             'paid_payments'       => Transaction::where('user_id', $user->id)->where('status', 'paid')->count(),
         ];
