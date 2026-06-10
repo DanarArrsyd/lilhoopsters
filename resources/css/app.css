@@ -2,32 +2,32 @@
 @import "tailwindcss";
 
 @theme {
-    --font-family-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --font-sans: Arial, Helvetica, sans-serif;
 
-    --color-primary:      #1E3A5F;
-    --color-accent:       #F97316;
-    --color-bg:           #F8FAFC;
-    --color-surface:      #FFFFFF;
-    --color-border:       #E2E8F0;
+    /* Brand two-tone */
+    --color-navy:    #0A0F1E;
+    --color-navy-2:  #141B2E;
+    --color-off:     #FAF9F6;
+    --color-surface: #FFFFFF;
+    --color-line:    #E6E3DC;
 
-    --color-text-1:       #0F172A;
-    --color-text-2:       #475569;
-    --color-text-3:       #94A3B8;
+    /* Text */
+    --color-ink:     #0A0F1E;
+    --color-muted:   #6B7280;
+    --color-faint:   #9AA0AC;
 
-    --color-sidebar:      #0F1F38;
-    --color-sidebar-text: #CBD5E1;
-
-    --color-success:      #16A34A;
-    --color-warning:      #D97706;
-    --color-danger:       #DC2626;
-    --color-info:         #2563EB;
+    /* Functional status (small doses only) */
+    --color-success: #15803D;
+    --color-warning: #B45309;
+    --color-danger:  #B91C1C;
+    --color-info:    #1D4ED8;
 }
 
 @layer base {
     body {
-        font-family: var(--font-family-sans);
-        background-color: var(--color-bg);
-        color: var(--color-text-2);
+        font-family: var(--font-sans);
+        background-color: var(--color-off);
+        color: var(--color-ink);
     }
 
     * {
@@ -36,8 +36,8 @@
 }
 
 @layer components {
+    /* Active sidebar item: navy fill, off-white text (used by later nav redesign) */
     .sidebar-active {
-        @apply bg-orange-500/20 text-orange-400 font-medium;
-        border-left: 2px solid #F97316;
+        @apply bg-navy text-off font-semibold;
     }
 }
