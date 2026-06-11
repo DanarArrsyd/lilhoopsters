@@ -9,13 +9,9 @@
 
             {{-- Logo --}}
             <div class="h-16 flex items-center gap-3 px-4 border-b border-line">
-                <div class="w-9 h-9 bg-navy rounded-xl flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5 text-off" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/>
-                    </svg>
-                </div>
+                <img src="{{ asset('basket_logo.jpeg') }}" alt="Lil' Hoopsters" class="w-9 h-9 rounded-xl object-cover shrink-0">
                 <div>
-                    <p class="text-navy font-extrabold text-sm uppercase tracking-tight leading-tight">BasketManage</p>
+                    <p class="text-navy font-extrabold text-sm uppercase tracking-tight leading-tight">Lil' Hoopsters</p>
                     <p class="text-faint text-[10px] uppercase tracking-wide">Super Admin</p>
                 </div>
             </div>
