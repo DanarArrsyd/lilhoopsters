@@ -70,7 +70,7 @@
                     @empty
                         <tr>
                             <td colspan="6" class="py-2">
-                                <x-empty-state title="No report cards yet" description="Create the first report card for a student." />
+                                <x-empty-state title="No report cards found" description="Create the first report card for a student." />
                             </td>
                         </tr>
                     @endforelse
