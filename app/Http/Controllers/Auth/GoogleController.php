@@ -44,6 +44,7 @@ class GoogleController extends Controller
                 'google_id'           => $googleUser->getId(),
                 'avatar'              => $googleUser->getAvatar(),
                 'registration_status' => 'pending',
+                'is_active'           => true,
             ]);
         }
 
