@@ -5,11 +5,17 @@ namespace App\Livewire\Portal;
 use App\Models\Child;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class MyPlayers extends Component
 {
     public bool $showForm  = false;
     public ?int $editingId = null;
+
+    // QR code modal
+    public bool $showQr    = false;
+    public ?int $qrChildId = null;
+    public string $qrSvg   = '';
 
     public string $name          = '';
     public string $birthDate     = '';
@@ -84,6 +90,21 @@ class MyPlayers extends Component
         $this->showForm  = false;
         $this->editingId = null;
         $this->resetForm();
+    }
+
+    public function openQr(int $id): void
+    {
+        $child = $this->ownedChild($id);
+        $this->qrChildId = $id;
+        $this->qrSvg     = (string) QrCode::format('svg')->size(200)->generate($child->qr_identifier);
+        $this->showQr    = true;
+    }
+
+    public function closeQr(): void
+    {
+        $this->showQr    = false;
+        $this->qrChildId = null;
+        $this->qrSvg     = '';
     }
 
     public function render()

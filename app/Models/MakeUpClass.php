@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MakeUpClass extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'child_id', 'enrollment_id', 'leave_request_id', 'target_schedule_id',
         'target_date', 'status', 'admin_notes', 'approved_by', 'approved_at',

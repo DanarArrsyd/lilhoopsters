@@ -40,8 +40,12 @@ Route::middleware(['auth', 'role:admin,super_admin', 'registration.status'])
         Route::get('/schedules',   fn() => view('admin.schedules'))->name('schedules');
         Route::get('/parents',     fn() => view('admin.parents'))->name('parents');
         Route::get('/players',     fn() => view('admin.players'))->name('players');
-        Route::get('/enrollments', fn() => view('admin.enrollments'))->name('enrollments');
-        Route::get('/payments',    fn() => view('admin.payments'))->name('payments');
+        Route::get('/enrollments',    fn() => view('admin.enrollments'))->name('enrollments');
+        Route::get('/payments',       fn() => view('admin.payments'))->name('payments');
+        Route::get('/attendances',    fn() => view('admin.attendances'))->name('attendances');
+        Route::get('/leave-requests', fn() => view('admin.leave-requests'))->name('leave-requests');
+        Route::get('/makeup-classes', fn() => view('admin.makeup-classes'))->name('makeup-classes');
+        Route::get('/report-cards',   fn() => view('admin.report-cards'))->name('report-cards');
     });
 
 // ─── Super Admin routes ───────────────────────────────────────────────
@@ -49,7 +53,9 @@ Route::middleware(['auth', 'role:super_admin', 'registration.status'])
     ->prefix('superadmin')
     ->name('superadmin.')
     ->group(function () {
-        Route::get('/dashboard', fn() => view('superadmin.dashboard'))->name('dashboard');
+        Route::get('/dashboard',       fn() => view('superadmin.dashboard'))->name('dashboard');
+        Route::get('/admins',          fn() => view('superadmin.admins'))->name('admins');
+        Route::get('/system-settings', fn() => view('superadmin.system-settings'))->name('system-settings');
     });
 
 // ─── Coach routes ─────────────────────────────────────────────────────
@@ -57,7 +63,13 @@ Route::middleware(['auth', 'role:coach', 'registration.status'])
     ->prefix('coach')
     ->name('coach.')
     ->group(function () {
-        Route::get('/dashboard', fn() => view('coach.dashboard'))->name('dashboard');
+        Route::get('/dashboard',   fn() => view('coach.dashboard'))->name('dashboard');
+        Route::get('/schedules',   fn() => view('coach.schedules'))->name('schedules');
+        Route::get('/attendance',  fn() => view('coach.attendance'))->name('attendance');
+        Route::get('/checkin',       fn() => view('coach.checkin'))->name('checkin');
+        Route::get('/roster',        fn() => view('coach.roster'))->name('roster');
+        Route::get('/report-cards',  fn() => view('coach.report-cards'))->name('report-cards');
+        Route::get('/qr-scanner',    fn() => view('coach.qr-scanner'))->name('qr-scanner');
     });
 
 // ─── Parent routes ────────────────────────────────────────────────────
@@ -70,6 +82,8 @@ Route::middleware(['auth', 'role:parent', 'registration.status'])
         Route::get('/enroll',     fn() => view('parent.enroll'))->name('enroll');
         Route::get('/payments',   fn() => view('parent.payments'))->name('payments');
         Route::get('/leaves',     fn() => view('parent.leaves'))->name('leaves');
-        Route::get('/attendance', fn() => view('parent.attendance'))->name('attendance');
-        Route::get('/profile',    fn() => view('parent.profile'))->name('profile');
+        Route::get('/attendance',    fn() => view('parent.attendance'))->name('attendance');
+        Route::get('/makeup',        fn() => view('parent.makeup'))->name('makeup');
+        Route::get('/report-cards',  fn() => view('parent.report-cards'))->name('report-cards');
+        Route::get('/profile',       fn() => view('parent.profile'))->name('profile');
     });
