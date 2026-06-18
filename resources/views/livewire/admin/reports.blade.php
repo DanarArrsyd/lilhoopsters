@@ -81,7 +81,8 @@
         @if ($barCount === 0 || $maxAmount === 0)
             <x-empty-state>No paid transactions in this period.</x-empty-state>
         @else
-            <div class="overflow-x-auto" x-data="{ tooltip: null, tooltipX: 0, tooltipY: 0 }">
+            <div class="overflow-x-auto relative" x-data="{ tooltip: null, tooltipX: 0, tooltipY: 0 }"
+                 x-on:mousemove="tooltipX = $event.offsetX; tooltipY = $event.offsetY">
                 <svg viewBox="0 0 {{ $svgW }} {{ $chartH + 36 }}"
                      width="100%" preserveAspectRatio="none"
                      style="min-width:{{ min($svgW, 300) }}px; height:{{ $chartH + 36 }}px;"
@@ -106,7 +107,7 @@
                             $labelId = "tip-{$i}";
                         @endphp
 
-                        <g x-on:mouseenter="tooltip='{{ addslashes($bucket['label']) }}: Rp {{ number_format($bucket['amount'], 0, ',', '.') }}'; tooltipX={{ $barX + $barW / 2 }}; tooltipY={{ $barY }}"
+                        <g x-on:mouseenter="tooltip='{{ addslashes($bucket['label']) }}: Rp {{ number_format($bucket['amount'], 0, ',', '.') }}'"
                            x-on:mouseleave="tooltip=null"
                            style="cursor:pointer">
                             <rect x="{{ $barX }}" y="{{ $barY }}"
