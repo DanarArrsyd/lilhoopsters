@@ -1,11 +1,14 @@
 <?php
 // tests/Feature/Admin/ReportsTest.php
 
+use App\Livewire\Admin\Reports;
 use App\Models\Location;
 use App\Models\Package;
 use App\Models\Role;
+use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -42,10 +45,6 @@ it('shows reports link in sidebar', function () {
 
     $response->assertSee(route('admin.reports'));
 });
-
-use App\Livewire\Admin\Reports;
-use App\Models\Transaction;
-use Livewire\Livewire;
 
 it('counts only paid transactions in total revenue', function () {
     Transaction::factory()->paid()->create([

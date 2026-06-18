@@ -96,7 +96,7 @@ class Reports extends Component
         ];
 
         // Revenue over time — daily or monthly buckets
-        $rangeDays  = (int) Carbon::parse($this->dateFrom)->diffInDays(Carbon::parse($this->dateTo)) + 1;
+        $rangeDays  = (int) $from->diffInDays($to) + 1;
         $bucketMode = $rangeDays <= 31 ? 'daily' : 'monthly';
         $chart      = $this->buildTimeChart($paid, $from, $to, $bucketMode);
 
