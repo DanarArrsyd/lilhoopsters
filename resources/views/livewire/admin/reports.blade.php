@@ -61,4 +61,78 @@
             </x-card>
         @endforeach
     </div>
+
+    {{-- Revenue over time --}}
+    <x-card padding="p-4" class="mb-6">
+        <h3 class="text-sm font-bold text-navy uppercase tracking-wide mb-4">Revenue Over Time
+            <span class="font-normal normal-case text-muted">({{ $bucketMode === 'daily' ? 'daily' : 'monthly' }})</span>
+        </h3>
+
+        @php
+            $chartData  = $chart;
+            $maxAmount  = collect($chartData)->max('amount') ?: 1;
+            $chartH     = 120;   // px — SVG inner height for bars
+            $barCount   = count($chartData);
+            $svgW       = max($barCount * 28, 300);
+            $barW       = max(14, intdiv($svgW, max($barCount, 1)) - 4);
+            $labelStep  = max(1, (int) ceil($barCount / 12)); // show at most 12 labels
+        @endphp
+
+        @if ($barCount === 0 || $maxAmount === 0)
+            <x-empty-state>No paid transactions in this period.</x-empty-state>
+        @else
+            <div class="overflow-x-auto" x-data="{ tooltip: null, tooltipX: 0, tooltipY: 0 }">
+                <svg viewBox="0 0 {{ $svgW }} {{ $chartH + 36 }}"
+                     width="100%" preserveAspectRatio="none"
+                     style="min-width:{{ min($svgW, 300) }}px; height:{{ $chartH + 36 }}px;"
+                     xmlns="http://www.w3.org/2000/svg">
+
+                    {{-- Gridlines (4 lines) --}}
+                    @foreach ([0.25, 0.5, 0.75, 1.0] as $frac)
+                        @php $y = $chartH - ($frac * $chartH) @endphp
+                        <line x1="0" y1="{{ $y }}" x2="{{ $svgW }}" y2="{{ $y }}"
+                              stroke="#e5e7eb" stroke-width="1"/>
+                        <text x="2" y="{{ $y - 2 }}" font-size="8" fill="#9ca3af">
+                            Rp {{ number_format($maxAmount * $frac / 1000, 0, ',', '.') }}k
+                        </text>
+                    @endforeach
+
+                    {{-- Bars --}}
+                    @foreach ($chartData as $i => $bucket)
+                        @php
+                            $barH    = (int) round($bucket['amount'] / $maxAmount * $chartH);
+                            $barX    = $i * ($barW + 4) + 2;
+                            $barY    = $chartH - $barH;
+                            $labelId = "tip-{$i}";
+                        @endphp
+
+                        <g x-on:mouseenter="tooltip='{{ addslashes($bucket['label']) }}: Rp {{ number_format($bucket['amount'], 0, ',', '.') }}'; tooltipX={{ $barX + $barW / 2 }}; tooltipY={{ $barY }}"
+                           x-on:mouseleave="tooltip=null"
+                           style="cursor:pointer">
+                            <rect x="{{ $barX }}" y="{{ $barY }}"
+                                  width="{{ $barW }}" height="{{ max($barH, 1) }}"
+                                  rx="2" fill="var(--color-navy, #1e3a5f)" opacity="0.85"/>
+                        </g>
+
+                        {{-- X-axis label (pruned) --}}
+                        @if ($i % $labelStep === 0)
+                            <text x="{{ $barX + $barW / 2 }}" y="{{ $chartH + 14 }}"
+                                  text-anchor="middle" font-size="8" fill="#6b7280">
+                                {{ $bucket['label'] }}
+                            </text>
+                        @endif
+                    @endforeach
+                </svg>
+
+                {{-- Tooltip --}}
+                <div x-show="tooltip !== null"
+                     x-cloak
+                     x-bind:style="'left:' + tooltipX + 'px; top:' + (tooltipY - 28) + 'px'"
+                     class="absolute pointer-events-none bg-navy text-off text-[10px] font-medium
+                            px-2 py-1 rounded shadow z-10 whitespace-nowrap -translate-x-1/2"
+                     x-text="tooltip">
+                </div>
+            </div>
+        @endif
+    </x-card>
 </div>
