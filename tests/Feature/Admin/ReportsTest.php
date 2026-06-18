@@ -35,3 +35,10 @@ it('non-admin cannot access reports page', function () {
         ->get(route('admin.reports'))
         ->assertForbidden();
 });
+
+it('shows reports link in sidebar', function () {
+    $response = $this->actingAs($this->admin)
+        ->get(route('admin.reports'));
+
+    $response->assertSee(route('admin.reports'));
+});
