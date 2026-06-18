@@ -246,4 +246,44 @@
             </div>
         @endif
     </x-card>
+
+    {{-- Payment funnel --}}
+    <x-card padding="p-4" class="mb-6">
+        <h3 class="text-sm font-bold text-navy uppercase tracking-wide mb-4">Payment Funnel
+            <span class="font-normal normal-case text-muted">(by initiation date)</span>
+        </h3>
+
+        @php
+            $funnelMeta = [
+                'paid'     => ['label' => 'Paid',     'bg' => 'bg-green-500',  'text' => 'text-green-700',  'light' => 'bg-green-50'],
+                'pending'  => ['label' => 'Pending',  'bg' => 'bg-amber-400',  'text' => 'text-amber-700',  'light' => 'bg-amber-50'],
+                'rejected' => ['label' => 'Rejected', 'bg' => 'bg-red-500',    'text' => 'text-red-700',    'light' => 'bg-red-50'],
+                'expired'  => ['label' => 'Expired',  'bg' => 'bg-slate-400',  'text' => 'text-slate-600',  'light' => 'bg-slate-50'],
+            ];
+        @endphp
+
+        @if ($funnelTotal === 0)
+            <p class="text-xs text-muted">No transactions initiated in this period.</p>
+        @else
+            <div class="flex h-4 rounded-full overflow-hidden mb-3">
+                @foreach ($funnelMeta as $status => $meta)
+                    @php $count = $funnel[$status] ?? 0; $pct = $funnelTotal > 0 ? round($count / $funnelTotal * 100) : 0; @endphp
+                    @if ($pct > 0)
+                        <div class="{{ $meta['bg'] }}" style="width:{{ $pct }}%" title="{{ $meta['label'] }}: {{ $count }}"></div>
+                    @endif
+                @endforeach
+            </div>
+
+            <div class="flex flex-wrap gap-3">
+                @foreach ($funnelMeta as $status => $meta)
+                    @php $count = $funnel[$status] ?? 0; $pct = $funnelTotal > 0 ? round($count / $funnelTotal * 100, 1) : 0; @endphp
+                    <div class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg {{ $meta['light'] }}">
+                        <span class="w-2 h-2 rounded-full {{ $meta['bg'] }} shrink-0"></span>
+                        <span class="{{ $meta['text'] }} text-xs font-semibold">{{ $meta['label'] }}</span>
+                        <span class="{{ $meta['text'] }} text-xs tabular-nums">{{ $count }} ({{ $pct }}%)</span>
+                    </div>
+                @endforeach
+            </div>
+        @endif
+    </x-card>
 </div>
