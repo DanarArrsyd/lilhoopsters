@@ -136,4 +136,114 @@
             </div>
         @endif
     </x-card>
+
+    {{-- Two-col breakdowns --}}
+    @php
+        $typeMeta = [
+            'registration' => ['label' => 'Registration', 'class' => 'bg-[#1D4ED8]/10 text-[#1D4ED8]', 'bar' => 'bg-[#1D4ED8]'],
+            'regular'      => ['label' => 'Regular',      'class' => 'bg-navy/10 text-navy',           'bar' => 'bg-navy'],
+            'drop_in'      => ['label' => 'Drop-in',      'class' => 'bg-[#B45309]/10 text-[#B45309]', 'bar' => 'bg-[#B45309]'],
+            'private'      => ['label' => 'Private',      'class' => 'bg-[#7C3AED]/10 text-[#7C3AED]', 'bar' => 'bg-[#7C3AED]'],
+        ];
+        $maxTypeRev     = $byType->max('revenue')     ?: 1;
+        $maxLocationRev = $byLocation->max('revenue') ?: 1;
+    @endphp
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        {{-- By package type --}}
+        <x-card padding="p-4">
+            <h3 class="text-sm font-bold text-navy uppercase tracking-wide mb-4">By Package Type</h3>
+            @forelse ($byType as $type => $data)
+                @php $meta = $typeMeta[$type] ?? ['label' => $type, 'class' => 'bg-line text-ink', 'bar' => 'bg-ink']; @endphp
+                <div class="mb-3">
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full {{ $meta['class'] }}">
+                            {{ $meta['label'] }}
+                        </span>
+                        <div class="text-right">
+                            <span class="text-xs font-bold text-ink tabular-nums">
+                                Rp {{ number_format($data['revenue'], 0, ',', '.') }}
+                            </span>
+                            <span class="text-xs text-muted ml-1">({{ $data['count'] }})</span>
+                        </div>
+                    </div>
+                    <div class="h-1.5 bg-line rounded-full overflow-hidden">
+                        <div class="{{ $meta['bar'] }} h-full rounded-full"
+                             style="width:{{ round($data['revenue'] / $maxTypeRev * 100) }}%">
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <p class="text-xs text-muted">No data in this period.</p>
+            @endforelse
+        </x-card>
+
+        {{-- By location --}}
+        <x-card padding="p-4">
+            <h3 class="text-sm font-bold text-navy uppercase tracking-wide mb-4">By Location</h3>
+            @forelse ($byLocation as $locName => $data)
+                <div class="mb-3">
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-xs font-semibold text-ink truncate max-w-[55%]">{{ $locName }}</span>
+                        <div class="text-right">
+                            <span class="text-xs font-bold text-ink tabular-nums">
+                                Rp {{ number_format($data['revenue'], 0, ',', '.') }}
+                            </span>
+                            <span class="text-xs text-muted ml-1">({{ $data['count'] }})</span>
+                        </div>
+                    </div>
+                    <div class="h-1.5 bg-line rounded-full overflow-hidden">
+                        <div class="bg-navy h-full rounded-full"
+                             style="width:{{ round($data['revenue'] / $maxLocationRev * 100) }}%">
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <p class="text-xs text-muted">No data in this period.</p>
+            @endforelse
+        </x-card>
+    </div>
+
+    {{-- Top packages table --}}
+    <x-card padding="p-0" class="mb-6 overflow-hidden">
+        <div class="px-4 pt-4 pb-3 border-b border-line">
+            <h3 class="text-sm font-bold text-navy uppercase tracking-wide">Top Packages</h3>
+            <p class="text-xs text-muted">Top 10 by revenue in period.</p>
+        </div>
+        @if ($topPackages->isEmpty())
+            <div class="p-4"><x-empty-state>No paid transactions in this period.</x-empty-state></div>
+        @else
+            <div class="overflow-x-auto">
+                <table class="w-full text-xs">
+                    <thead>
+                        <tr class="border-b border-line bg-faint">
+                            <th class="px-4 py-2.5 text-left font-semibold text-muted uppercase tracking-wide">Package</th>
+                            <th class="px-4 py-2.5 text-left font-semibold text-muted uppercase tracking-wide">Type</th>
+                            <th class="px-4 py-2.5 text-left font-semibold text-muted uppercase tracking-wide">Location</th>
+                            <th class="px-4 py-2.5 text-right font-semibold text-muted uppercase tracking-wide">Units Sold</th>
+                            <th class="px-4 py-2.5 text-right font-semibold text-muted uppercase tracking-wide">Revenue</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-line">
+                        @foreach ($topPackages as $pkg)
+                            @php $meta = $typeMeta[$pkg['type']] ?? ['label' => $pkg['type'], 'class' => 'bg-line text-ink']; @endphp
+                            <tr class="hover:bg-faint transition-colors">
+                                <td class="px-4 py-3 font-medium text-ink">{{ $pkg['name'] }}</td>
+                                <td class="px-4 py-3">
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold {{ $meta['class'] }}">
+                                        {{ $meta['label'] }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 text-muted">{{ $pkg['location'] }}</td>
+                                <td class="px-4 py-3 text-right tabular-nums text-ink">{{ $pkg['units'] }}</td>
+                                <td class="px-4 py-3 text-right tabular-nums font-bold text-ink">
+                                    Rp {{ number_format($pkg['revenue'], 0, ',', '.') }}
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </x-card>
 </div>
