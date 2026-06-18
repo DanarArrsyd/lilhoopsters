@@ -12,7 +12,7 @@ Route::get('/', fn() => redirect()->route('login'));
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login'])->name('login.post');
-    Route::get('/register', [RegisterController::class, 'showForm'])->name('register');
+    Route::get('/register', \App\Livewire\Auth\RegisterWizard::class)->name('register');
     Route::get('/auth/google', [GoogleController::class, 'redirect'])->name('auth.google');
     Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('auth.google.callback');
 });
@@ -42,10 +42,14 @@ Route::middleware(['auth', 'role:admin,super_admin', 'registration.status'])
         Route::get('/players',     fn() => view('admin.players'))->name('players');
         Route::get('/enrollments',    fn() => view('admin.enrollments'))->name('enrollments');
         Route::get('/payments',       fn() => view('admin.payments'))->name('payments');
+        Route::get('/reports',        fn() => view('admin.reports'))->name('reports');
         Route::get('/attendances',    fn() => view('admin.attendances'))->name('attendances');
         Route::get('/leave-requests', fn() => view('admin.leave-requests'))->name('leave-requests');
         Route::get('/makeup-classes', fn() => view('admin.makeup-classes'))->name('makeup-classes');
-        Route::get('/report-cards',   fn() => view('admin.report-cards'))->name('report-cards');
+        Route::get('/report-cards',     fn() => view('admin.report-cards'))->name('report-cards');
+        Route::get('/members-import',   fn() => view('admin.members-import'))->name('members-import');
+        Route::get('/members-template', [\App\Http\Controllers\Admin\MembersTemplateController::class, 'download'])->name('members.template');
+        Route::get('/profile',          fn() => view('admin.profile'))->name('profile');
     });
 
 // ─── Super Admin routes ───────────────────────────────────────────────
@@ -70,6 +74,7 @@ Route::middleware(['auth', 'role:coach', 'registration.status'])
         Route::get('/roster',        fn() => view('coach.roster'))->name('roster');
         Route::get('/report-cards',  fn() => view('coach.report-cards'))->name('report-cards');
         Route::get('/qr-scanner',    fn() => view('coach.qr-scanner'))->name('qr-scanner');
+        Route::get('/profile',       fn() => view('coach.profile'))->name('profile');
     });
 
 // ─── Parent routes ────────────────────────────────────────────────────
@@ -77,13 +82,18 @@ Route::middleware(['auth', 'role:parent', 'registration.status'])
     ->prefix('parent')
     ->name('parent.')
     ->group(function () {
+        Route::get('/complete-profile', \App\Livewire\Portal\CompleteProfile::class)->name('complete-profile');
+
+        Route::middleware('profile.complete')->group(function () {
         Route::get('/dashboard',  fn() => view('parent.dashboard'))->name('dashboard');
         Route::get('/players',    fn() => view('parent.players'))->name('players');
-        Route::get('/enroll',     fn() => view('parent.enroll'))->name('enroll');
+        Route::get('/enroll',     \App\Livewire\Portal\EnrollPlayer::class)->name('enroll');
         Route::get('/payments',   fn() => view('parent.payments'))->name('payments');
         Route::get('/leaves',     fn() => view('parent.leaves'))->name('leaves');
         Route::get('/attendance',    fn() => view('parent.attendance'))->name('attendance');
         Route::get('/makeup',        fn() => view('parent.makeup'))->name('makeup');
-        Route::get('/report-cards',  fn() => view('parent.report-cards'))->name('report-cards');
-        Route::get('/profile',       fn() => view('parent.profile'))->name('profile');
+        Route::get('/report-cards',    fn() => view('parent.report-cards'))->name('report-cards');
+        Route::get('/private',         \App\Livewire\Portal\PrivateSessions::class)->name('private');
+        Route::get('/profile',         fn() => view('parent.profile'))->name('profile');
+        }); // end profile.complete middleware group
     });
