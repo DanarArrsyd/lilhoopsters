@@ -42,3 +42,64 @@ it('shows reports link in sidebar', function () {
 
     $response->assertSee(route('admin.reports'));
 });
+
+use App\Livewire\Admin\Reports;
+use App\Models\Transaction;
+use Livewire\Livewire;
+
+it('counts only paid transactions in total revenue', function () {
+    Transaction::factory()->paid()->create([
+        'package_id' => $this->package->id,
+        'amount'     => 500000,
+        'paid_at'    => now(),
+    ]);
+    Transaction::factory()->create([          // pending — must be excluded
+        'package_id' => $this->package->id,
+        'amount'     => 300000,
+    ]);
+
+    $component = Livewire::actingAs($this->admin)->test(Reports::class);
+
+    expect($component->viewData('kpis')['total_revenue'])->toBe(500000);
+    expect($component->viewData('kpis')['paid_count'])->toBe(1);
+});
+
+it('filters revenue by location', function () {
+    $other = Location::factory()->create();
+    $pkgB  = Package::factory()->create(['location_id' => $other->id]);
+
+    Transaction::factory()->paid()->create(['package_id' => $this->package->id, 'amount' => 200000, 'paid_at' => now()]);
+    Transaction::factory()->paid()->create(['package_id' => $pkgB->id,          'amount' => 400000, 'paid_at' => now()]);
+
+    $component = Livewire::actingAs($this->admin)
+        ->test(Reports::class)
+        ->set('filterLocation', $this->location->id);
+
+    expect($component->viewData('kpis')['total_revenue'])->toBe(200000);
+});
+
+it('swaps reversed date range', function () {
+    Transaction::factory()->paid()->create([
+        'package_id' => $this->package->id,
+        'amount'     => 100000,
+        'paid_at'    => now(),
+    ]);
+
+    // dateFrom after dateTo — should swap and still find the transaction
+    $component = Livewire::actingAs($this->admin)
+        ->test(Reports::class)
+        ->set('dateFrom', now()->addDays(5)->toDateString())
+        ->set('dateTo',   now()->subDays(5)->toDateString());
+
+    expect($component->viewData('kpis')['paid_count'])->toBe(1);
+});
+
+it('shows correct conversion rate', function () {
+    // 1 paid, 1 pending — conversion = 50 %
+    Transaction::factory()->paid()->create(['package_id' => $this->package->id, 'paid_at' => now()]);
+    Transaction::factory()->create(['package_id' => $this->package->id]);
+
+    $component = Livewire::actingAs($this->admin)->test(Reports::class);
+
+    expect($component->viewData('kpis')['conversion_rate'])->toBe(50.0);
+});
