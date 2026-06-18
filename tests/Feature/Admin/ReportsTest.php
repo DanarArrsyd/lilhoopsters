@@ -102,3 +102,54 @@ it('shows correct conversion rate', function () {
 
     expect($component->viewData('kpis')['conversion_rate'])->toBe(50.0);
 });
+
+it('groups revenue by package type', function () {
+    $regPkg = Package::factory()->registration()->create(['location_id' => $this->location->id]);
+    Transaction::factory()->paid()->create(['package_id' => $this->package->id, 'amount' => 300000, 'paid_at' => now()]); // regular
+    Transaction::factory()->paid()->create(['package_id' => $regPkg->id,        'amount' => 100000, 'paid_at' => now()]); // registration
+
+    $component = Livewire::actingAs($this->admin)->test(Reports::class);
+    $byType    = $component->viewData('byType');
+
+    expect($byType->has('regular'))->toBeTrue();
+    expect($byType->has('registration'))->toBeTrue();
+    expect($byType['regular']['revenue'])->toBe(300000);
+    expect($byType['registration']['revenue'])->toBe(100000);
+});
+
+it('excludes out-of-range transactions from revenue', function () {
+    Transaction::factory()->paid()->create([
+        'package_id' => $this->package->id,
+        'amount'     => 500000,
+        'paid_at'    => now()->subYear(),   // last year — outside default "this month" range
+    ]);
+
+    $component = Livewire::actingAs($this->admin)->test(Reports::class);
+
+    expect($component->viewData('kpis')['total_revenue'])->toBe(0);
+});
+
+it('funnel counts all statuses by created_at', function () {
+    Transaction::factory()->paid()->create(['package_id' => $this->package->id, 'paid_at' => now()]);
+    Transaction::factory()->create(['package_id' => $this->package->id, 'status' => 'pending']);
+    Transaction::factory()->create(['package_id' => $this->package->id, 'status' => 'rejected']);
+
+    $component = Livewire::actingAs($this->admin)->test(Reports::class);
+    $funnel    = $component->viewData('funnel');
+
+    expect($funnel['paid'])->toBe(1);
+    expect($funnel['pending'])->toBe(1);
+    expect($funnel['rejected'])->toBe(1);
+});
+
+it('preset buttons update date range', function () {
+    $component = Livewire::actingAs($this->admin)->test(Reports::class);
+
+    $component->call('setPreset', '30d');
+    expect($component->get('preset'))->toBe('30d');
+    expect($component->get('dateFrom'))->toBe(now()->subDays(29)->toDateString());
+
+    $component->call('setPreset', 'year');
+    expect($component->get('preset'))->toBe('year');
+    expect($component->get('dateFrom'))->toBe(now()->startOfYear()->toDateString());
+});
