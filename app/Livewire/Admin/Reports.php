@@ -126,12 +126,27 @@ class Reports extends Component
             ->take(10)
             ->values();
 
+        $chartLabels  = array_column($chart, 'label');
+        $chartAmounts = array_column($chart, 'amount');
+        $chartAvg     = count($chartAmounts) > 0
+            ? (int) round(array_sum($chartAmounts) / count($chartAmounts))
+            : 0;
+
+        $this->dispatch('chart-data-ready',
+            labels: $chartLabels,
+            amounts: $chartAmounts,
+            avg: $chartAvg,
+        );
+
         return view('livewire.admin.reports', compact(
             'kpis', 'chart', 'byType', 'byLocation', 'topPackages', 'funnel',
         ))->with([
-            'locations'   => Location::where('is_active', true)->orderBy('name')->get(),
-            'bucketMode'  => $bucketMode,
-            'funnelTotal' => $funnelTotal,
+            'locations'    => Location::where('is_active', true)->orderBy('name')->get(),
+            'bucketMode'   => $bucketMode,
+            'funnelTotal'  => $funnelTotal,
+            'chartLabels'  => $chartLabels,
+            'chartAmounts' => $chartAmounts,
+            'chartAvg'     => $chartAvg,
         ]);
     }
 

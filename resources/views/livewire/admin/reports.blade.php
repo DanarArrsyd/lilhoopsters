@@ -129,62 +129,33 @@
     </div>
 
     {{-- ══════════════════════════════════════════════
-         REVENUE OVER TIME — CHART HERO
+         REVENUE OVER TIME — CHART.JS
     ══════════════════════════════════════════════ --}}
-    @php
-        $chartData  = $chart;
-        $maxAmount  = collect($chartData)->max('amount') ?: 1;
-        $sumAmount  = collect($chartData)->sum('amount');
-        $barCount   = count($chartData);
-        $avgAmount  = $barCount > 0 ? (int) round($sumAmount / $barCount) : 0;
-
-        // SVG geometry
-        $padTop    = 30;   // space above bars for value labels
-        $chartH    = 220;  // bar drawing area height
-        $padBot    = 48;   // x-axis label space
-        $yLabelW   = 68;   // y-axis label column width
-        $totalSvgH = $padTop + $chartH + $padBot;
-        $svgW      = max($barCount * 40, 520);
-        $barAreaW  = $svgW - $yLabelW;
-        $barSlot   = $barAreaW / max($barCount, 1);
-        $barW      = (int) max(18, $barSlot - 10);
-        $labelStep = max(1, (int) ceil($barCount / 10));
-
-        // Average line Y position (within bar area, offset by padTop)
-        $avgLineY  = $avgAmount > 0
-            ? $padTop + (int) round($chartH - ($avgAmount / $maxAmount * $chartH))
-            : -1;
-    @endphp
-
     <div class="bg-surface border border-line rounded-xl mb-5 overflow-hidden">
-        {{-- Chart header --}}
         <div class="px-5 py-3.5 border-b border-line flex flex-wrap items-start justify-between gap-3">
             <div>
                 <h3 class="text-sm font-extrabold text-navy uppercase tracking-wide">Revenue Over Time</h3>
                 <p class="text-xs text-muted mt-0.5">
-                    Berdasarkan paid_at ·
-                    {{ $bucketMode === 'daily' ? 'Harian' : 'Bulanan' }}
+                    Berdasarkan paid_at · {{ $bucketMode === 'daily' ? 'Harian' : 'Bulanan' }}
                 </p>
             </div>
-
-            {{-- Chart legend --}}
             <div class="flex items-center gap-4 text-xs text-muted">
                 <span class="flex items-center gap-1.5">
-                    <span class="inline-block w-5 h-2.5 rounded bg-navy"></span>
-                    Revenue
+                    <span class="inline-block w-4 h-3 rounded bg-navy"></span>
+                    Di atas rata-rata
                 </span>
                 <span class="flex items-center gap-1.5">
-                    <span class="inline-block w-5 h-0 border-t-2 border-dashed border-[#B45309]"></span>
-                    Rata-rata
-                </span>
-                <span class="flex items-center gap-1.5">
-                    <span class="inline-block w-5 h-2.5 rounded bg-[#94a3b8]"></span>
+                    <span class="inline-block w-4 h-3 rounded bg-[#94a3b8]"></span>
                     Di bawah rata-rata
+                </span>
+                <span class="flex items-center gap-1.5">
+                    <span class="inline-block w-4 border-t-2 border-dashed border-[#B45309]"></span>
+                    Rata-rata
                 </span>
             </div>
         </div>
 
-        @if ($barCount === 0 || $sumAmount == 0)
+        @if (empty($chartLabels) || array_sum($chartAmounts) === 0)
             <div class="py-20 flex flex-col items-center gap-3 text-center">
                 <div class="w-14 h-14 rounded-xl bg-off border border-line flex items-center justify-center">
                     <svg class="w-7 h-7 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -197,127 +168,12 @@
                 </div>
             </div>
         @else
-            <div class="px-4 pt-4 pb-2 relative"
-                 x-data="{ activeBar: null, tooltip: null, tooltipX: 0, tooltipY: 0 }"
-                 x-on:mousemove="tooltipX = $event.offsetX; tooltipY = $event.offsetY">
-
-                <div class="overflow-x-auto">
-                    <svg viewBox="0 0 {{ $svgW }} {{ $totalSvgH }}"
-                         width="100%"
-                         preserveAspectRatio="none"
-                         style="min-width:{{ min($svgW, 400) }}px; height:{{ $totalSvgH }}px;"
-                         xmlns="http://www.w3.org/2000/svg">
-
-                        {{-- ── Y-axis gridlines + labels ── --}}
-                        @foreach ([0, 0.25, 0.5, 0.75, 1.0] as $frac)
-                            @php $gy = $padTop + (int) round($chartH - $frac * $chartH); @endphp
-                            <line x1="{{ $yLabelW }}" y1="{{ $gy }}" x2="{{ $svgW }}" y2="{{ $gy }}"
-                                  stroke="{{ $frac === 0 ? '#E6E3DC' : '#E6E3DC' }}"
-                                  stroke-width="{{ $frac === 0 ? 1.5 : 1 }}"
-                                  stroke-dasharray="{{ $frac === 0 ? '' : '4 3' }}"/>
-                            @if ($frac > 0)
-                                @php $val = $maxAmount * $frac; @endphp
-                                <text x="{{ $yLabelW - 6 }}" y="{{ $gy + 3.5 }}"
-                                      text-anchor="end" font-size="9" fill="#9AA0AC" font-family="Arial,sans-serif">
-                                    @if ($val >= 1000000)Rp {{ number_format($val/1000000, 1, ',', '.') }}jt
-                                    @else Rp {{ number_format($val/1000, 0, ',', '.') }}rb @endif
-                                </text>
-                            @endif
-                        @endforeach
-
-                        {{-- ── Average dashed line ── --}}
-                        @if ($avgLineY >= $padTop && $avgLineY <= $padTop + $chartH)
-                            <line x1="{{ $yLabelW }}" y1="{{ $avgLineY }}"
-                                  x2="{{ $svgW }}" y2="{{ $avgLineY }}"
-                                  stroke="#B45309" stroke-width="1.5" stroke-dasharray="6 3"/>
-                            {{-- Avg label pill --}}
-                            <rect x="{{ $yLabelW + 4 }}" y="{{ $avgLineY - 12 }}"
-                                  width="42" height="11" rx="3" fill="#B45309"/>
-                            <text x="{{ $yLabelW + 25 }}" y="{{ $avgLineY - 4 }}"
-                                  text-anchor="middle" font-size="7.5" fill="white"
-                                  font-family="Arial,sans-serif" font-weight="bold">rata-rata</text>
-                        @endif
-
-                        {{-- ── Bars ── --}}
-                        @foreach ($chartData as $i => $bucket)
-                            @php
-                                $barH    = $bucket['amount'] > 0
-                                    ? max(4, (int) round($bucket['amount'] / $maxAmount * $chartH))
-                                    : 0;
-                                $barX    = (int) round($yLabelW + $i * $barSlot + ($barSlot - $barW) / 2);
-                                $barY    = $padTop + $chartH - $barH;
-                                $aboveAvg = $bucket['amount'] >= $avgAmount;
-
-                                // Short label above bar
-                                $val = $bucket['amount'];
-                                if ($val >= 1000000) {
-                                    $shortLabel = 'Rp ' . number_format($val/1000000, 1, ',', '.') . 'jt';
-                                } elseif ($val >= 1000) {
-                                    $shortLabel = 'Rp ' . number_format($val/1000, 0, ',', '.') . 'rb';
-                                } elseif ($val > 0) {
-                                    $shortLabel = 'Rp ' . $val;
-                                } else {
-                                    $shortLabel = '';
-                                }
-
-                                $tipLabel = addslashes($bucket['label']);
-                                $tipAmt   = 'Rp ' . number_format($val, 0, ',', '.');
-                            @endphp
-
-                            <g x-on:mouseenter="activeBar = {{ $i }}; tooltip = '{{ $tipLabel }}||{{ addslashes($tipAmt) }}'"
-                               x-on:mouseleave="activeBar = null; tooltip = null"
-                               style="cursor:pointer">
-
-                                {{-- Invisible wide hit zone --}}
-                                <rect x="{{ $barX - 4 }}" y="{{ $padTop }}"
-                                      width="{{ $barW + 8 }}" height="{{ $chartH }}"
-                                      fill="transparent"/>
-
-                                {{-- Bar body --}}
-                                <rect x="{{ $barX }}" y="{{ $barY }}"
-                                      width="{{ $barW }}" height="{{ max($barH, 0) }}"
-                                      rx="3" ry="3"
-                                      :fill="activeBar === {{ $i }} ? '#1D4ED8' : '{{ $aboveAvg ? '#0A0F1E' : '#94a3b8' }}'"
-                                      :opacity="activeBar === null ? 1 : (activeBar === {{ $i }} ? 1 : 0.35)"/>
-
-                                {{-- Value label above bar --}}
-                                @if ($shortLabel && $barH > 0)
-                                    <text x="{{ $barX + $barW / 2 }}" y="{{ $barY - 5 }}"
-                                          text-anchor="middle" font-size="8" font-family="Arial,sans-serif"
-                                          font-weight="bold"
-                                          :fill="activeBar === {{ $i }} ? '#1D4ED8' : '{{ $aboveAvg ? '#0A0F1E' : '#94a3b8' }}'">
-                                        {{ $shortLabel }}
-                                    </text>
-                                @endif
-                            </g>
-
-                            {{-- X-axis label --}}
-                            @if ($i % $labelStep === 0)
-                                <text x="{{ $barX + $barW / 2 }}" y="{{ $padTop + $chartH + 16 }}"
-                                      text-anchor="middle" font-size="8.5" fill="#9AA0AC"
-                                      font-family="Arial,sans-serif">
-                                    {{ $bucket['label'] }}
-                                </text>
-                            @endif
-                        @endforeach
-
-                    </svg>
+            <div wire:ignore
+                 x-data="revenueChart(@json($chartLabels), @json($chartAmounts), {{ $chartAvg }})"
+                 class="px-5 py-5">
+                <div style="height: 300px; position: relative;">
+                    <canvas></canvas>
                 </div>
-
-                {{-- ── Rich tooltip ── --}}
-                <div x-show="tooltip !== null"
-                     x-cloak
-                     x-bind:style="`left:${tooltipX}px; top:${tooltipY - 70}px`"
-                     class="absolute pointer-events-none z-30 -translate-x-1/2
-                            bg-navy text-off rounded-xl shadow-xl px-4 py-3 min-w-max">
-                    <p class="text-[10px] text-off/50 leading-none mb-1.5 font-medium uppercase tracking-wide"
-                       x-text="tooltip ? tooltip.split('||')[0] : ''"></p>
-                    <p class="text-base font-extrabold leading-none tracking-tight"
-                       x-text="tooltip ? tooltip.split('||')[1] : ''"></p>
-                    {{-- Caret --}}
-                    <div class="absolute left-1/2 -translate-x-1/2 -bottom-1.5 border-4 border-transparent border-t-navy"></div>
-                </div>
-
             </div>
         @endif
     </div>
