@@ -1,21 +1,27 @@
 import './bootstrap';
-import { Chart, BarController, LineController, BarElement, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Filler } from 'chart.js';
-
-Chart.register(BarController, LineController, BarElement, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Filler);
+import Chart from 'chart.js/auto';
 
 document.addEventListener('alpine:init', () => {
     Alpine.data('revenueChart', (initialLabels = [], initialAmounts = [], initialAvg = 0) => ({
         chartInstance: null,
         _handler: null,
+        // Latest data. The Livewire `chart-data-ready` event can fire
+        // synchronously during init() — BEFORE $nextTick / before the canvas
+        // is laid out. Creating a chart then gives a null 2D context and
+        // crashes with "null is not an object (n.save)". So the event NEVER
+        // creates the chart; it only stashes data or updates an existing one.
+        _data: { labels: initialLabels, amounts: initialAmounts, avg: initialAvg },
 
         init() {
-            this.createChart(initialLabels, initialAmounts, initialAvg);
-
             this._handler = (e) => {
                 const { labels, amounts, avg } = e.detail;
-                this.createChart(labels, amounts, avg);
+                this._data = { labels, amounts, avg };
+                if (this.chartInstance) this.updateChart();
             };
             window.addEventListener('chart-data-ready', this._handler);
+
+            // Defer creation until the canvas is in the DOM and laid out.
+            this.$nextTick(() => this.createChart());
         },
 
         destroy() {
@@ -23,19 +29,32 @@ document.addEventListener('alpine:init', () => {
             if (this.chartInstance) { this.chartInstance.destroy(); this.chartInstance = null; }
         },
 
-        createChart(labels, amounts, avg) {
+        barColors(amounts, avg) {
+            return amounts.map(v => (avg > 0 && v >= avg) ? '#0A0F1E' : '#94a3b8');
+        },
+
+        updateChart() {
+            if (!this.chartInstance) return;
+            const { labels, amounts, avg } = this._data;
+            const c = this.chartInstance;
+            c.data.labels = labels;
+            c.data.datasets[0].data = amounts;
+            c.data.datasets[0].backgroundColor = this.barColors(amounts, avg);
+            c.data.datasets[1].data = amounts.map(() => avg);
+            c.update();
+        },
+
+        createChart() {
             if (this.chartInstance) { this.chartInstance.destroy(); this.chartInstance = null; }
 
             const canvas = this.$el.querySelector('canvas');
-            if (!canvas || !labels.length) return;
+            const { labels, amounts, avg } = this._data;
+            if (!canvas || !canvas.getContext('2d') || !labels.length) return;
 
-            const navyFill   = '#0A0F1E';
-            const mutedFill  = '#94a3b8';
-            const hoverFill  = '#1D4ED8';
-
-            const bgColors = amounts.map(v => (avg > 0 && v >= avg) ? navyFill : mutedFill);
+            const bgColors = this.barColors(amounts, avg);
 
             this.chartInstance = new Chart(canvas, {
+                type: 'bar',
                 data: {
                     labels,
                     datasets: [
@@ -44,7 +63,7 @@ document.addEventListener('alpine:init', () => {
                             label: 'Revenue',
                             data: amounts,
                             backgroundColor: bgColors,
-                            hoverBackgroundColor: hoverFill,
+                            hoverBackgroundColor: '#1D4ED8',
                             borderRadius: { topLeft: 4, topRight: 4 },
                             borderSkipped: false,
                             order: 2,

@@ -153,3 +153,47 @@ it('preset buttons update date range', function () {
     expect($component->get('preset'))->toBe('year');
     expect($component->get('dateFrom'))->toBe(now()->startOfYear()->toDateString());
 });
+
+it('computes positive revenue delta vs previous period', function () {
+    // Current window 2026-06-10..2026-06-19 (10 days).
+    // Previous window (equal length, immediately before) = 2026-05-31..2026-06-09.
+    Transaction::factory()->paid()->create([
+        'package_id' => $this->package->id,
+        'amount'     => 300000,
+        'paid_at'    => '2026-06-15 10:00:00',   // current
+    ]);
+    Transaction::factory()->paid()->create([
+        'package_id' => $this->package->id,
+        'amount'     => 100000,
+        'paid_at'    => '2026-06-05 10:00:00',   // previous (baseline)
+    ]);
+
+    $component = Livewire::actingAs($this->admin)->test(Reports::class)
+        ->set('dateFrom', '2026-06-10')
+        ->set('dateTo', '2026-06-19');
+
+    $deltas = $component->viewData('deltas');
+
+    expect($deltas['total_revenue']['dir'])->toBe('up');
+    expect($deltas['total_revenue']['pct'])->toBe(200.0);
+});
+
+it('returns null delta when both periods are empty', function () {
+    // No transactions at all — current and previous period both zero.
+    $component = Livewire::actingAs($this->admin)->test(Reports::class);
+
+    expect($component->viewData('deltas')['total_revenue'])->toBeNull();
+});
+
+it('exports paid transactions as csv', function () {
+    Transaction::factory()->paid()->create([
+        'package_id' => $this->package->id,
+        'amount'     => 250000,
+        'paid_at'    => now(),
+    ]);
+
+    $response = Livewire::actingAs($this->admin)->test(Reports::class)
+        ->call('export');
+
+    $response->assertFileDownloaded();
+});

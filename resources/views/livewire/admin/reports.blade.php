@@ -55,14 +55,35 @@
         </span>
 
         {{-- Livewire loading --}}
-        <div wire:loading class="flex items-center gap-1.5 text-xs text-muted">
+        <div wire:loading wire:target="setPreset,dateFrom,dateTo,filterLocation"
+             class="flex items-center gap-1.5 text-xs text-muted lg:ml-0 ml-auto">
             <svg class="w-3.5 h-3.5 animate-spin text-navy" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                 <path fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
             </svg>
             Memuat…
         </div>
+
+        {{-- Export CSV --}}
+        <button wire:click="export"
+                wire:loading.attr="disabled" wire:target="export"
+                class="inline-flex items-center gap-1.5 text-xs font-semibold text-off bg-navy
+                       hover:bg-navy/90 disabled:opacity-50 rounded-lg px-3 py-1.5 transition-colors shrink-0">
+            <svg wire:loading.remove wire:target="export" class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+            </svg>
+            <svg wire:loading wire:target="export" class="w-3.5 h-3.5 shrink-0 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+            </svg>
+            Export CSV
+        </button>
     </div>
+
+    {{-- Content fades while a filter reload is in flight --}}
+    <div wire:loading.class="opacity-40 pointer-events-none"
+         wire:target="setPreset,dateFrom,dateTo,filterLocation"
+         class="transition-opacity duration-200">
 
     {{-- ══════════════════════════════════════════════
          KPI CARDS
@@ -70,39 +91,47 @@
     @php
         $kpiCards = [
             [
+                'key'     => 'total_revenue',
                 'label'   => 'Total Revenue',
                 'value'   => 'Rp ' . number_format($kpis['total_revenue'], 0, ',', '.'),
                 'sub'     => 'transaksi terbayar',
                 'ib'      => 'bg-[#15803D]/10',
                 'it'      => 'text-[#15803D]',
                 'bar'     => 'bg-[#15803D]',
+                'good'    => 'up',
                 'icon'    => 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 8v1m0 0c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
             ],
             [
+                'key'     => 'paid_count',
                 'label'   => 'Transaksi Dibayar',
                 'value'   => number_format($kpis['paid_count']),
                 'sub'     => 'transaksi selesai',
                 'ib'      => 'bg-navy/10',
                 'it'      => 'text-navy',
                 'bar'     => 'bg-navy',
+                'good'    => 'up',
                 'icon'    => 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
             ],
             [
+                'key'     => 'avg_transaction',
                 'label'   => 'Rata-rata Transaksi',
                 'value'   => 'Rp ' . number_format($kpis['avg_transaction'], 0, ',', '.'),
                 'sub'     => 'nilai rata-rata',
                 'ib'      => 'bg-[#1D4ED8]/10',
                 'it'      => 'text-[#1D4ED8]',
                 'bar'     => 'bg-[#1D4ED8]',
+                'good'    => 'up',
                 'icon'    => 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
             ],
             [
+                'key'     => 'conversion_rate',
                 'label'   => 'Conversion Rate',
                 'value'   => $kpis['conversion_rate'] . '%',
                 'sub'     => 'dibayar ÷ semua inisiasi',
                 'ib'      => 'bg-[#B45309]/10',
                 'it'      => 'text-[#B45309]',
                 'bar'     => 'bg-[#B45309]',
+                'good'    => 'up',
                 'icon'    => 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6',
             ],
         ];
@@ -121,7 +150,30 @@
                 </div>
                 <div>
                     <p class="text-xl font-extrabold text-navy leading-none tracking-tight">{{ $card['value'] }}</p>
-                    <p class="text-[11px] text-muted mt-1.5">{{ $card['sub'] }}</p>
+                    <div class="flex items-center gap-1.5 mt-1.5">
+                        @php $d = $deltas[$card['key']] ?? null; @endphp
+                        @if ($d)
+                            @php
+                                $isGood = $d['dir'] === $card['good'];
+                                $isFlat = $d['dir'] === 'flat';
+                                $badge  = $isFlat
+                                    ? 'bg-off text-muted border-line'
+                                    : ($isGood ? 'bg-[#15803D]/10 text-[#15803D] border-[#15803D]/20'
+                                               : 'bg-[#B91C1C]/10 text-[#B91C1C] border-[#B91C1C]/20');
+                            @endphp
+                            <span class="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-md border {{ $badge }}">
+                                @if (! $isFlat)
+                                    <svg class="w-2.5 h-2.5 shrink-0 {{ $d['dir'] === 'down' ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/>
+                                    </svg>
+                                @endif
+                                {{ $d['pct'] }}%
+                            </span>
+                            <span class="text-[10px] text-faint">vs periode lalu</span>
+                        @else
+                            <p class="text-[11px] text-muted">{{ $card['sub'] }}</p>
+                        @endif
+                    </div>
                 </div>
                 <div class="h-0.5 w-10 {{ $card['bar'] }} rounded-full"></div>
             </div>
@@ -169,7 +221,7 @@
             </div>
         @else
             <div wire:ignore
-                 x-data="revenueChart(@json($chartLabels), @json($chartAmounts), {{ $chartAvg }})"
+                 x-data="revenueChart(@js($chartLabels), @js($chartAmounts), {{ $chartAvg }})"
                  class="px-5 py-5">
                 <div style="height: 300px; position: relative;">
                     <canvas></canvas>
@@ -386,5 +438,7 @@
             @endif
         </div>
     </div>
+
+    </div>{{-- /content fade wrapper --}}
 
 </div>

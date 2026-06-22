@@ -40,9 +40,11 @@ Route::middleware(['auth', 'role:admin,super_admin', 'registration.status'])
         Route::get('/schedules',   fn() => view('admin.schedules'))->name('schedules');
         Route::get('/parents',     fn() => view('admin.parents'))->name('parents');
         Route::get('/players',     fn() => view('admin.players'))->name('players');
+        Route::get('/leads',       fn() => view('admin.leads'))->name('leads');
         Route::get('/enrollments',    fn() => view('admin.enrollments'))->name('enrollments');
         Route::get('/payments',       fn() => view('admin.payments'))->name('payments');
         Route::get('/reports',        fn() => view('admin.reports'))->name('reports');
+        Route::get('/owner',          fn() => view('admin.owner'))->name('owner');
         Route::get('/attendances',    fn() => view('admin.attendances'))->name('attendances');
         Route::get('/leave-requests', fn() => view('admin.leave-requests'))->name('leave-requests');
         Route::get('/makeup-classes', fn() => view('admin.makeup-classes'))->name('makeup-classes');
