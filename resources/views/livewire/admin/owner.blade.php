@@ -10,6 +10,98 @@
     @endif
 
     {{-- ══════════════════════════════════════════════
+         AT-A-GLANCE — health strip + 30-day movement
+    ══════════════════════════════════════════════ --}}
+    @php
+        $statusDot = [
+            'good'    => 'bg-[#15803D]',
+            'warn'    => 'bg-[#D97706]',
+            'bad'     => 'bg-[#B91C1C]',
+            'neutral' => 'bg-faint',
+        ];
+    @endphp
+
+    <section class="bg-surface border border-line rounded-xl px-5 py-4">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            @foreach ($insights['health'] as $h)
+                <div class="flex flex-col gap-1">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full shrink-0 {{ $statusDot[$h['status']] ?? 'bg-faint' }}"></span>
+                        <span class="text-sm font-semibold text-ink">{{ $h['label'] }}</span>
+                    </div>
+                    <span class="text-xs text-muted pl-[18px]">{{ $h['note'] }}</span>
+                </div>
+            @endforeach
+        </div>
+
+        <div class="border-t border-line mt-4 pt-3 flex flex-wrap gap-x-8 gap-y-3">
+            <span class="text-[11px] uppercase tracking-wide text-faint font-semibold self-center">Last 30 days</span>
+            @php
+                $trendMeta = [
+                    'joined'  => 'Members joined',
+                    'churn'   => 'Churn',
+                    'revenue' => 'Revenue',
+                ];
+            @endphp
+            @foreach ($trendMeta as $key => $label)
+                @php $t = $insights['trends'][$key]; $d = $t['delta']; @endphp
+                <div>
+                    <span class="block text-[11px] text-faint">{{ $label }}</span>
+                    <span class="text-lg font-extrabold text-navy leading-none">
+                        {{ ($t['money'] ?? false) ? 'Rp ' . number_format($t['value'], 0, ',', '.') : number_format($t['value']) }}
+                    </span>
+                    @if ($d)
+                        @php
+                            $isGood = $d['dir'] === $t['good'];
+                            $isFlat = $d['dir'] === 'flat';
+                            $cls = $isFlat ? 'text-muted' : ($isGood ? 'text-[#15803D]' : 'text-[#B91C1C]');
+                        @endphp
+                        <span class="inline-flex items-center gap-0.5 text-[11px] font-bold {{ $cls }} ml-1">
+                            @unless ($isFlat)
+                                <svg class="w-2.5 h-2.5 {{ $d['dir'] === 'down' ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>
+                            @endunless
+                            {{ $d['pct'] }}%
+                        </span>
+                    @else
+                        <span class="text-[11px] text-faint ml-1">—</span>
+                    @endif
+                </div>
+            @endforeach
+        </div>
+    </section>
+
+    {{-- ══════════════════════════════════════════════
+         ACTION CENTER — money-ranked, what to do now
+    ══════════════════════════════════════════════ --}}
+    @if (count($insights['actions']))
+        <section>
+            <div class="flex items-center gap-2 mb-3">
+                <h2 class="text-sm font-extrabold text-navy uppercase tracking-wide">Needs Your Attention</h2>
+                <span class="text-[11px] text-faint">ranked by impact</span>
+            </div>
+            <div class="space-y-2">
+                @php
+                    $accent = ['danger' => 'border-l-[#B91C1C]', 'warning' => 'border-l-[#D97706]', 'neutral' => 'border-l-line'];
+                @endphp
+                @foreach ($insights['actions'] as $a)
+                    <div class="bg-surface border border-line border-l-[3px] {{ $accent[$a['severity']] ?? 'border-l-line' }} rounded-r-xl px-4 py-3 flex items-center gap-3">
+                        <div class="min-w-0 flex-1">
+                            <p class="text-sm font-bold text-ink">{{ $a['title'] }}</p>
+                            <p class="text-xs text-muted mt-0.5">{{ $a['detail'] }}</p>
+                        </div>
+                        @if ($a['action'])
+                            <button wire:click="{{ $a['action'] }}" wire:loading.attr="disabled" wire:target="{{ $a['action'] }}"
+                                    class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-off bg-navy hover:bg-navy/90 disabled:opacity-50 rounded-lg px-3 py-1.5 transition-colors shrink-0">
+                                {{ $a['cta'] }}
+                            </button>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        </section>
+    @endif
+
+    {{-- ══════════════════════════════════════════════
          A. RENEWAL & CHURN
     ══════════════════════════════════════════════ --}}
     <section>

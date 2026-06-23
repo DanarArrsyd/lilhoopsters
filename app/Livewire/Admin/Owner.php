@@ -273,14 +273,176 @@ class Owner extends Component
         ];
     }
 
+    // ─── Insights: health strip, 30-day movement, action center ──────
+
+    private function pctDelta(float $current, float $previous): ?array
+    {
+        if ($previous == 0.0) {
+            return $current == 0.0 ? null : ['dir' => 'up', 'pct' => 100.0];
+        }
+        $pct = ($current - $previous) / $previous * 100;
+        return ['dir' => $pct > 0 ? 'up' : ($pct < 0 ? 'down' : 'flat'), 'pct' => round(abs($pct), 1)];
+    }
+
+    private function rupiah(int $n): string
+    {
+        return 'Rp ' . number_format($n, 0, ',', '.');
+    }
+
+    /**
+     * Builds the owner-facing insight layer: a colour-coded health strip,
+     * 30-day event-based trends, and a money-ranked action list.
+     */
+    private function insightsData(array $renewal, array $ar, array $capacity, array $leads): array
+    {
+        // ── 30-day movement (event-based, cleanly comparable) ──────────
+        $curFrom  = now()->subDays(29)->startOfDay();
+        $curTo    = now()->endOfDay();
+        $prevFrom = now()->subDays(59)->startOfDay();
+        $prevTo   = now()->subDays(30)->endOfDay();
+
+        $joinedCur  = Enrollment::where('status', 'approved')->where('type', 'program')
+            ->whereBetween('approved_at', [$curFrom, $curTo])->count();
+        $joinedPrev = Enrollment::where('status', 'approved')->where('type', 'program')
+            ->whereBetween('approved_at', [$prevFrom, $prevTo])->count();
+
+        $activeChildIds = Enrollment::where('status', 'approved')
+            ->where(fn($q) => $q->whereNull('expires_at')->orWhereDate('expires_at', '>=', today()))
+            ->where(fn($q) => $q->whereNull('remaining_sessions')->orWhere('remaining_sessions', '>', 0))
+            ->pluck('child_id')->unique()->all();
+
+        $churnCur  = Enrollment::where('status', 'approved')->whereNotNull('expires_at')
+            ->whereBetween('expires_at', [$curFrom, $curTo])
+            ->pluck('child_id')->unique()->reject(fn($id) => in_array($id, $activeChildIds, true))->count();
+        $churnPrev = Enrollment::where('status', 'approved')->whereNotNull('expires_at')
+            ->whereBetween('expires_at', [$prevFrom, $prevTo])
+            ->pluck('child_id')->unique()->reject(fn($id) => in_array($id, $activeChildIds, true))->count();
+
+        $revCur  = (int) Transaction::where('status', 'paid')->whereBetween('paid_at', [$curFrom, $curTo])->sum('amount');
+        $revPrev = (int) Transaction::where('status', 'paid')->whereBetween('paid_at', [$prevFrom, $prevTo])->sum('amount');
+
+        $trends = [
+            'joined'  => ['value' => $joinedCur, 'delta' => $this->pctDelta($joinedCur, $joinedPrev), 'good' => 'up'],
+            'churn'   => ['value' => $churnCur,  'delta' => $this->pctDelta($churnCur, $churnPrev),   'good' => 'down'],
+            'revenue' => ['value' => $revCur,    'delta' => $this->pctDelta($revCur, $revPrev),       'good' => 'up', 'money' => true],
+        ];
+
+        // ── Money at risk from expiring packages (renewal value) ───────
+        $expiringValue = (int) Enrollment::where('status', 'approved')
+            ->where(fn($q) => $q->whereNull('expires_at')->orWhereDate('expires_at', '>=', today()))
+            ->where(fn($q) => $q->whereNull('remaining_sessions')->orWhere('remaining_sessions', '>', 0))
+            ->where(fn($q) => $q->whereDate('expires_at', '<=', today()->addDays(14))->orWhere('remaining_sessions', '<=', 2))
+            ->with('package')
+            ->get()
+            ->sum(fn($e) => $e->package?->price ?? 0);
+
+        // ── Health strip ───────────────────────────────────────────────
+        $retentionStatus = $renewal['renewal_rate'] === null
+            ? ($renewal['expiring_count'] === 0 ? 'good' : 'warn')
+            : ($renewal['renewal_rate'] >= 70 ? 'good' : ($renewal['renewal_rate'] >= 40 ? 'warn' : 'bad'));
+
+        $cashflowStatus = $ar['count'] === 0 ? 'good' : ($ar['overdue'] > 0 ? 'bad' : 'warn');
+
+        $util = (float) $capacity['overall'];
+        $capacityStatus = $util >= 70 ? 'good' : ($util >= 40 ? 'warn' : 'bad');
+
+        $pipelineStatus = $leads['total'] === 0 ? 'neutral'
+            : ($leads['conversion'] === null ? 'warn'
+                : ($leads['conversion'] >= 60 ? 'good' : ($leads['conversion'] >= 30 ? 'warn' : 'bad')));
+
+        $health = [
+            ['key' => 'retention', 'label' => 'Retention', 'status' => $retentionStatus,
+             'note' => $renewal['renewal_rate'] === null ? $renewal['active_members'] . ' active' : $renewal['renewal_rate'] . '% renewed'],
+            ['key' => 'cashflow', 'label' => 'Cashflow', 'status' => $cashflowStatus,
+             'note' => $ar['count'] === 0 ? 'All clear' : ($ar['overdue'] > 0 ? $ar['overdue'] . ' overdue' : $ar['count'] . ' pending')],
+            ['key' => 'capacity', 'label' => 'Capacity', 'status' => $capacityStatus,
+             'note' => $util . '% filled'],
+            ['key' => 'pipeline', 'label' => 'Pipeline', 'status' => $pipelineStatus,
+             'note' => $leads['total'] === 0 ? 'No leads' : ($leads['conversion'] === null ? $leads['open'] . ' open' : $leads['conversion'] . '% conv.')],
+        ];
+
+        // ── Action center (ranked by money, then severity) ─────────────
+        $sev = ['danger' => 3, 'warning' => 2, 'neutral' => 1];
+        $actions = [];
+
+        if ($ar['outstanding'] > 0) {
+            $actions[] = [
+                'severity' => $ar['overdue'] > 0 ? 'danger' : 'warning',
+                'money'    => $ar['outstanding'],
+                'title'    => $this->rupiah($ar['outstanding']) . ' tied up in unpaid invoices',
+                'detail'   => $ar['count'] . ' pending' . ($ar['overdue'] > 0 ? ' · ' . $ar['overdue'] . ' overdue' : ''),
+                'action'   => 'remindAllOutstanding',
+                'cta'      => 'Send reminders',
+            ];
+        }
+
+        if ($renewal['expiring_count'] > 0) {
+            $actions[] = [
+                'severity' => 'warning',
+                'money'    => $expiringValue,
+                'title'    => $expiringValue > 0
+                    ? $this->rupiah($expiringValue) . ' revenue at risk'
+                    : $renewal['expiring_count'] . ' packages expiring soon',
+                'detail'   => $renewal['expiring_count'] . ' packages expire within 14 days unless renewed',
+                'action'   => 'remindAllExpiring',
+                'cta'      => 'Send renewal reminders',
+            ];
+        }
+
+        if ($capacity['underfilled'] > 0) {
+            $actions[] = [
+                'severity' => 'neutral',
+                'money'    => 0,
+                'title'    => $capacity['underfilled'] . ' classes under 50% filled',
+                'detail'   => 'Idle capacity — consider merging classes or running a promo',
+                'action'   => null,
+                'cta'      => null,
+            ];
+        }
+
+        if ($renewal['churned_count'] > 0) {
+            $actions[] = [
+                'severity' => 'neutral',
+                'money'    => 0,
+                'title'    => $renewal['churned_count'] . ' members lapsed in the last 30 days',
+                'detail'   => 'Reach out for a win-back',
+                'action'   => null,
+                'cta'      => null,
+            ];
+        }
+
+        if ($leads['open'] > 0) {
+            $actions[] = [
+                'severity' => 'neutral',
+                'money'    => 0,
+                'title'    => $leads['open'] . ' leads still in the pipeline',
+                'detail'   => 'Follow up before they go cold',
+                'action'   => null,
+                'cta'      => null,
+            ];
+        }
+
+        usort($actions, fn($a, $b) =>
+            [$b['money'], $sev[$b['severity']]] <=> [$a['money'], $sev[$a['severity']]]
+        );
+
+        return ['health' => $health, 'trends' => $trends, 'actions' => $actions];
+    }
+
     public function render()
     {
+        $renewal  = $this->renewalData();
+        $ar       = $this->arData();
+        $capacity = $this->capacityData();
+        $leads    = $this->leadData();
+
         return view('livewire.admin.owner', [
-            'renewal'  => $this->renewalData(),
-            'ar'       => $this->arData(),
+            'renewal'  => $renewal,
+            'ar'       => $ar,
             'payroll'  => $this->payrollData(),
-            'capacity' => $this->capacityData(),
-            'leads'    => $this->leadData(),
+            'capacity' => $capacity,
+            'leads'    => $leads,
+            'insights' => $this->insightsData($renewal, $ar, $capacity, $leads),
         ]);
     }
 }
