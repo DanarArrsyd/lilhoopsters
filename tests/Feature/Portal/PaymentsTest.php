@@ -95,14 +95,11 @@ it('can upload payment proof', function () {
         ->test(Payments::class)
         ->call('openUpload', $trx->id)
         ->set('proofFile', $file)
-        ->set('paymentMethod', 'BCA Transfer')
-        ->set('paymentNotes', 'Sudah transfer')
+        ->set('agreedToTnc', true)
         ->call('uploadProof');
 
     $trx->refresh();
     expect($trx->payment_proof)->not->toBeNull();
-    expect($trx->payment_method)->toBe('BCA Transfer');
-    expect($trx->payment_notes)->toBe('Sudah transfer');
 
     Storage::disk('public')->assertExists($trx->payment_proof);
 });

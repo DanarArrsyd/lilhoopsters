@@ -36,9 +36,7 @@ class Packages extends Component
             'type'          => 'required|in:registration,regular,drop_in,private',
             'price'         => 'required|integer|min:1',
             'session_count' => 'nullable|integer|min:1',
-            'validity_days' => 'nullable|integer|min:1',
-            'period_start'  => 'nullable|date',
-            'period_end'    => 'nullable|date|after_or_equal:period_start',
+            'validity_days' => $this->type === 'regular' ? 'required|integer|min:1' : 'nullable|integer|min:1',
             'description'   => 'nullable|string|max:1000',
         ];
     }
@@ -81,8 +79,9 @@ class Packages extends Component
             'price'         => $this->price,
             'session_count' => $this->session_count,
             'validity_days' => $this->validity_days,
-            'period_start'  => $this->period_start ?: null,
-            'period_end'    => $this->period_end ?: null,
+            // Regular packages use validity_days; period_start/end are not used
+            'period_start'  => $this->type === 'regular' ? null : ($this->period_start ?: null),
+            'period_end'    => $this->type === 'regular' ? null : ($this->period_end ?: null),
             'description'   => $this->description ?: null,
             'is_active'     => $this->is_active,
             'is_popular'    => $this->is_popular,
@@ -131,14 +130,27 @@ class Packages extends Component
 
     public function render()
     {
+        $typeOrder = ['registration' => 1, 'regular' => 2, 'drop_in' => 3, 'private' => 4];
+
+        $packages = Package::with('location')
+            ->when($this->filterLocation, fn($q) => $q->where('location_id', $this->filterLocation))
+            ->when($this->search, fn($q) => $q->where('name', 'like', "%{$this->search}%"))
+            ->get();
+
+        // Group by location, ordered by type then price within each location.
+        $groups = $packages
+            ->groupBy('location_id')
+            ->map(fn($items) => $items
+                ->sortBy(fn($p) => sprintf('%d-%012d', $typeOrder[$p->type] ?? 9, $p->price))
+                ->values())
+            ->sortBy(fn($items) => optional($items->first()->location)->name)
+            ->values();
+
         return view('livewire.admin.packages', [
-            'packages'  => Package::with('location')
-                ->when($this->filterLocation, fn($q) => $q->where('location_id', $this->filterLocation))
-                ->when($this->search, fn($q) => $q->where('name', 'like', "%{$this->search}%"))
-                ->orderBy('location_id')
-                ->orderBy('name')
-                ->paginate(15),
-            'locations' => Location::where('is_active', true)->orderBy('name')->get(),
+            'groups'        => $groups,
+            'totalCount'    => $packages->count(),
+            'locationCount' => $groups->count(),
+            'locations'     => Location::where('is_active', true)->orderBy('name')->get(),
         ]);
     }
 }

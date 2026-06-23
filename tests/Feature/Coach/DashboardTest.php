@@ -89,5 +89,5 @@ it('shows no sessions message when no schedules today', function () {
 
     Livewire::actingAs($this->coachUser)
         ->test(Dashboard::class)
-        ->assertSee('No sessions scheduled for today');
+        ->assertSee('No sessions today.');
 });

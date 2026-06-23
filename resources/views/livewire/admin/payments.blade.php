@@ -8,25 +8,29 @@
         <x-alert type="success" class="mb-4">{{ session('success') }}</x-alert>
     @endif
 
-    {{-- Filters --}}
-    <x-card class="mb-4" padding="p-4">
-        <div class="flex flex-col sm:flex-row gap-3">
-            <div class="flex-1">
-                <x-input wire:model.live.debounce.300ms="search" placeholder="Search by code or parent name..." />
-            </div>
-            <div class="w-full sm:w-44">
-                <x-select wire:model.live="filterStatus">
-                    <option value="">All Statuses</option>
-                    <option value="pending">Pending</option>
-                    <option value="paid">Paid</option>
-                    <option value="rejected">Rejected</option>
-                    <option value="expired">Expired</option>
-                </x-select>
-            </div>
-        </div>
-    </x-card>
+    {{-- Status tabs --}}
+    <div class="flex gap-2 flex-wrap mb-4">
+        @foreach ([
+            ''         => 'All',
+            'pending'  => 'Pending',
+            'paid'     => 'Paid',
+            'rejected' => 'Rejected',
+            'expired'  => 'Expired',
+        ] as $val => $label)
+            <button wire:click="$set('filterStatus', '{{ $val }}')"
+                    @class([
+                        'px-4 py-1.5 rounded-full text-sm font-semibold border transition-colors',
+                        'bg-navy text-off border-navy'                 => $filterStatus === $val,
+                        'bg-surface text-ink border-line hover:bg-off' => $filterStatus !== $val,
+                    ])>{{ $label }}</button>
+        @endforeach
+    </div>
 
-    {{-- Table --}}
+    {{-- Search --}}
+    <div class="mb-4">
+        <x-input wire:model.live.debounce.300ms="search" placeholder="Search by code or parent name..." />
+    </div>
+
     <x-card padding="p-0">
         <div class="overflow-x-auto">
             <table class="w-full text-sm min-w-[640px]">
@@ -61,10 +65,8 @@
                             </td>
                             <td class="py-3 px-4">
                                 @if ($trx->payment_proof)
-                                    <a href="{{ Storage::url($trx->payment_proof) }}" target="_blank"
-                                       class="text-navy hover:underline text-xs font-semibold">
-                                        View Proof
-                                    </a>
+                                    <a href="{{ Storage::disk('public')->url($trx->payment_proof) }}" target="_blank"
+                                       class="text-navy hover:underline text-xs font-semibold">View Proof</a>
                                 @else
                                     <span class="text-faint text-xs">—</span>
                                 @endif
@@ -72,23 +74,19 @@
                             <td class="py-3 px-4">
                                 <x-badge :status="$trx->status">{{ ucfirst($trx->status) }}</x-badge>
                             </td>
-                            <td class="py-3 px-4">
-                                <div class="flex items-center gap-2 justify-end">
-                                    @if ($trx->status === 'pending')
-                                        <x-btn variant="primary" size="sm" wire:click="verify({{ $trx->id }})"
-                                               wire:loading.attr="disabled">Verify</x-btn>
-                                        <x-btn variant="danger" size="sm" wire:click="reject({{ $trx->id }})"
-                                               wire:loading.attr="disabled">Reject</x-btn>
-                                    @endif
-                                </div>
+                            <td class="py-3 px-4 text-right">
+                                @if ($trx->status === 'pending')
+                                    <div class="flex items-center gap-2 justify-end">
+                                        <x-btn variant="success" size="sm" wire:click="verify({{ $trx->id }})" wire:loading.attr="disabled">Verify</x-btn>
+                                        <x-btn variant="danger" size="sm" wire:click="reject({{ $trx->id }})" wire:loading.attr="disabled">Reject</x-btn>
+                                    </div>
+                                @endif
                             </td>
                         </tr>
                     @empty
-                        <tr>
-                            <td colspan="7" class="py-2">
-                                <x-empty-state title="No payments found" description="No transactions match your filters." />
-                            </td>
-                        </tr>
+                        <tr><td colspan="7" class="py-2">
+                            <x-empty-state title="No payments found" description="No transactions match your filters." />
+                        </td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -105,12 +103,11 @@
         <div class="relative bg-surface rounded-2xl border border-line shadow-xl w-full max-w-sm">
             <div class="flex items-center justify-between px-6 py-4 border-b border-line">
                 <h3 class="text-lg font-extrabold uppercase tracking-tight text-navy">Reject Payment</h3>
-                <button wire:click="cancelReject" class="text-muted hover:text-navy p-1 leading-none">✕</button>
+                <button wire:click="cancelReject" class="text-muted hover:text-navy p-1 leading-none">&#x2715;</button>
             </div>
             <div class="p-6 space-y-4">
                 <p class="text-sm text-muted">Optionally add a note for the parent:</p>
-                <textarea wire:model="adminNote" rows="3"
-                          aria-label="Rejection note for parent"
+                <textarea wire:model="adminNote" rows="3" aria-label="Rejection note"
                           class="block w-full rounded-xl border border-line bg-surface px-3.5 py-3 text-sm text-ink placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-navy/15 focus:border-navy resize-none"
                           placeholder="e.g. Payment proof unclear, please re-upload..."></textarea>
             </div>

@@ -4,6 +4,7 @@ namespace App\Livewire\Coach;
 
 use App\Models\Attendance;
 use App\Models\Enrollment;
+use App\Models\Schedule;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
@@ -19,7 +20,13 @@ class Roster extends Component
         $coach = Auth::user()->coach;
         if ($coach) {
             $today = strtolower(now()->format('l'));
-            $first = $coach->schedules()->where('is_active', true)->where('day_of_week', $today)->first();
+            $first = Schedule::where('is_active', true)
+                ->where('day_of_week', $today)
+                ->where(function ($q) use ($coach) {
+                    $q->where('type', 'regular')
+                      ->orWhere(fn($q2) => $q2->where('type', 'private')->where('coach_id', $coach->id));
+                })
+                ->first();
             if ($first) {
                 $this->scheduleId = $first->id;
             }
@@ -28,19 +35,34 @@ class Roster extends Component
 
     public function render()
     {
-        $coach     = Auth::user()->coach;
+        $coach = Auth::user()->coach;
+
+        // Show all regular schedules + this coach's private schedules
         $schedules = $coach
-            ? $coach->schedules()->where('is_active', true)->with(['program', 'location'])->get()
+            ? Schedule::where('is_active', true)
+                ->where(function ($q) use ($coach) {
+                    $q->where('type', 'regular')
+                      ->orWhere(fn($q2) => $q2->where('type', 'private')->where('coach_id', $coach->id));
+                })
+                ->with(['program', 'location'])
+                ->orderBy('day_of_week')
+                ->orderBy('start_time')
+                ->get()
             : collect();
 
         $roster = collect();
         $stats  = ['total' => 0, 'present' => 0, 'absent' => 0, 'sick' => 0, 'permit' => 0, 'not_recorded' => 0];
 
         if ($this->scheduleId && $coach) {
-            $this->authorizeOwns();
+            // A private schedule's roster is visible only to its assigned coach.
+            $schedule = Schedule::find($this->scheduleId);
+            if ($schedule && $schedule->type === 'private' && $schedule->coach_id !== $coach->id) {
+                abort(403);
+            }
 
             $enrollments = Enrollment::where('schedule_id', $this->scheduleId)
                 ->where('status', 'approved')
+                ->where('type', 'program')
                 ->with('child')
                 ->get();
 
@@ -65,17 +87,9 @@ class Roster extends Component
                     'jersey'   => $e->child->jersey_number,
                     'status'   => $status,
                 ];
-            });
+            })->sortBy('name')->values();
         }
 
         return view('livewire.coach.roster', compact('schedules', 'roster', 'stats'));
-    }
-
-    private function authorizeOwns(): void
-    {
-        $coach = Auth::user()->coach;
-        if (!$coach || !$coach->schedules()->where('id', $this->scheduleId)->exists()) {
-            abort(403);
-        }
     }
 }

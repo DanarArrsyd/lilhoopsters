@@ -2,8 +2,11 @@
 
 namespace App\Livewire\Portal;
 
+use App\Models\PaymentAccount;
 use App\Models\Transaction;
+use App\Services\NotificationService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
@@ -16,8 +19,9 @@ class Payments extends Component
 
     public ?int   $uploadingId   = null;
     public        $proofFile     = null;
-    public string $paymentNotes  = '';
-    public string $paymentMethod = '';
+    public bool   $agreedToTnc  = false;
+
+    public ?int   $confirmCancelId = null;
 
     public function updatingFilterStatus(): void { $this->resetPage(); }
 
@@ -25,26 +29,59 @@ class Payments extends Component
     {
         Auth::user()->transactions()->findOrFail($id);
 
-        $this->uploadingId   = $id;
-        $this->proofFile     = null;
-        $this->paymentNotes  = '';
-        $this->paymentMethod = '';
+        $this->uploadingId  = $id;
+        $this->proofFile    = null;
+        $this->agreedToTnc  = false;
     }
 
     public function cancelUpload(): void
     {
-        $this->uploadingId   = null;
-        $this->proofFile     = null;
-        $this->paymentNotes  = '';
-        $this->paymentMethod = '';
+        $this->reset(['uploadingId', 'proofFile', 'agreedToTnc']);
+        $this->resetValidation();
+    }
+
+    public function confirmCancel(int $id): void
+    {
+        Auth::user()->transactions()->where('status', 'pending')->findOrFail($id);
+        $this->confirmCancelId = $id;
+    }
+
+    public function dismissCancel(): void
+    {
+        $this->confirmCancelId = null;
+    }
+
+    public function cancelTransaction(): void
+    {
+        $trx = Auth::user()->transactions()
+            ->where('status', 'pending')
+            ->with(['enrollment.child'])
+            ->findOrFail($this->confirmCancelId);
+
+        DB::transaction(function () use ($trx) {
+            $enrollment = $trx->enrollment;
+
+            if ($enrollment) {
+                if ($enrollment->type === 'registration') {
+                    $enrollment->child?->update(['status' => 'unregistered']);
+                }
+                $enrollment->delete();
+            }
+
+            $trx->delete();
+        });
+
+        $this->confirmCancelId = null;
+        session()->flash('success', 'Transaction cancelled successfully.');
     }
 
     public function uploadProof(): void
     {
         $this->validate([
-            'proofFile'     => 'required|file|image|max:5120',
-            'paymentMethod' => 'nullable|string|max:100',
-            'paymentNotes'  => 'nullable|string|max:500',
+            'proofFile'   => 'required|file|image|max:5120',
+            'agreedToTnc' => 'accepted',
+        ], [
+            'agreedToTnc.accepted' => 'You must agree to the payment terms before submitting.',
         ]);
 
         $trx = Auth::user()->transactions()->findOrFail($this->uploadingId);
@@ -52,10 +89,14 @@ class Payments extends Component
         $path = $this->proofFile->store('payment_proofs', 'public');
 
         $trx->update([
-            'payment_proof'  => $path,
-            'payment_method' => $this->paymentMethod ?: null,
-            'payment_notes'  => $this->paymentNotes ?: null,
+            'payment_proof' => $path,
         ]);
+
+        NotificationService::toAdmins(
+            'new_payment_proof',
+            'Payment Proof Uploaded',
+            Auth::user()->name . " has uploaded payment proof. Please verify.",
+        );
 
         session()->flash('success', 'Payment proof uploaded. Waiting for admin verification.');
         $this->cancelUpload();
@@ -70,6 +111,15 @@ class Payments extends Component
                 ->orderByRaw("FIELD(status,'pending','paid','rejected','expired')")
                 ->orderBy('created_at', 'desc')
                 ->paginate(15),
+            'pendingTotal'              => Auth::user()->transactions()->where('status', 'pending')->sum('amount'),
+            'pendingCount'              => Auth::user()->transactions()->where('status', 'pending')->count(),
+            'paymentAccounts'           => PaymentAccount::active()->get(),
+            'uploadingTransaction'      => $this->uploadingId
+                ? Auth::user()->transactions()->with(['child', 'package.location'])->find($this->uploadingId)
+                : null,
+            'confirmCancelTransaction'  => $this->confirmCancelId
+                ? Auth::user()->transactions()->with(['child', 'package'])->find($this->confirmCancelId)
+                : null,
         ]);
     }
 }

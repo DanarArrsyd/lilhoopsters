@@ -1,89 +1,155 @@
-<div>
+<div x-data="{
+    getGps(then) {
+        if (!navigator.geolocation) { then(); return; }
+        navigator.geolocation.getCurrentPosition(
+            pos => {
+                $wire.set('latitude',  pos.coords.latitude);
+                $wire.set('longitude', pos.coords.longitude);
+                then();
+            },
+            () => then(),
+            { timeout: 6000, maximumAge: 60000 }
+        );
+    }
+}">
     {{-- Header --}}
-    <div class="mb-6">
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Coach Check-In</h2>
-        <p class="text-sm text-muted">Record your presence at a location.</p>
+    <div class="mb-5">
+        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Check In</h2>
+        <p class="text-sm text-muted">
+            {{ now()->format('l, d F Y') }} · You can check in to multiple sessions today.
+        </p>
     </div>
 
     {{-- Flash --}}
     @if (session('success'))
         <x-alert type="success" class="mb-4">{{ session('success') }}</x-alert>
     @endif
-
-    {{-- Active check-in state --}}
-    @if ($active)
-        <x-card class="mb-6" padding="p-6">
-            <div class="flex items-center gap-4 mb-4">
-                <div class="w-10 h-10 bg-navy/8 rounded-xl flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5 text-[#15803D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                </div>
-                <div>
-                    <p class="font-semibold text-ink">Currently Checked In</p>
-                    <p class="text-sm text-muted">{{ $active->location->name }}</p>
-                </div>
-                <x-badge status="active" class="ml-auto">Active</x-badge>
-            </div>
-            <div class="text-sm text-muted space-y-1 mb-5">
-                <p>Checked in: <span class="font-semibold text-ink">{{ $active->checked_in_at->format('H:i, d M Y') }}</span></p>
-                <p>Expires: <span class="font-semibold text-ink">{{ $active->expires_at->format('H:i, d M Y') }}</span></p>
-            </div>
-            <x-btn variant="danger" wire:click="checkOut" wire:loading.attr="disabled"
-                   wire:confirm="Are you sure you want to check out?">
-                <span wire:loading.remove wire:target="checkOut">Check Out</span>
-                <span wire:loading wire:target="checkOut">Checking out...</span>
-            </x-btn>
-        </x-card>
-    @else
-        {{-- Check-in form --}}
-        <x-card class="mb-6" padding="p-0">
-            <div class="px-4 py-3 border-b border-line">
-                <h3 class="text-sm font-bold uppercase tracking-wide text-navy">Check In Now</h3>
-            </div>
-            <div class="p-6 space-y-4">
-                <x-select wire:model="locationId" label="Location" :error="$errors->first('locationId')">
-                    <option value="">— Select location —</option>
-                    @foreach ($locations as $loc)
-                        <option value="{{ $loc->id }}">{{ $loc->name }}</option>
-                    @endforeach
-                </x-select>
-                <x-input wire:model="notes" label="Notes (optional)" placeholder="e.g. Substituting for coach Andi" />
-            </div>
-            <div class="px-6 pb-6">
-                <x-btn wire:click="checkIn" wire:loading.attr="disabled">
-                    <span wire:loading.remove wire:target="checkIn">Check In</span>
-                    <span wire:loading wire:target="checkIn">Checking in...</span>
-                </x-btn>
-            </div>
-        </x-card>
+    @if (session('error'))
+        <x-alert type="error" class="mb-4">{{ session('error') }}</x-alert>
     @endif
 
-    {{-- History --}}
-    @if ($history->isNotEmpty())
-        <x-card padding="p-0">
-            <div class="px-4 py-3 border-b border-line">
-                <h3 class="text-sm font-bold uppercase tracking-wide text-navy">Recent History</h3>
-            </div>
-            <div class="divide-y divide-line">
-                @foreach ($history as $h)
-                    <div class="px-4 py-3 flex items-center justify-between gap-4">
-                        <div>
-                            <p class="text-sm font-semibold text-ink">{{ $h->location->name }}</p>
-                            <p class="text-xs text-faint">{{ $h->checked_in_at->format('d M Y, H:i') }}</p>
+    {{-- All today's schedules (private + regular) --}}
+    @php
+        $allSchedules = $privateSchedules->concat($regularSchedules)->sortBy('start_time')->values();
+    @endphp
+
+    @if ($allSchedules->isEmpty())
+        {{-- No sessions today --}}
+        <div class="bg-surface border border-line rounded-2xl p-6 text-center mb-4">
+            <p class="text-sm font-semibold text-ink mb-0.5">No sessions today</p>
+            <p class="text-xs text-faint">There are no active schedules for {{ now()->format('l') }}.</p>
+        </div>
+
+        {{-- Upcoming --}}
+        @if ($upcomingDate && $upcomingSchedules->isNotEmpty())
+            <p class="text-[10px] font-bold uppercase tracking-widest text-faint mb-2.5">Next Session</p>
+            <div class="bg-surface border border-line rounded-2xl overflow-hidden">
+                <div class="px-4 py-2.5 border-b border-line bg-off">
+                    <p class="text-xs font-semibold text-navy">
+                        {{ $upcomingDate->format('l, d F Y') }}
+                        <span class="text-faint font-normal">· {{ $upcomingDate->diffForHumans() }}</span>
+                    </p>
+                </div>
+                <div class="divide-y divide-line">
+                    @foreach ($upcomingSchedules as $sched)
+                        <div class="flex items-center gap-3 px-4 py-3">
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-ink truncate">{{ $sched->program->name }}</p>
+                                <p class="text-xs text-faint">{{ $sched->location->name }} · {{ \Carbon\Carbon::parse($sched->start_time)->format('H:i') }}–{{ \Carbon\Carbon::parse($sched->end_time)->format('H:i') }}</p>
+                            </div>
+                            <span class="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full shrink-0
+                                {{ $sched->type === 'private' ? 'bg-purple-100 text-purple-700' : 'bg-blue-50 text-blue-600' }}">
+                                {{ $sched->type }}
+                            </span>
                         </div>
-                        <div class="text-right text-xs">
-                            @if ($h->checked_out_at)
-                                <span class="text-faint">Out: {{ $h->checked_out_at->format('H:i') }}</span>
-                            @elseif ($h->isActive())
-                                <x-badge status="active">Active</x-badge>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
+    @else
+        <div class="bg-surface border border-line rounded-2xl overflow-hidden">
+            <div class="divide-y divide-line">
+                @foreach ($allSchedules as $sched)
+                    @php
+                        $checkedIn      = in_array($sched->id, $mySessions);
+                        $sessionCoaches = $sessionsBySchedule->get($sched->id, collect());
+                        $hasPrimary     = $sessionCoaches->where('role', 'primary')->isNotEmpty();
+                        $mySession      = $activeSessions->firstWhere(fn($s) => $s->schedule_id === $sched->id);
+                        $enrolled       = $sched->approvedEnrollmentsCount();
+                        $isPrivate      = $sched->type === 'private';
+                    @endphp
+
+                    <div class="px-4 py-3 {{ $checkedIn ? 'bg-[#F0FDF4]' : '' }}">
+                        <div class="flex items-center gap-3">
+
+                            {{-- Type dot --}}
+                            <div class="w-2 h-2 rounded-full shrink-0 mt-0.5
+                                {{ $isPrivate ? 'bg-purple-400' : 'bg-blue-400' }}"></div>
+
+                            {{-- Info --}}
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <p class="text-sm font-bold {{ $checkedIn ? 'text-[#15803D]' : 'text-navy' }} truncate">
+                                        {{ $sched->program->name }}
+                                    </p>
+                                    @if ($isPrivate)
+                                        <span class="text-[9px] font-bold uppercase tracking-wide bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full shrink-0">Private</span>
+                                    @endif
+                                </div>
+                                <p class="text-xs text-faint">
+                                    {{ $sched->location->name }}
+                                    · {{ \Carbon\Carbon::parse($sched->start_time)->format('g:i A') }}–{{ \Carbon\Carbon::parse($sched->end_time)->format('g:i A') }}
+                                    · {{ $enrolled }} enrolled
+                                </p>
+                                {{-- Coaches in session --}}
+                                @if ($sessionCoaches->isNotEmpty())
+                                    <div class="flex flex-wrap gap-1 mt-1">
+                                        @foreach ($sessionCoaches as $cs)
+                                            <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full
+                                                {{ $cs->role === 'primary' ? 'bg-navy text-white' : 'bg-blue-100 text-blue-700' }}">
+                                                {{ $cs->coach->user->name }}{{ $cs->role === 'primary' ? ' · Primary' : ' · Asst.' }}
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
+
+                            {{-- Action --}}
+                            @if ($checkedIn)
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <span class="text-[10px] font-bold text-[#15803D] flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                                        In
+                                    </span>
+                                    @if ($mySession)
+                                        <button type="button"
+                                                wire:click="checkOut({{ $mySession->id }})"
+                                                wire:confirm="Check out from {{ $sched->program->name }}?"
+                                                class="text-[10px] font-bold text-[#9B1C1C] bg-white border border-[#FECACA] px-2.5 py-1 rounded-full hover:bg-[#FEF2F2] transition-colors">
+                                            Out
+                                        </button>
+                                    @endif
+                                </div>
                             @else
-                                <span class="text-[#B91C1C]">Expired</span>
+                                <button type="button"
+                                        @click="getGps(() => $wire.checkIn({{ $sched->id }}))"
+                                        wire:loading.attr="disabled"
+                                        class="shrink-0 text-xs font-bold px-3 py-1.5 rounded-full transition-colors disabled:opacity-60
+                                               {{ $hasPrimary ? 'bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100' : 'bg-navy text-off hover:bg-navy/90' }}">
+                                    {{ $hasPrimary ? 'Join' : 'Check In' }}
+                                </button>
                             @endif
                         </div>
                     </div>
                 @endforeach
             </div>
-        </x-card>
+        </div>
+
+        @if ($activeSessions->isNotEmpty())
+            <p class="text-[10px] font-bold uppercase tracking-widest text-faint mt-4 mb-1.5">
+                {{ $activeSessions->count() }} session{{ $activeSessions->count() > 1 ? 's' : '' }} active today
+            </p>
+        @endif
     @endif
 </div>

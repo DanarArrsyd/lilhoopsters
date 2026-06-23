@@ -1,83 +1,106 @@
 <div>
     {{-- Header --}}
-    <div class="flex items-start justify-between gap-4 mb-6">
-        <div>
-            <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">My Players</h2>
-            <p class="text-sm text-muted">Manage your children's profiles.</p>
-        </div>
-        <x-btn wire:click="openCreate">+ Add Player</x-btn>
+    <div class="mb-6">
+        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">My Players</h2>
+        <p class="text-sm text-muted">Manage your children's profiles.</p>
     </div>
+
+    {{-- FAB --}}
+    <button wire:click="openCreate"
+            class="fixed bottom-6 right-5 z-30 w-14 h-14 bg-navy text-off rounded-full shadow-lg flex items-center justify-center hover:bg-navy/90 active:scale-95 transition-all">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+        </svg>
+    </button>
 
     {{-- Flash --}}
     @if (session('success'))
         <x-alert type="success" class="mb-4">{{ session('success') }}</x-alert>
     @endif
 
-    {{-- Players grid --}}
+    {{-- Players list --}}
     @if ($children->isEmpty())
         <x-empty-state title="No players yet" description="Add your child to get started with enrollment." />
     @else
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="bg-surface border border-line rounded-2xl overflow-hidden divide-y divide-line">
             @foreach ($children as $child)
-                @php $months = $child->ageInMonths(); @endphp
-                <x-card padding="p-5">
-                    <div class="flex items-start gap-4">
-                        <div class="w-12 h-12 rounded-full bg-navy/8 text-navy flex items-center justify-center text-lg font-bold shrink-0">
+                @php
+                    $months = $child->ageInMonths();
+                    $ageStr = $months >= 12
+                        ? floor($months / 12) . 'yr' . ($months % 12 > 0 ? ' ' . ($months % 12) . 'mo' : '')
+                        : $months . 'mo';
+                @endphp
+                <div class="p-4">
+                    {{-- Top row: avatar + info + actions --}}
+                    <div class="flex items-center gap-3">
+                        {{-- Avatar --}}
+                        <div class="w-10 h-10 rounded-full bg-navy/8 text-navy flex items-center justify-center font-extrabold text-base shrink-0">
                             {{ strtoupper(substr($child->name, 0, 1)) }}
                         </div>
+
+                        {{-- Info --}}
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 flex-wrap">
-                                <p class="font-semibold text-ink">{{ $child->name }}</p>
+                                <p class="font-bold text-sm text-ink">{{ $child->name }}</p>
                                 <x-badge :status="$child->status">{{ ucfirst($child->status) }}</x-badge>
                             </div>
-                            <p class="text-sm text-muted mt-0.5">
-                                @if ($months >= 12)
-                                    {{ floor($months / 12) }}yr {{ $months % 12 > 0 ? ($months % 12) . 'mo' : '' }}
-                                @else
-                                    {{ $months }}mo
+                            <p class="text-xs text-muted mt-0.5">
+                                {{ $ageStr }} · {{ ucfirst($child->gender) }}
+                                @if ($child->jersey_name || $child->jersey_number)
+                                    · Jersey: {{ $child->jersey_name ?? '' }}@if($child->jersey_number) #{{ $child->jersey_number }}@endif
                                 @endif
-                                &middot; {{ ucfirst($child->gender) }}
                             </p>
-                            @if ($child->jersey_name || $child->jersey_number)
-                                <p class="text-xs text-faint mt-1">
-                                    Jersey: {{ $child->jersey_name ?? '—' }}
-                                    @if ($child->jersey_number) #{{ $child->jersey_number }} @endif
-                                </p>
-                            @endif
                             @if ($child->school)
                                 <p class="text-xs text-faint">{{ $child->school }}</p>
                             @endif
                         </div>
-                    </div>
 
-                    @if ($child->status === 'unregistered')
-                        <div class="mt-4 p-3 bg-[#B45309]/8 rounded-xl border border-[#B45309]/20">
-                            <p class="text-xs text-[#B45309] font-semibold">Not yet registered</p>
-                            <p class="text-xs text-[#B45309]/80 mt-0.5">Go to <a href="{{ route('parent.enroll') }}" class="underline">Enroll Player</a> to start registration.</p>
-                        </div>
-                    @elseif ($child->status === 'pending')
-                        <div class="mt-4 p-3 bg-[#1D4ED8]/8 rounded-xl border border-[#1D4ED8]/20">
-                            <p class="text-xs text-[#1D4ED8] font-semibold">Waiting for admin approval</p>
-                            <p class="text-xs text-[#1D4ED8]/80 mt-0.5">We'll notify you once approved.</p>
-                        </div>
-                    @endif
-
-                    <div class="mt-4 flex items-center justify-between">
-                        <span class="text-xs text-faint">{{ $child->enrollments_count }} enrollment(s)</span>
-                        <div class="flex gap-2">
+                        {{-- Action buttons --}}
+                        <div class="flex items-center gap-1.5 shrink-0">
                             @if ($child->status === 'active')
-                                <x-btn variant="ghost" size="sm" wire:click="openQr({{ $child->id }})" title="Show QR Code">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <button wire:click="openQr({{ $child->id }})"
+                                        class="w-8 h-8 flex items-center justify-center rounded-lg border border-line bg-surface text-muted hover:bg-off hover:text-navy hover:border-navy/30 transition-colors"
+                                        title="Show QR Code">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                               d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
                                     </svg>
-                                    QR
-                                </x-btn>
+                                </button>
                             @endif
-                            <x-btn variant="ghost" size="sm" wire:click="openEdit({{ $child->id }})">Edit</x-btn>
+                            <button wire:click="openEdit({{ $child->id }})"
+                                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-line bg-surface text-muted hover:bg-off hover:text-navy hover:border-navy/30 transition-colors"
+                                    title="Edit player">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                                </svg>
+                            </button>
                         </div>
                     </div>
-                </x-card>
+
+                    {{-- Status notices --}}
+                    @if ($child->status === 'unregistered')
+                        <div class="mt-3 flex items-center gap-2 px-3 py-2 bg-amber-50 rounded-xl border border-amber-100">
+                            <svg class="w-3.5 h-3.5 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <p class="text-xs text-amber-700">
+                                Not registered —
+                                <a href="{{ route('parent.enroll') }}" class="font-semibold underline">Enroll now</a>
+                                to get started.
+                            </p>
+                        </div>
+                    @elseif ($child->status === 'pending')
+                        <div class="mt-3 flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-xl border border-blue-100">
+                            <svg class="w-3.5 h-3.5 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <p class="text-xs text-blue-700">Waiting for admin approval — we'll notify you soon.</p>
+                        </div>
+                    @endif
+
+                    {{-- Enrollment count --}}
+                    <p class="text-[11px] text-faint mt-2.5">{{ $child->enrollments_count }} enrollment(s)</p>
+                </div>
             @endforeach
         </div>
     @endif
@@ -142,8 +165,12 @@
                 @endif
             </div>
             <div class="flex gap-3 px-6 pb-6">
-                <x-btn variant="secondary" class="flex-1" wire:click="cancel">Cancel</x-btn>
+                <x-btn variant="secondary" class="flex-1" wire:click="cancel">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    Cancel
+                </x-btn>
                 <x-btn class="flex-1" wire:click="save" wire:loading.attr="disabled">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                     <span wire:loading.remove wire:target="save">{{ $editingId ? 'Save Changes' : 'Add Player' }}</span>
                     <span wire:loading wire:target="save">Saving...</span>
                 </x-btn>

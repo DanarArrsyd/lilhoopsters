@@ -1,348 +1,586 @@
-<div>
-    {{-- Header --}}
-    <div class="flex items-start justify-between gap-4 mb-6">
-        <div>
-            <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Enroll Player</h2>
-            <p class="text-sm text-muted">Register a new player or join a program.</p>
-        </div>
-        @if ($step > 1)
-            <x-btn variant="secondary" wire:click="resetWizard">Start Over</x-btn>
-        @endif
-    </div>
+<div class="flex min-h-[100dvh]">
 
-    {{-- Flash --}}
-    @if (session('success'))
-        <x-alert type="success" class="mb-4">{{ session('success') }}</x-alert>
-    @endif
+    {{-- ── Sidebar (matches parent-portal) ── --}}
+    <aside id="sidebar"
+           class="fixed inset-y-0 left-0 z-50 w-60 bg-surface border-r border-line flex flex-col
+                  transform -translate-x-full lg:translate-x-0 transition-transform duration-300">
 
-    {{-- Step indicator --}}
-    <div class="flex items-center gap-2 mb-8">
-        @foreach ([1 => 'Select Player', 2 => 'Choose Plan', 3 => 'Confirm'] as $s => $label)
-            <div class="flex items-center gap-2 {{ !$loop->last ? 'flex-1' : '' }}">
-                <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0
-                    {{ $step > $s ? 'bg-[#15803D] text-white' : ($step === $s ? 'bg-navy text-off' : 'bg-navy/8 text-muted') }}">
-                    @if ($step > $s)
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
-                        </svg>
-                    @else
-                        {{ $s }}
-                    @endif
-                </div>
-                <span class="text-xs {{ $step === $s ? 'font-semibold text-ink' : 'text-faint' }} hidden sm:inline">
-                    {{ $label }}
-                </span>
-                @if (!$loop->last)
-                    <div class="flex-1 h-px bg-line mx-2"></div>
-                @endif
-            </div>
-        @endforeach
-    </div>
-
-    {{-- ── STEP 1: Select player ── --}}
-    @if ($step === 1)
-        @if ($enrollableChildren->isEmpty())
-            <x-card padding="p-8">
-                <x-empty-state
-                    title="No players available to enroll"
-                    description="Add a player in My Players, or all your players are already pending approval." />
-                <div class="text-center mt-4">
-                    <a href="{{ route('parent.players') }}">
-                        <x-btn>Go to My Players</x-btn>
-                    </a>
-                </div>
-            </x-card>
-        @else
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                @foreach ($enrollableChildren as $child)
-                    @php $months = $child->ageInMonths(); @endphp
-                    <button wire:click="selectChild({{ $child->id }})" class="text-left w-full">
-                        <x-card padding="p-5" class="hover:shadow-md transition-all cursor-pointer border-2 border-transparent hover:border-navy/20">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full bg-navy/8 text-navy flex items-center justify-center font-bold text-sm shrink-0">
-                                    {{ strtoupper(substr($child->name, 0, 1)) }}
-                                </div>
-                                <div>
-                                    <p class="font-semibold text-ink">{{ $child->name }}</p>
-                                    <p class="text-xs text-faint">
-                                        @if ($months >= 12)
-                                            {{ floor($months / 12) }}yr {{ $months % 12 > 0 ? ($months % 12) . 'mo' : '' }}
-                                        @else
-                                            {{ $months }}mo
-                                        @endif
-                                    </p>
-                                </div>
-                                <div class="ml-auto">
-                                    @if ($child->status === 'unregistered')
-                                        <span class="text-xs bg-[#B45309]/8 text-[#B45309] px-2 py-0.5 rounded-full font-semibold">Register</span>
-                                    @else
-                                        <span class="text-xs bg-[#15803D]/8 text-[#15803D] px-2 py-0.5 rounded-full font-semibold">Enroll</span>
-                                    @endif
-                                </div>
-                            </div>
-                        </x-card>
-                    </button>
-                @endforeach
-            </div>
-        @endif
-
-    {{-- ── STEP 2: Registration — pick location + package ── --}}
-    @elseif ($step === 2 && $enrollmentType === 'registration')
-        @php $child = $enrollableChildren->find($selectedChildId); @endphp
-        <div class="mb-4">
-            <p class="text-sm text-muted">Registering: <span class="font-semibold text-ink">{{ $child?->name }}</span></p>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {{-- Location picker --}}
+        {{-- Logo --}}
+        <div class="h-16 flex items-center gap-3 px-4 border-b border-line">
+            <img src="{{ asset('basket_logo.jpeg') }}" alt="Lil' Hoopsters" class="w-9 h-9 rounded-xl object-cover shrink-0">
             <div>
-                <h3 class="text-xs font-bold uppercase tracking-wide text-navy mb-3">Select Location</h3>
-                <div class="space-y-2">
-                    @foreach ($locations as $loc)
-                        <button wire:click="selectLocation({{ $loc->id }})"
-                                class="w-full text-left p-3 rounded-xl border-2 transition-all
-                                    {{ $selectedLocationId === $loc->id
-                                        ? 'border-navy bg-navy/8'
-                                        : 'border-line hover:border-navy/30 bg-surface' }}">
-                            <p class="font-semibold text-ink text-sm">{{ $loc->name }}</p>
-                            <p class="text-xs text-faint mt-0.5">{{ $loc->address }}</p>
-                        </button>
+                <p class="text-navy font-extrabold text-sm uppercase tracking-tight leading-tight">Lil' Hoopsters</p>
+                <p class="text-faint text-[10px] uppercase tracking-wide">Parent Portal</p>
+            </div>
+        </div>
+
+        {{-- Navigation --}}
+        <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+            <x-parent-nav activeRoute="parent.enroll" />
+        </nav>
+
+        {{-- User --}}
+        <div class="border-t border-line p-4">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-navy rounded-full flex items-center justify-center text-off font-bold text-sm shrink-0">
+                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-ink text-sm font-semibold truncate">{{ auth()->user()->name }}</p>
+                    <p class="text-muted text-xs truncate">{{ auth()->user()->email }}</p>
+                </div>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="text-muted hover:text-[#B91C1C] transition-colors p-1" title="Sign out">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </aside>
+
+    {{-- Mobile overlay --}}
+    <div id="sidebar-overlay" class="fixed inset-0 bg-navy/40 z-40 hidden lg:hidden" onclick="closeSidebar()"></div>
+
+    {{-- ── Main ── --}}
+    <div class="flex-1 flex flex-col min-w-0 lg:ml-60">
+
+        {{-- Topbar --}}
+        <header class="h-14 bg-surface border-b border-line flex items-center px-4 gap-3 sticky top-0 z-30">
+            <button class="lg:hidden p-2 rounded-lg hover:bg-off text-muted" onclick="openSidebar()">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+            <h1 class="flex-1 text-sm font-bold uppercase tracking-wide text-navy">Enroll Player</h1>
+            <span class="text-[11px] text-gray-400 font-medium tabular-nums">{{ $step }} / {{ $totalSteps }}</span>
+        </header>
+
+        {{-- Progress bar (sits flush below topbar) --}}
+        <div class="h-[3px] bg-gray-100 sticky top-14 z-20 shrink-0">
+            <div class="h-full bg-navy transition-all duration-500" style="width: {{ round($step / $totalSteps * 100) }}%"></div>
+        </div>
+
+        {{-- ── Scrollable wizard content ── --}}
+        <div class="flex-1 bg-white">
+            <div class="max-w-2xl mx-auto px-4 sm:px-6 pt-6 pb-20">
+
+                {{-- ── Stepper ── --}}
+                @php
+                    $stepperChild    = $enrollableChildren->firstWhere('id', $selectedChildId);
+                    $stepperLocation = $selectedLocationId ? $availableLocations->firstWhere('id', $selectedLocationId) ?? \App\Models\Location::find($selectedLocationId) : null;
+                    $stepLabels = [
+                        1 => $stepperChild ? \Illuminate\Support\Str::limit($stepperChild->name, 10) : 'Player',
+                        2 => $selectedDay && $stepperLocation
+                                ? ucfirst(substr($selectedDay, 0, 3)) . ' · ' . \Illuminate\Support\Str::limit($stepperLocation->name, 8)
+                                : 'Day & Field',
+                        3 => $selectedSchedule
+                                ? \Illuminate\Support\Str::limit($selectedSchedule->program->name, 10) . "\n"
+                                  . \Carbon\Carbon::createFromTimeString($selectedSchedule->start_time)->format('H:i')
+                                  . '–' . \Carbon\Carbon::createFromTimeString($selectedSchedule->end_time)->format('H:i')
+                                : 'Session',
+                        4 => $selectedPackageId && $availablePackages->firstWhere('id', $selectedPackageId)
+                                ? \Illuminate\Support\Str::limit($availablePackages->firstWhere('id', $selectedPackageId)->name, 10)
+                                : 'Details',
+                        5 => 'Confirm',
+                    ];
+                @endphp
+                <div class="flex items-start mb-5 sm:mb-8">
+                    @foreach ($stepLabels as $s => $label)
+                        <div class="flex flex-col items-center shrink-0 w-10 sm:w-14">
+                            <div @class([
+                                'w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 text-[10px] sm:text-xs font-bold',
+                                'bg-[#15803D] text-white'              => $step > $s,
+                                'bg-navy text-white ring-4 ring-navy/15' => $step === $s,
+                                'bg-gray-100 text-gray-400'            => $step < $s,
+                            ])>
+                                @if ($step > $s)
+                                    <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                @else
+                                    {{ $s }}
+                                @endif
+                            </div>
+                            <p @class([
+                                'text-[9px] sm:text-[10px] mt-1 sm:mt-1.5 text-center leading-tight font-medium whitespace-pre-line hidden sm:block',
+                                'text-[#15803D]'       => $step > $s,
+                                'text-navy font-bold'  => $step === $s,
+                                'text-gray-300'        => $step < $s,
+                            ])>{{ $label }}</p>
+                        </div>
+                        @if (!$loop->last)
+                            <div class="flex-1 h-px mt-3 sm:mt-3.5 mx-0.5 sm:mx-1 {{ $step > $s ? 'bg-[#15803D]/40' : 'bg-gray-200' }}"></div>
+                        @endif
                     @endforeach
                 </div>
-            </div>
 
-            {{-- Package picker --}}
-            <div>
-                <h3 class="text-xs font-bold uppercase tracking-wide text-navy mb-3">Registration Package</h3>
-                @if (!$selectedLocationId)
-                    <p class="text-sm text-faint italic">Select a location to see packages.</p>
-                @elseif ($registrationPackages->isEmpty())
-                    <p class="text-sm text-faint italic">No registration packages available at this location.</p>
-                @else
-                    <div class="space-y-2">
-                        @foreach ($registrationPackages as $pkg)
-                            <button wire:click="$set('selectedPackageId', {{ $pkg->id }})"
-                                    class="w-full text-left p-4 rounded-xl border-2 transition-all
-                                        {{ $selectedPackageId === $pkg->id
-                                            ? 'border-navy bg-navy/8'
-                                            : 'border-line hover:border-navy/30 bg-surface' }}">
-                                <div class="flex items-start justify-between">
-                                    <div>
-                                        <p class="font-semibold text-ink text-sm">{{ $pkg->name }}</p>
-                                        @if ($pkg->description)
-                                            <p class="text-xs text-faint mt-0.5">{{ $pkg->description }}</p>
-                                        @endif
-                                    </div>
-                                    <p class="text-navy font-bold text-sm shrink-0 ml-3">{{ $pkg->formattedPrice() }}</p>
-                                </div>
-                                @if ($pkg->is_popular)
-                                    <span class="inline-block mt-2 text-[10px] bg-[#B45309]/8 text-[#B45309] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide">Popular</span>
-                                @endif
-                            </button>
-                        @endforeach
-                    </div>
-                @endif
-            </div>
-        </div>
 
-        @error('selectedLocationId') <p class="text-xs text-[#B91C1C] mt-2">{{ $message }}</p> @enderror
-        @error('selectedPackageId') <p class="text-xs text-[#B91C1C] mt-2">{{ $message }}</p> @enderror
+                {{-- ════════ STEP 1: Select Player ════════ --}}
+                @if ($step === 1)
 
-        <div class="flex gap-3 mt-6">
-            <x-btn variant="secondary" wire:click="back">Back</x-btn>
-            <x-btn wire:click="goToStep3Registration" wire:loading.attr="disabled">Continue</x-btn>
-        </div>
+                    <h1 class="text-xl sm:text-2xl font-extrabold text-navy leading-tight mb-1">
+                        Who are you enrolling?
+                    </h1>
+                    <p class="text-xs text-gray-400 mb-5">Select a player to register or enroll in a program.</p>
 
-    {{-- ── STEP 2: Program — schedule browser ── --}}
-    @elseif ($step === 2 && $enrollmentType === 'program')
-        @php $child = $enrollableChildren->find($selectedChildId); @endphp
-        <div class="mb-4">
-            <p class="text-sm text-muted">Enrolling: <span class="font-semibold text-ink">{{ $child?->name }}</span></p>
-        </div>
-
-        {{-- Filters --}}
-        <x-card class="mb-4" padding="p-4">
-            <div class="flex gap-3 flex-wrap">
-                <div class="w-44">
-                    <x-select wire:model.live="filterLocationId">
-                        <option value="">All Locations</option>
-                        @foreach ($locations as $loc)
-                            <option value="{{ $loc->id }}">{{ $loc->name }}</option>
-                        @endforeach
-                    </x-select>
-                </div>
-                <div class="w-40">
-                    <x-select wire:model.live="filterDay">
-                        <option value="">All Days</option>
-                        @foreach (['monday','tuesday','wednesday','thursday','friday','saturday','sunday'] as $day)
-                            <option value="{{ $day }}">{{ ucfirst($day) }}</option>
-                        @endforeach
-                    </x-select>
-                </div>
-            </div>
-        </x-card>
-
-        @if ($schedules->isEmpty())
-            <x-empty-state title="No schedules found" description="Try adjusting your filters." />
-        @else
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                @foreach ($schedules as $sched)
-                    @php $approved = $sched->approvedEnrollmentsCount(); @endphp
-                    <button wire:click="selectSchedule({{ $sched->id }})" class="text-left w-full">
-                        <x-card padding="p-4" class="hover:shadow-md transition-all cursor-pointer border-2 border-transparent hover:border-navy/20">
-                            <div class="flex items-start justify-between">
-                                <div>
-                                    <p class="font-semibold text-ink text-sm">{{ $sched->program->name }}</p>
-                                    <p class="text-xs text-faint mt-0.5">{{ $sched->location->name }}</p>
-                                </div>
-                                <span class="text-xs bg-navy/8 text-navy px-2 py-1 rounded-lg font-semibold shrink-0 ml-3">
-                                    {{ ucfirst($sched->day_of_week) }}
-                                </span>
-                            </div>
-                            <div class="flex items-center gap-4 mt-3 text-xs text-faint">
-                                <span>{{ \Carbon\Carbon::createFromTimeString($sched->start_time)->format('H:i') }} – {{ \Carbon\Carbon::createFromTimeString($sched->end_time)->format('H:i') }}</span>
-                                <span>Coach: {{ $sched->coach->user->name }}</span>
-                            </div>
-                            <div class="mt-3">
-                                <div class="flex items-center gap-2">
-                                    <div class="flex-1 h-1.5 bg-line rounded-full overflow-hidden">
-                                        <div class="h-full bg-navy rounded-full" style="width: {{ min(100, ($approved / $sched->max_capacity) * 100) }}%"></div>
-                                    </div>
-                                    <span class="text-xs text-faint shrink-0">{{ $approved }}/{{ $sched->max_capacity }}</span>
-                                </div>
-                            </div>
-                        </x-card>
-                    </button>
-                @endforeach
-            </div>
-        @endif
-
-        <div class="mt-6">
-            <x-btn variant="secondary" wire:click="back">Back</x-btn>
-        </div>
-
-    {{-- ── STEP 3: Confirm ── --}}
-    @elseif ($step === 3)
-        @php
-            $child    = $enrollableChildren->find($selectedChildId);
-            $schedule = $selectedScheduleId ? \App\Models\Schedule::with(['program','location','coach.user'])->find($selectedScheduleId) : null;
-        @endphp
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {{-- Summary --}}
-            <div>
-                <h3 class="text-xs font-bold uppercase tracking-wide text-navy mb-3">Summary</h3>
-                <x-card padding="p-5">
-                    <div class="space-y-3">
-                        <div class="flex justify-between text-sm">
-                            <span class="text-muted">Player</span>
-                            <span class="font-semibold text-ink">{{ $child?->name }}</span>
+                    @if ($enrollableChildren->isEmpty())
+                        <div class="py-10 text-center border-2 border-dashed border-gray-100 rounded-2xl">
+                            <p class="text-sm font-semibold text-gray-500 mb-1">No players available</p>
+                            <p class="text-xs text-gray-400 mb-5">Add a player first, or all your players are pending approval.</p>
+                            <a href="{{ route('parent.players') }}"
+                                class="inline-flex items-center gap-2 bg-navy text-white text-xs font-bold uppercase tracking-wide px-4 py-2 rounded-xl hover:bg-navy/90 transition-colors">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                                </svg>
+                                Go to My Players
+                            </a>
                         </div>
-                        <div class="flex justify-between text-sm">
-                            <span class="text-muted">Type</span>
-                            <span class="font-semibold text-ink capitalize">{{ $enrollmentType }}</span>
-                        </div>
-                        @if ($schedule)
-                            <div class="flex justify-between text-sm">
-                                <span class="text-muted">Program</span>
-                                <span class="font-semibold text-ink">{{ $schedule->program->name }}</span>
-                            </div>
-                            <div class="flex justify-between text-sm">
-                                <span class="text-muted">Schedule</span>
-                                <span class="font-semibold text-ink">{{ ucfirst($schedule->day_of_week) }}, {{ \Carbon\Carbon::createFromTimeString($schedule->start_time)->format('H:i') }}</span>
-                            </div>
-                            <div class="flex justify-between text-sm">
-                                <span class="text-muted">Location</span>
-                                <span class="font-semibold text-ink">{{ $schedule->location->name }}</span>
-                            </div>
-                        @endif
-                        @if ($selectedPackageId)
-                            @php $pkg = $programPackages->find($selectedPackageId) ?? $registrationPackages->find($selectedPackageId); @endphp
-                            @if ($pkg)
-                                <div class="border-t border-line pt-3">
-                                    <div class="flex justify-between text-sm">
-                                        <span class="text-muted">Package</span>
-                                        <span class="font-semibold text-ink">{{ $pkg->name }}</span>
-                                    </div>
-                                    <div class="flex justify-between text-sm mt-1">
-                                        <span class="text-muted">Amount</span>
-                                        <span class="font-bold text-navy">{{ $pkg->formattedPrice() }}</span>
-                                    </div>
-                                </div>
-                            @endif
-                        @endif
-                    </div>
-                </x-card>
-
-                <div class="mt-4 p-4 bg-navy/8 rounded-xl border border-navy/20">
-                    <p class="text-xs font-semibold text-navy">After submitting:</p>
-                    <p class="text-xs text-navy/70 mt-1">Upload payment proof in the <a href="{{ route('parent.payments') }}" class="underline font-semibold">Payments</a> page. Your enrollment will be reviewed by admin.</p>
-                </div>
-            </div>
-
-            {{-- Package + extras --}}
-            <div class="space-y-4">
-                <div>
-                    <h3 class="text-xs font-bold uppercase tracking-wide text-navy mb-3">Select Package</h3>
-                    @php $packages = $enrollmentType === 'registration' ? $registrationPackages : $programPackages; @endphp
-                    @if ($packages->isEmpty())
-                        <p class="text-sm text-faint italic">No packages available.</p>
                     @else
-                        <div class="space-y-2">
-                            @foreach ($packages as $pkg)
-                                <button wire:click="$set('selectedPackageId', {{ $pkg->id }})"
-                                        class="w-full text-left p-4 rounded-xl border-2 transition-all
-                                            {{ $selectedPackageId === $pkg->id
-                                                ? 'border-navy bg-navy/8'
-                                                : 'border-line hover:border-navy/30 bg-surface' }}">
-                                    <div class="flex items-start justify-between">
-                                        <div>
-                                            <p class="font-semibold text-ink text-sm">{{ $pkg->name }}</p>
-                                            @if ($pkg->session_count)
-                                                <p class="text-xs text-faint">{{ $pkg->session_count }} sessions</p>
-                                            @elseif ($pkg->period_end)
-                                                <p class="text-xs text-faint">Until {{ $pkg->period_end->format('d M Y') }}</p>
-                                            @elseif ($pkg->validity_days)
-                                                <p class="text-xs text-faint">{{ $pkg->validity_days }} days</p>
-                                            @endif
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            @foreach ($enrollableChildren as $child)
+                                @php $months = $child->ageInMonths(); @endphp
+                                <button wire:click="selectChild({{ $child->id }})" wire:loading.attr="disabled"
+                                        class="group block text-left w-full h-full">
+                                    <div class="bg-white border-2 border-gray-100 rounded-xl p-3.5 flex items-center gap-3 transition-all duration-200 hover:border-navy/40 hover:shadow-sm h-full">
+                                        <div class="w-10 h-10 rounded-xl bg-navy/8 text-navy flex items-center justify-center font-bold text-base shrink-0 group-hover:bg-navy group-hover:text-white transition-colors duration-200">
+                                            {{ strtoupper(substr($child->name, 0, 1)) }}
                                         </div>
-                                        <p class="text-navy font-bold text-sm shrink-0 ml-3">{{ $pkg->formattedPrice() }}</p>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="font-bold text-gray-900 text-sm truncate">{{ $child->name }}</p>
+                                            <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                                                <span class="text-[11px] text-gray-400">
+                                                    @if ($months >= 12)
+                                                        {{ floor($months / 12) }}yr{{ $months % 12 > 0 ? ' ' . ($months % 12) . 'mo' : '' }}
+                                                    @else
+                                                        {{ $months }}mo
+                                                    @endif
+                                                </span>
+                                                @if ($child->status === 'unregistered')
+                                                    <span class="text-[9px] bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wide">Register</span>
+                                                @else
+                                                    <span class="text-[9px] bg-green-50 text-green-600 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wide">Active</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <svg class="w-3.5 h-3.5 text-gray-300 group-hover:text-navy group-hover:translate-x-0.5 transition-all duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                                        </svg>
                                     </div>
-                                    @if ($pkg->is_popular)
-                                        <span class="inline-block mt-2 text-[10px] bg-[#B45309]/8 text-[#B45309] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide">Popular</span>
-                                    @endif
                                 </button>
                             @endforeach
                         </div>
                     @endif
-                    @error('selectedPackageId') <p class="text-xs text-[#B91C1C] mt-2">{{ $message }}</p> @enderror
-                </div>
 
-                @if ($enrollmentType === 'registration')
-                    <div class="border-t border-line pt-4">
-                        <p class="text-xs font-bold uppercase tracking-wide text-navy mb-3">Jersey Info (optional)</p>
-                        <div class="grid grid-cols-2 gap-3">
-                            <x-input wire:model="jerseyName" label="Jersey Name" placeholder="e.g. BUDI" />
-                            <x-input wire:model="jerseyNumber" label="Number" placeholder="e.g. 23" />
+
+                {{-- ════════ STEP 2: Day + Field ════════ --}}
+                @elseif ($step === 2)
+
+                    <h1 class="text-xl sm:text-2xl font-extrabold text-navy leading-tight mb-1">
+                        When and where?
+                    </h1>
+                    <p class="text-xs text-gray-400 mb-5">Pick a training day, then choose a field.</p>
+
+                    @if ($availableDays->isEmpty())
+                        <p class="text-sm text-gray-400 italic">No active training days found.</p>
+                    @else
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2.5">Training Day</p>
+                        <div class="flex items-center gap-2 flex-wrap mb-6">
+                            @foreach ($availableDays as $day)
+                                <button wire:click="selectDay('{{ $day }}')"
+                                        class="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wide transition-all duration-200
+                                            {{ $selectedDay === $day ? 'bg-navy text-white shadow-sm' : 'bg-gray-100 text-gray-500 hover:bg-gray-200' }}">
+                                    {{ ucfirst($day) }}
+                                </button>
+                            @endforeach
+                        </div>
+                    @endif
+
+                    @if ($selectedDay)
+                        <div wire:key="locations-{{ $selectedDay }}">
+                            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2.5">
+                                Fields on {{ ucfirst($selectedDay) }}
+                            </p>
+                            @if ($availableLocations->isEmpty())
+                                <div class="py-7 text-center border-2 border-dashed border-gray-100 rounded-xl">
+                                    <p class="text-sm text-gray-400">No fields on {{ ucfirst($selectedDay) }}</p>
+                                </div>
+                            @else
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                    @foreach ($availableLocations as $loc)
+                                        <button wire:click="selectLocation({{ $loc->id }})" wire:loading.attr="disabled"
+                                                class="group block text-left w-full h-full">
+                                            <div class="bg-white border-2 border-gray-100 rounded-xl p-3.5 flex items-center gap-3 transition-all duration-200 hover:border-navy/40 hover:shadow-sm h-full">
+                                                <div class="w-9 h-9 rounded-xl bg-navy/8 text-navy flex items-center justify-center shrink-0 group-hover:bg-navy group-hover:text-white transition-colors duration-200">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                    </svg>
+                                                </div>
+                                                <div class="flex-1 min-w-0">
+                                                    <p class="font-bold text-gray-900 text-sm truncate">{{ $loc->name }}</p>
+                                                    @if ($loc->address)
+                                                        <p class="text-[11px] text-gray-400 mt-0.5 truncate">{{ $loc->address }}</p>
+                                                    @endif
+                                                </div>
+                                                <svg class="w-3.5 h-3.5 text-gray-300 group-hover:text-navy transition-all duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                                                </svg>
+                                            </div>
+                                        </button>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+                    @endif
+
+
+                {{-- ════════ STEP 3: Program & Time ════════ --}}
+                @elseif ($step === 3)
+
+                    <h1 class="text-xl sm:text-2xl font-extrabold text-navy leading-tight mb-1">
+                        Choose a session.
+                    </h1>
+                    <p class="text-xs text-gray-400 mb-5">Tap a session to select it.</p>
+
+                    @if ($availableSchedules->isEmpty())
+                        <div class="py-8 text-center border-2 border-dashed border-gray-100 rounded-xl">
+                            <p class="text-sm text-gray-400">No sessions available for this day and field.</p>
+                        </div>
+                    @else
+                        <div class="space-y-2.5">
+                            @foreach ($availableSchedules as $sched)
+                                @php
+                                    $approved = $sched->approvedEnrollmentsCount();
+                                    $pct      = $sched->max_capacity > 0 ? min(100, ($approved / $sched->max_capacity) * 100) : 0;
+                                    $full     = $approved >= $sched->max_capacity;
+                                @endphp
+                                <button
+                                    @if (!$full) wire:click="selectSchedule({{ $sched->id }})" wire:loading.attr="disabled" @endif
+                                    class="group block text-left w-full {{ $full ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer' }}">
+                                    <div class="bg-white border-2 rounded-xl p-4 transition-all duration-200 {{ !$full ? 'border-gray-100 hover:border-navy/40 hover:shadow-sm' : 'border-gray-100' }}">
+                                        <div class="flex items-start justify-between gap-2 mb-2">
+                                            <div class="min-w-0">
+                                                <p class="font-bold text-gray-900 text-sm truncate">{{ $sched->program->name }}</p>
+                                                <p class="text-[11px] text-gray-400 mt-0.5 truncate">
+                                                    @if ($sched->coach)
+                                                        Coach · {{ $sched->coach->user->name }}
+                                                    @else
+                                                        Regular session
+                                                    @endif
+                                                </p>
+                                            </div>
+                                            @if ($full)
+                                                <span class="shrink-0 text-[9px] bg-red-50 text-red-500 px-2 py-1 rounded-lg font-bold uppercase">Full</span>
+                                            @else
+                                                <span class="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                                    <svg class="w-4 h-4 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                                                    </svg>
+                                                </span>
+                                            @endif
+                                        </div>
+                                        <div class="flex items-center gap-1.5 text-xs text-gray-500 mb-2.5">
+                                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                            </svg>
+                                            {{ \Carbon\Carbon::createFromTimeString($sched->start_time)->format('H:i') }} – {{ \Carbon\Carbon::createFromTimeString($sched->end_time)->format('H:i') }}
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center justify-between text-[10px] text-gray-400 mb-1">
+                                                <span>Capacity</span>
+                                                <span class="{{ $full ? 'text-red-500 font-bold' : '' }}">{{ $approved }}/{{ $sched->max_capacity }}{{ $full ? ' · Full' : '' }}</span>
+                                            </div>
+                                            <div class="h-1 bg-gray-100 rounded-full overflow-hidden">
+                                                <div class="h-full rounded-full transition-all duration-500 {{ $pct >= 90 ? 'bg-red-400' : ($pct >= 70 ? 'bg-amber-400' : 'bg-green-400') }}"
+                                                     style="width: {{ $pct }}%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </button>
+                            @endforeach
+                        </div>
+                    @endif
+
+
+                {{-- ════════ STEP 4: Package + Details ════════ --}}
+                @elseif ($step === 4)
+
+                    <h1 class="text-xl sm:text-2xl font-extrabold text-navy leading-tight mb-1">
+                        Pick a package.
+                    </h1>
+                    <p class="text-xs text-gray-400 mb-5">Choose your billing plan and fill in any extra details.</p>
+
+                    {{-- Package selection --}}
+                    <div class="mb-6">
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2.5">Package</p>
+                        @if ($availablePackages->isEmpty())
+                            <div class="py-7 text-center border-2 border-dashed border-gray-100 rounded-xl">
+                                <p class="text-sm text-gray-400">No packages available at this location.</p>
+                            </div>
+                        @else
+                            <div class="space-y-2">
+                                @foreach ($availablePackages as $pkg)
+                                    @php $sel = $selectedPackageId === $pkg->id; @endphp
+                                    <button wire:click="$set('selectedPackageId', {{ $pkg->id }})" class="block w-full text-left group">
+                                        <div class="border-2 rounded-xl px-4 py-3 flex items-center gap-3 transition-all duration-200
+                                            {{ $sel ? 'border-navy bg-navy/[0.03] shadow-sm' : 'border-gray-100 hover:border-navy/30 hover:shadow-sm' }}">
+                                            <div class="w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors duration-200
+                                                {{ $sel ? 'border-navy bg-navy' : 'border-gray-300 group-hover:border-navy/50' }}">
+                                                @if ($sel)
+                                                    <svg class="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                                    </svg>
+                                                @endif
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="font-bold text-gray-900 text-sm leading-none mb-0.5">{{ $pkg->name }}</p>
+                                                @if ($pkg->session_count)
+                                                    <p class="text-[11px] text-gray-400">{{ $pkg->session_count }} sessions</p>
+                                                @elseif (isset($pkg->validity_days) && $pkg->validity_days)
+                                                    <p class="text-[11px] text-gray-400">{{ $pkg->validity_days }} days validity</p>
+                                                @elseif (isset($pkg->period_end) && $pkg->period_end)
+                                                    <p class="text-[11px] text-gray-400">Until {{ $pkg->period_end->format('d M Y') }}</p>
+                                                @endif
+                                            </div>
+                                            <p class="font-extrabold text-navy text-base shrink-0">{{ $pkg->formattedPrice() }}</p>
+                                        </div>
+                                    </button>
+                                @endforeach
+                            </div>
+                        @endif
+                        @error('selectedPackageId')
+                            <p class="text-xs text-red-500 mt-2 flex items-center gap-1">
+                                <svg class="w-3 h-3 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                                {{ $message }}
+                            </p>
+                        @enderror
+                    </div>
+
+                    {{-- Start date picker (regular packages only) --}}
+                    @php
+                        $selectedPkg = $selectedPackageId ? $availablePackages->firstWhere('id', $selectedPackageId) : null;
+                    @endphp
+                    @if ($selectedPkg?->type === 'regular')
+                    <div class="mb-6">
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Training Start Date
+                            <span class="text-red-400 ml-0.5">*</span>
+                        </p>
+                        @if ($selectedPkg->validity_days)
+                            <p class="text-[11px] text-gray-400 mb-3">
+                                Package valid for {{ $selectedPkg->validity_days }} days from your chosen start date.
+                                @if ($startDate)
+                                    Expires on <strong class="text-navy">{{ \Carbon\Carbon::parse($startDate)->addDays($selectedPkg->validity_days - 1)->format('d M Y') }}</strong>.
+                                @endif
+                            </p>
+                        @else
+                            <p class="text-[11px] text-gray-400 mb-3">Choose when you'd like to start training.</p>
+                        @endif
+                        <input wire:model.live="startDate" type="date"
+                               min="{{ now()->toDateString() }}"
+                               class="w-full border-0 border-b-2 border-gray-200 focus:border-navy bg-transparent text-base text-navy py-1.5 focus:outline-none transition-colors caret-navy">
+                        @error('startDate')
+                            <p class="text-xs text-red-500 mt-1.5 flex items-center gap-1">
+                                <svg class="w-3 h-3 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                                {{ $message }}
+                            </p>
+                        @enderror
+                    </div>
+                    @endif
+
+                    {{-- Jersey (registration only) --}}
+                    @if ($enrollmentType === 'registration')
+                        <div class="mb-6">
+                            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Jersey
+                                <span class="text-gray-300 font-normal normal-case tracking-normal ml-1">— optional</span>
+                            </p>
+                            <p class="text-[11px] text-gray-400 mb-3">Printed on your child's jersey.</p>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">Name</label>
+                                    <input wire:model="jerseyName" type="text" placeholder="e.g. BUDI"
+                                        class="w-full border-0 border-b-2 border-gray-200 focus:border-navy bg-transparent text-base text-navy py-1.5 focus:outline-none placeholder:text-gray-300 transition-colors caret-navy uppercase">
+                                </div>
+                                <div>
+                                    <label class="block text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">Number</label>
+                                    <input wire:model="jerseyNumber" type="text" placeholder="e.g. 23"
+                                        class="w-full border-0 border-b-2 border-gray-200 focus:border-navy bg-transparent text-base text-navy py-1.5 focus:outline-none placeholder:text-gray-300 transition-colors caret-navy">
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- Notes --}}
+                    <div class="mb-6">
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Notes
+                            <span class="text-gray-300 font-normal normal-case tracking-normal ml-1">— optional</span>
+                        </p>
+                        <p class="text-[11px] text-gray-400 mb-3">Injuries, preferences, anything for the admin.</p>
+                        <textarea wire:model="memberNotes" rows="2" placeholder="e.g. Allergic to latex, prefers mornings..."
+                            class="w-full border-0 border-b-2 border-gray-200 focus:border-navy bg-transparent text-sm text-navy py-1.5 focus:outline-none placeholder:text-gray-300 transition-colors resize-none caret-navy"></textarea>
+                    </div>
+
+                    <button wire:click="confirmDetails" wire:loading.attr="disabled"
+                        class="inline-flex items-center gap-2 bg-navy text-white text-xs font-bold uppercase tracking-widest px-6 py-2.5 rounded-xl hover:bg-navy/90 active:scale-[0.97] transition-all duration-150 disabled:opacity-50">
+                        <svg wire:loading.remove wire:target="confirmDetails" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                        </svg>
+                        <svg wire:loading wire:target="confirmDetails" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                        </svg>
+                        <span wire:loading.remove wire:target="confirmDetails">Review Order</span>
+                        <span wire:loading wire:target="confirmDetails">Loading...</span>
+                    </button>
+
+
+                {{-- ════════ STEP 5: Confirmation ════════ --}}
+                @elseif ($step === 5)
+                    @php
+                        $confirmChild    = $enrollableChildren->firstWhere('id', $selectedChildId);
+                        $confirmSchedule = $selectedSchedule;
+                        $confirmPackage  = $availablePackages->firstWhere('id', $selectedPackageId);
+                        $confirmRows = [
+                            ['label' => 'ID TRX',   'value' => $previewTrxCode,  'mono' => true],
+                            ['label' => 'Player',   'value' => $confirmChild?->name ?? '—'],
+                            ['label' => 'Day',      'value' => $selectedDay ? ucfirst($selectedDay) : '—'],
+                            ['label' => 'Location', 'value' => $confirmSchedule?->location->name ?? '—'],
+                            ['label' => 'Schedule', 'value' => $confirmSchedule
+                                ? $confirmSchedule->program->name . ' ('
+                                  . \Carbon\Carbon::createFromTimeString($confirmSchedule->start_time)->format('H:i')
+                                  . ' – '
+                                  . \Carbon\Carbon::createFromTimeString($confirmSchedule->end_time)->format('H:i') . ')'
+                                : '—'],
+                            ['label' => 'Package',  'value' => $confirmPackage?->name ?? '—'],
+                            ...($confirmPackage?->type === 'regular' && $startDate ? [
+                                ['label' => 'Start Date',  'value' => \Carbon\Carbon::parse($startDate)->format('d M Y')],
+                                ['label' => 'Expires',     'value' => \Carbon\Carbon::parse($startDate)->addDays(($confirmPackage->validity_days ?? 1) - 1)->format('d M Y')],
+                            ] : []),
+                            ['label' => 'Price',    'value' => $confirmPackage?->formattedPrice() ?? '—', 'highlight' => true],
+                        ];
+                    @endphp
+
+                    <h1 class="text-xl sm:text-2xl font-extrabold text-navy leading-tight mb-1">
+                        Review your order.
+                    </h1>
+                    <p class="text-xs text-gray-400 mb-5">Check everything before enrolling.</p>
+
+                    {{-- Summary card --}}
+                    <div class="border border-gray-100 rounded-2xl overflow-hidden shadow-sm mb-5">
+                        <div class="bg-navy px-4 py-3 flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center font-extrabold text-xs shrink-0">
+                                {{ strtoupper(substr($confirmChild?->name ?? '?', 0, 1)) }}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-[9px] font-bold uppercase tracking-widest text-white/40">Enrollment Order</p>
+                                <p class="text-sm font-extrabold text-white truncate">{{ $confirmChild?->name }}</p>
+                            </div>
+                            <span class="shrink-0 text-[9px] font-extrabold uppercase tracking-wide px-2 py-1 rounded-full
+                                {{ $enrollmentType === 'registration' ? 'bg-amber-500/25 text-amber-300' : 'bg-green-500/25 text-green-300' }}">
+                                {{ ucfirst($enrollmentType) }}
+                            </span>
+                        </div>
+                        <div class="divide-y divide-gray-50">
+                            @foreach ($confirmRows as $row)
+                                <div class="flex items-center justify-between gap-3 px-4 py-3
+                                    {{ isset($row['highlight']) && $row['highlight'] ? 'bg-navy/[0.03]' : '' }}">
+                                    <span class="text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400 shrink-0 w-16">
+                                        {{ $row['label'] }}
+                                    </span>
+                                    <span @class([
+                                        'flex-1 text-right leading-snug',
+                                        'font-mono text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md' => isset($row['mono']) && $row['mono'],
+                                        'text-lg font-extrabold text-navy' => isset($row['highlight']) && $row['highlight'],
+                                        'text-xs font-semibold text-gray-800' => !isset($row['mono']) && !isset($row['highlight']),
+                                    ])>{{ $row['value'] }}</span>
+                                </div>
+                            @endforeach
                         </div>
                     </div>
+
+                    @if ($enrollmentType === 'registration' && ($jerseyName || $jerseyNumber))
+                        <div class="flex items-center gap-2.5 px-3.5 py-2.5 bg-gray-50 rounded-xl border border-gray-100 mb-3">
+                            <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                            </svg>
+                            <p class="text-xs text-gray-500">
+                                Jersey:
+                                @if ($jerseyName) <span class="font-bold text-gray-700">{{ strtoupper($jerseyName) }}</span> @endif
+                                @if ($jerseyNumber) <span class="text-gray-400"> · #{{ $jerseyNumber }}</span> @endif
+                            </p>
+                        </div>
+                    @endif
+
+                    @if ($memberNotes)
+                        <div class="flex items-start gap-2.5 px-3.5 py-2.5 bg-gray-50 rounded-xl border border-gray-100 mb-3">
+                            <svg class="w-3.5 h-3.5 text-gray-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+                            </svg>
+                            <p class="text-xs text-gray-500 leading-relaxed">{{ $memberNotes }}</p>
+                        </div>
+                    @endif
+
+                    <div class="flex gap-2.5 px-3.5 py-2.5 bg-blue-50 rounded-xl border border-blue-100 mb-6">
+                        <svg class="w-3.5 h-3.5 text-blue-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <p class="text-xs text-blue-600 leading-relaxed">
+                            After enrolling, upload payment proof in the
+                            <a href="{{ route('parent.payments') }}" class="font-bold underline">Payments</a> page for admin review.
+                        </p>
+                    </div>
+
+                    <div class="flex items-center justify-between gap-3 bg-gray-50 rounded-xl px-4 py-3 border border-gray-100">
+                        <div>
+                            <p class="text-[9px] font-bold uppercase tracking-widest text-gray-400">Total</p>
+                            <p class="text-lg font-extrabold text-navy leading-none">{{ $confirmPackage?->formattedPrice() }}</p>
+                        </div>
+                        <button wire:click="submit" wire:loading.attr="disabled"
+                            class="inline-flex items-center gap-2 bg-[#15803D] text-white text-xs font-bold uppercase tracking-widest px-6 py-2.5 rounded-xl hover:bg-[#166534] active:scale-[0.97] transition-all duration-150 disabled:opacity-50">
+                            <svg wire:loading.remove wire:target="submit" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <svg wire:loading wire:target="submit" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                            </svg>
+                            <span wire:loading.remove wire:target="submit">Enroll Now</span>
+                            <span wire:loading wire:target="submit">Processing...</span>
+                        </button>
+                    </div>
+
                 @endif
 
-                <div class="space-y-1.5">
-                    <label class="block text-xs font-semibold uppercase tracking-wide text-navy">Notes (optional)</label>
-                    <textarea wire:model="memberNotes" rows="2" aria-label="Enrollment notes"
-                              class="block w-full rounded-xl border border-line bg-surface px-3.5 py-3 text-sm text-ink placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-navy/15 focus:border-navy resize-none"
-                              placeholder="Any additional info for the admin..."></textarea>
-                </div>
-            </div>
-        </div>
+            </div>{{-- /max-w-2xl --}}
+        </div>{{-- /flex-1 bg-white --}}
 
-        <div class="flex gap-3 mt-6">
-            <x-btn variant="secondary" wire:click="back">Back</x-btn>
-            <x-btn wire:click="submit" wire:loading.attr="disabled">
-                <span wire:loading.remove wire:target="submit">Submit Enrollment</span>
-                <span wire:loading wire:target="submit">Submitting...</span>
-            </x-btn>
-        </div>
-    @endif
-</div>
+        {{-- Back arrow (fixed bottom-right, only step 2+) --}}
+        @if ($step > 1)
+            <div class="fixed bottom-5 right-4 sm:bottom-6 sm:right-6 z-20">
+                <button wire:click="back" wire:loading.attr="disabled"
+                    class="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-400 hover:border-navy hover:text-navy shadow-sm transition-colors duration-150">
+                    <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                </button>
+            </div>
+        @endif
+
+    </div>{{-- /main --}}
+
+</div>{{-- /flex --}}
+
+@push('scripts')
+<script>
+    function openSidebar() {
+        document.getElementById('sidebar').classList.remove('-translate-x-full');
+        document.getElementById('sidebar-overlay').classList.remove('hidden');
+    }
+    function closeSidebar() {
+        document.getElementById('sidebar').classList.add('-translate-x-full');
+        document.getElementById('sidebar-overlay').classList.add('hidden');
+    }
+</script>
+@endpush

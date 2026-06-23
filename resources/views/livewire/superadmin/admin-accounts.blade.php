@@ -1,12 +1,15 @@
 <div>
     {{-- Header --}}
-    <div class="flex items-start justify-between gap-4 mb-6">
-        <div>
-            <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Admin Accounts</h2>
-            <p class="text-sm text-muted">Manage administrator accounts for the platform.</p>
-        </div>
-        <x-btn wire:click="openForm">+ New Admin</x-btn>
+    <div class="mb-6">
+        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Admin Accounts</h2>
+        <p class="text-sm text-muted">Manage administrator accounts for the platform.</p>
     </div>
+    <button wire:click="openForm"
+            class="fixed bottom-6 right-5 z-30 w-14 h-14 bg-navy text-off rounded-full shadow-lg flex items-center justify-center hover:bg-navy/90 active:scale-95 transition-all">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+        </svg>
+    </button>
 
     {{-- Flash --}}
     @if (session('success'))
@@ -52,13 +55,19 @@
                             <td class="py-3 px-4">
                                 <div class="flex items-center gap-2 justify-end">
                                     @if ($admin->is_active)
-                                        <x-btn variant="ghost" size="sm"
+                                        <x-btn variant="warning" size="sm"
                                                wire:click="confirmDeactivate({{ $admin->id }})"
-                                               wire:loading.attr="disabled">Deactivate</x-btn>
+                                               wire:loading.attr="disabled">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                                            Deactivate
+                                        </x-btn>
                                     @else
-                                        <x-btn variant="ghost" size="sm"
+                                        <x-btn variant="success" size="sm"
                                                wire:click="toggleActive({{ $admin->id }})"
-                                               wire:loading.attr="disabled">Activate</x-btn>
+                                               wire:loading.attr="disabled">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.636 5.636a9 9 0 1012.728 0M12 3v9"/></svg>
+                                            Activate
+                                        </x-btn>
                                     @endif
                                 </div>
                             </td>
@@ -100,8 +109,12 @@
                          placeholder="Repeat password" required :error="$errors->first('passwordConfirmation')" />
             </div>
             <div class="flex gap-3 px-6 pb-6">
-                <x-btn variant="secondary" class="flex-1" wire:click="closeForm">Cancel</x-btn>
+                <x-btn variant="secondary" class="flex-1" wire:click="closeForm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    Cancel
+                </x-btn>
                 <x-btn class="flex-1" wire:click="create" wire:loading.attr="disabled">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                     <span wire:loading.remove wire:target="create">Create Admin</span>
                     <span wire:loading wire:target="create">Creating...</span>
                 </x-btn>
@@ -123,8 +136,12 @@
                 <p class="text-sm text-muted">This admin will no longer be able to log in. You can reactivate them at any time.</p>
             </div>
             <div class="flex gap-3 px-6 pb-6">
-                <x-btn variant="secondary" class="flex-1" wire:click="cancelDeactivate">Cancel</x-btn>
+                <x-btn variant="secondary" class="flex-1" wire:click="cancelDeactivate">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    Cancel
+                </x-btn>
                 <x-btn variant="danger" class="flex-1" wire:click="deactivate" wire:loading.attr="disabled">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
                     <span wire:loading.remove wire:target="deactivate">Deactivate</span>
                     <span wire:loading wire:target="deactivate">Deactivating...</span>
                 </x-btn>

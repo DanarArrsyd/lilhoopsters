@@ -1,58 +1,44 @@
 <div>
-    {{-- Header --}}
     <div class="mb-6">
         <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Attendances</h2>
         <p class="text-sm text-muted">View and override student attendance records.</p>
     </div>
 
-    {{-- Flash --}}
     @if (session('success'))
         <x-alert type="success" class="mb-4">{{ session('success') }}</x-alert>
     @endif
 
-    {{-- Stats --}}
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
-        <x-card padding="p-4">
-            <p class="text-2xl font-extrabold text-navy">{{ $stats['total'] }}</p>
-            <p class="text-xs text-muted mt-1">Total Records</p>
-        </x-card>
-        <x-card padding="p-4">
-            <p class="text-2xl font-extrabold text-[#15803D]">{{ $stats['present'] }}</p>
-            <p class="text-xs text-muted mt-1">Present</p>
-        </x-card>
-        <x-card padding="p-4">
-            <p class="text-2xl font-extrabold text-[#B91C1C]">{{ $stats['absent'] }}</p>
-            <p class="text-xs text-muted mt-1">Absent</p>
-        </x-card>
-        <x-card padding="p-4">
-            <p class="text-2xl font-extrabold text-[#1D4ED8]">{{ $stats['sick'] }}</p>
-            <p class="text-xs text-muted mt-1">Sick / Permit</p>
-        </x-card>
+    {{-- Status tabs --}}
+    <div class="flex gap-2 flex-wrap mb-4">
+        @foreach ([
+            ''         => 'All',
+            'present'  => 'Present',
+            'no_show'  => 'No Show',
+            'sick'     => 'Sick',
+            'permit'   => 'Permit',
+            'make_up'  => 'Make-Up',
+        ] as $val => $label)
+            <button wire:click="$set('filterStatus', '{{ $val }}')"
+                    @class([
+                        'px-4 py-1.5 rounded-full text-sm font-semibold border transition-colors',
+                        'bg-navy text-off border-navy'                            => $filterStatus === $val,
+                        'bg-surface text-ink border-line hover:bg-off'            => $filterStatus !== $val,
+                    ])>{{ $label }}</button>
+        @endforeach
     </div>
 
-    {{-- Filters --}}
-    <x-card class="mb-4" padding="p-4">
-        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
-            <x-input wire:model.live.debounce.300ms="search" placeholder="Search by child name..." />
-            <x-input type="date" wire:model.live="filterDate" />
-            <x-select wire:model.live="filterSchedule">
-                <option value="">All Schedules</option>
-                @foreach ($schedules as $s)
-                    <option value="{{ $s->id }}">{{ $s->program->name }} – {{ ucfirst($s->day_of_week) }}</option>
-                @endforeach
-            </x-select>
-            <x-select wire:model.live="filterStatus">
-                <option value="">All Statuses</option>
-                <option value="present">Present</option>
-                <option value="no_show">Absent</option>
-                <option value="sick">Sick</option>
-                <option value="permit">Permit</option>
-                <option value="make_up">Make-Up</option>
-            </x-select>
-        </div>
-    </x-card>
+    {{-- Inline filters --}}
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+        <x-input wire:model.live.debounce.300ms="search" placeholder="Search by child name..." />
+        <x-input type="date" wire:model.live="filterDate" />
+        <x-select wire:model.live="filterSchedule">
+            <option value="">All Schedules</option>
+            @foreach ($schedules as $s)
+                <option value="{{ $s->id }}">{{ $s->program->name }} – {{ ucfirst($s->day_of_week) }}</option>
+            @endforeach
+        </x-select>
+    </div>
 
-    {{-- Table --}}
     <x-card padding="p-0">
         <div class="overflow-x-auto">
             <table class="w-full text-sm min-w-[640px]">
@@ -83,28 +69,24 @@
                             <td class="py-3 px-4">
                                 <x-badge :status="$a->status">{{ ucfirst(str_replace('_', ' ', $a->status)) }}</x-badge>
                             </td>
-                            <td class="py-3 px-4 text-muted capitalize">{{ $a->source }}</td>
-                            <td class="py-3 px-4 text-muted">{{ $a->coach?->user?->name ?? '—' }}</td>
-                            <td class="py-3 px-4">
-                                <x-btn variant="ghost" size="sm"
-                                       wire:click="openOverride({{ $a->id }})"
-                                       wire:loading.attr="disabled">Override</x-btn>
+                            <td class="py-3 px-4 text-muted capitalize text-xs">{{ $a->source }}</td>
+                            <td class="py-3 px-4 text-muted text-xs">{{ $a->coach?->user?->name ?? '—' }}</td>
+                            <td class="py-3 px-4 text-right">
+                                <x-btn variant="edit" size="sm" wire:click="openOverride({{ $a->id }})" wire:loading.attr="disabled">
+                                    Override
+                                </x-btn>
                             </td>
                         </tr>
                     @empty
-                        <tr>
-                            <td colspan="7" class="py-2">
-                                <x-empty-state title="No attendance records found" description="Records appear here once sessions are taken." />
-                            </td>
-                        </tr>
+                        <tr><td colspan="7" class="py-2">
+                            <x-empty-state title="No attendance records found" description="Records appear here once sessions are taken." />
+                        </td></tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
         @if ($attendances->hasPages())
-            <div class="px-4 py-3 border-t border-line">
-                {{ $attendances->links() }}
-            </div>
+            <div class="px-4 py-3 border-t border-line">{{ $attendances->links() }}</div>
         @endif
     </x-card>
 
@@ -120,7 +102,7 @@
             <div class="p-6 space-y-4">
                 <x-select wire:model="overrideStatus" label="Status" :error="$errors->first('overrideStatus')">
                     <option value="present">Present</option>
-                    <option value="no_show">Absent</option>
+                    <option value="no_show">No Show</option>
                     <option value="sick">Sick</option>
                     <option value="permit">Permit</option>
                     <option value="make_up">Make-Up</option>

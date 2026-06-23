@@ -57,6 +57,73 @@ class Reports extends Component
         return [$from, $to];
     }
 
+    // Previous period of equal length, immediately before [$from, $to].
+    private function previousRange(Carbon $from, Carbon $to): array
+    {
+        $days     = (int) $from->diffInDays($to) + 1;
+        $prevTo   = $from->copy()->subDay()->endOfDay();
+        $prevFrom = $prevTo->copy()->subDays($days - 1)->startOfDay();
+
+        return [$prevFrom, $prevTo];
+    }
+
+    // Percent change vs baseline. null = no baseline to compare against.
+    private function delta(float $current, float $previous): ?array
+    {
+        if ($previous == 0.0) {
+            return $current == 0.0 ? null : ['dir' => 'up', 'pct' => 100.0];
+        }
+
+        $pct = ($current - $previous) / $previous * 100;
+
+        return [
+            'dir' => $pct > 0 ? 'up' : ($pct < 0 ? 'down' : 'flat'),
+            'pct' => round(abs($pct), 1),
+        ];
+    }
+
+    // Paid-transactions query for a range, honouring the location filter.
+    private function paidQuery(Carbon $from, Carbon $to)
+    {
+        return Transaction::where('status', 'paid')
+            ->whereBetween('paid_at', [$from, $to])
+            ->when($this->filterLocation, fn($q) => $q->whereHas(
+                'package', fn($p) => $p->where('location_id', $this->filterLocation)
+            ));
+    }
+
+    // ─── export ──────────────────────────────────────────────────────
+
+    public function export()
+    {
+        [$from, $to] = $this->resolvedRange();
+
+        $rows = $this->paidQuery($from, $to)
+            ->with(['package.location'])
+            ->orderBy('paid_at')
+            ->get();
+
+        $filename = 'revenue_' . $from->format('Ymd') . '-' . $to->format('Ymd') . '.csv';
+
+        return response()->streamDownload(function () use ($rows) {
+            $out = fopen('php://output', 'w');
+            // UTF-8 BOM so Excel reads Rupiah/accents correctly
+            fwrite($out, "\xEF\xBB\xBF");
+            fputcsv($out, ['Tanggal Bayar', 'Paket', 'Tipe', 'Lokasi', 'Jumlah']);
+
+            foreach ($rows as $t) {
+                fputcsv($out, [
+                    optional($t->paid_at)->format('Y-m-d H:i'),
+                    $t->package?->name ?? '—',
+                    $t->package?->type ?? '—',
+                    $t->package?->location?->name ?? '—',
+                    $t->amount,
+                ]);
+            }
+            fclose($out);
+        }, $filename, ['Content-Type' => 'text/csv']);
+    }
+
     // ─── render ──────────────────────────────────────────────────────
 
     public function render()
@@ -64,13 +131,7 @@ class Reports extends Component
         [$from, $to] = $this->resolvedRange();
 
         // Query A — paid transactions (revenue)
-        $paid = Transaction::where('status', 'paid')
-            ->whereBetween('paid_at', [$from, $to])
-            ->when($this->filterLocation, fn($q) => $q->whereHas(
-                'package', fn($p) => $p->where('location_id', $this->filterLocation)
-            ))
-            ->with(['package.location'])
-            ->get();
+        $paid = $this->paidQuery($from, $to)->with(['package.location'])->get();
 
         // Query B — all-status funnel (by created_at)
         $funnel = Transaction::whereBetween('created_at', [$from, $to])
@@ -93,6 +154,33 @@ class Reports extends Component
             'conversion_rate' => $funnelTotal > 0
                 ? round(($funnel['paid'] ?? 0) / $funnelTotal * 100, 1)
                 : 0.0,
+        ];
+
+        // Previous-period comparison (same length, immediately before)
+        [$pFrom, $pTo]  = $this->previousRange($from, $to);
+        $prevPaid       = $this->paidQuery($pFrom, $pTo)->get(['amount']);
+        $prevRevenue    = (int) $prevPaid->sum('amount');
+        $prevCount      = $prevPaid->count();
+        $prevAvg        = $prevCount > 0 ? intdiv($prevRevenue, $prevCount) : 0;
+
+        $prevFunnel     = Transaction::whereBetween('created_at', [$pFrom, $pTo])
+            ->when($this->filterLocation, fn($q) => $q->whereHas(
+                'package', fn($p) => $p->where('location_id', $this->filterLocation)
+            ))
+            ->selectRaw('status, COUNT(*) as cnt')
+            ->groupBy('status')
+            ->pluck('cnt', 'status')
+            ->toArray();
+        $prevFunnelTotal = array_sum($prevFunnel);
+        $prevConversion  = $prevFunnelTotal > 0
+            ? round(($prevFunnel['paid'] ?? 0) / $prevFunnelTotal * 100, 1)
+            : 0.0;
+
+        $deltas = [
+            'total_revenue'   => $this->delta($totalRevenue, $prevRevenue),
+            'paid_count'      => $this->delta($paidCount, $prevCount),
+            'avg_transaction' => $this->delta($kpis['avg_transaction'], $prevAvg),
+            'conversion_rate' => $this->delta($kpis['conversion_rate'], $prevConversion),
         ];
 
         // Revenue over time — daily or monthly buckets
@@ -139,7 +227,7 @@ class Reports extends Component
         );
 
         return view('livewire.admin.reports', compact(
-            'kpis', 'chart', 'byType', 'byLocation', 'topPackages', 'funnel',
+            'kpis', 'chart', 'byType', 'byLocation', 'topPackages', 'funnel', 'deltas',
         ))->with([
             'locations'    => Location::where('is_active', true)->orderBy('name')->get(),
             'bucketMode'   => $bucketMode,

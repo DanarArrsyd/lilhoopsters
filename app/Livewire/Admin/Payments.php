@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Transaction;
+use App\Services\NotificationService;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -22,11 +23,42 @@ class Payments extends Component
 
     public function verify(int $id): void
     {
-        Transaction::findOrFail($id)->update([
+        $transaction = Transaction::with(['enrollment.child', 'child'])->findOrFail($id);
+
+        $transaction->update([
             'status'      => 'paid',
             'verified_by' => Auth::id(),
             'paid_at'     => now(),
         ]);
+
+        if ($transaction->enrollment) {
+            $transaction->enrollment->update([
+                'status'      => 'approved',
+                'approved_by' => Auth::id(),
+                'approved_at' => now(),
+            ]);
+
+            $child = $transaction->enrollment->child;
+        } else {
+            $child = $transaction->child;
+        }
+
+        if ($child) {
+            $child->update([
+                'status'        => 'active',
+                'registered_at' => $child->registered_at ?? now(),
+            ]);
+        }
+
+        if ($transaction->user_id) {
+            NotificationService::send(
+                $transaction->user_id,
+                'payment_verified',
+                'Payment Verified ✓',
+                "Your payment of Rp " . number_format($transaction->amount, 0, ',', '.') . " has been verified. Enrollment is now active!",
+            );
+        }
+
         session()->flash('success', 'Payment verified.');
     }
 
@@ -42,6 +74,16 @@ class Payments extends Component
             'status'      => 'rejected',
             'admin_notes' => $this->adminNote ?: null,
         ]);
+
+        $trx = Transaction::find($this->rejectingId);
+        if ($trx?->user_id) {
+            NotificationService::send(
+                $trx->user_id,
+                'payment_rejected',
+                'Payment Not Verified',
+                "Your payment could not be verified." . ($this->adminNote ? " Note: {$this->adminNote}" : " Please re-upload your proof."),
+            );
+        }
 
         $this->rejectingId = null;
         $this->adminNote   = '';

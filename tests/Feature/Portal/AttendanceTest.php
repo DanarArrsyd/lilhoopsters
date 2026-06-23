@@ -60,70 +60,31 @@ it('non-parent cannot access attendance page', function () {
         ->assertForbidden();
 });
 
-it('shows only own childrens attendance', function () {
-    Attendance::factory()->present()->create([
-        'child_id'      => $this->child->id,
-        'enrollment_id' => $this->enrollment->id,
-        'schedule_id'   => $this->schedule->id,
-        'attended_at'   => now()->subDays(1),
-    ]);
+it('shows the selected child program and hides another parents child', function () {
+    // The session-calendar view defaults to the parent's active enrollment
+    // and renders its program/location. Another parent's child must not leak.
+    $other      = User::factory()->withRole('parent')->approved()->create();
+    $otherChild = Child::factory()->active()->create(['user_id' => $other->id, 'name' => 'Outsider Kid']);
 
-    $other       = User::factory()->withRole('parent')->approved()->create();
-    $otherChild  = Child::factory()->active()->create(['user_id' => $other->id]);
-    $otherEnroll = Enrollment::factory()->approved()->create([
-        'child_id'    => $otherChild->id,
-        'schedule_id' => $this->schedule->id,
-    ]);
-    Attendance::factory()->present()->create([
-        'child_id'      => $otherChild->id,
-        'enrollment_id' => $otherEnroll->id,
-        'schedule_id'   => $this->schedule->id,
-        'attended_at'   => now()->subDays(2),
-    ]);
+    Livewire::actingAs($this->parent)
+        ->test(AttendanceHistory::class)
+        ->assertSee($this->enrollment->schedule->program->name)
+        ->assertSee($this->enrollment->schedule->location->name)
+        ->assertDontSee('Outsider Kid');
+});
+
+it('lets a parent switch between their own children', function () {
+    // The child selector renders only when the parent has more than one child.
+    $child2 = Child::factory()->active()->create(['user_id' => $this->parent->id, 'name' => 'Second Kiddo']);
 
     Livewire::actingAs($this->parent)
         ->test(AttendanceHistory::class)
         ->assertSee($this->child->name)
-        ->assertDontSee($otherChild->name);
+        ->assertSee('Second Kiddo');
 });
 
-it('can filter by status', function () {
-    Attendance::factory()->present()->create([
-        'child_id'      => $this->child->id,
-        'enrollment_id' => $this->enrollment->id,
-        'schedule_id'   => $this->schedule->id,
-        'attended_at'   => now()->subDays(3),
-    ]);
-    Attendance::factory()->absent()->create([
-        'child_id'      => $this->child->id,
-        'enrollment_id' => $this->enrollment->id,
-        'schedule_id'   => $this->schedule->id,
-        'attended_at'   => now()->subDays(1),
-    ]);
-
+it('defaults the child filter to the first active child', function () {
     Livewire::actingAs($this->parent)
         ->test(AttendanceHistory::class)
-        ->set('filterStatus', 'no_show')
-        ->assertSee(now()->subDays(1)->format('d M Y'))
-        ->assertDontSee(now()->subDays(3)->format('d M Y'));
-});
-
-it('shows summary stats for active children', function () {
-    Attendance::factory()->present()->create([
-        'child_id'      => $this->child->id,
-        'enrollment_id' => $this->enrollment->id,
-        'schedule_id'   => $this->schedule->id,
-        'attended_at'   => now()->subDays(1),
-    ]);
-    Attendance::factory()->absent()->create([
-        'child_id'      => $this->child->id,
-        'enrollment_id' => $this->enrollment->id,
-        'schedule_id'   => $this->schedule->id,
-        'attended_at'   => now()->subDays(2),
-    ]);
-
-    Livewire::actingAs($this->parent)
-        ->test(AttendanceHistory::class)
-        ->assertSee('50% present')  // 1 present out of 2 total
-        ->assertSee($this->child->name);
+        ->assertSet('filterChildId', (string) $this->child->id);
 });

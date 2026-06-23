@@ -38,6 +38,13 @@ class Child extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    // Alias of parent() — the owning parent user. Used by code that eager-loads
+    // `child.user` (enrollment/leave/report-card notifications).
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
     public function enrollments(): HasMany
     {
         return $this->hasMany(Enrollment::class);

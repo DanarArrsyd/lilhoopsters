@@ -4,6 +4,7 @@ use App\Livewire\Coach\TakeAttendance;
 use App\Models\Attendance;
 use App\Models\Child;
 use App\Models\Coach;
+use App\Models\CoachSession;
 use App\Models\Enrollment;
 use App\Models\Role;
 use App\Models\Schedule;
@@ -40,6 +41,16 @@ beforeEach(function () {
     $this->enrollment2 = Enrollment::factory()->approved()->create([
         'child_id'    => $this->child2->id,
         'schedule_id' => $this->schedule->id,
+    ]);
+
+    // Taking attendance on a regular schedule requires the coach to be checked
+    // in today (authorizeCoach), so create that session.
+    CoachSession::create([
+        'schedule_id'   => $this->schedule->id,
+        'coach_id'      => $this->coach->id,
+        'session_date'  => today(),
+        'role'          => 'primary',
+        'checked_in_at' => now(),
     ]);
 });
 

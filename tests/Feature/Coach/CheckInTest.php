@@ -2,9 +2,10 @@
 
 use App\Livewire\Coach\CheckIn;
 use App\Models\Coach;
-use App\Models\CoachAttendance;
+use App\Models\CoachSession;
 use App\Models\Location;
 use App\Models\Role;
+use App\Models\Schedule;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -22,6 +23,14 @@ beforeEach(function () {
     $this->coachUser = User::factory()->withRole('coach')->approved()->create();
     $this->coach     = Coach::factory()->create(['user_id' => $this->coachUser->id]);
     $this->location  = Location::factory()->create(['is_active' => true]);
+
+    // A regular schedule that falls on today, so the coach can check in.
+    $this->schedule = Schedule::factory()->create([
+        'location_id' => $this->location->id,
+        'type'        => 'regular',
+        'day_of_week' => strtolower(now()->format('l')),
+        'is_active'   => true,
+    ]);
 });
 
 it('renders the check-in page', function () {
@@ -30,53 +39,70 @@ it('renders the check-in page', function () {
         ->assertOk();
 });
 
-it('can check in to a location', function () {
+it('can check in to a session as primary coach', function () {
     Livewire::actingAs($this->coachUser)
         ->test(CheckIn::class)
-        ->set('locationId', $this->location->id)
-        ->call('checkIn');
+        ->call('checkIn', $this->schedule->id);
 
-    expect(CoachAttendance::where('coach_id', $this->coach->id)->count())->toBe(1);
-    expect($this->coach->isCheckedIn())->toBeTrue();
+    $session = CoachSession::where('coach_id', $this->coach->id)
+        ->where('schedule_id', $this->schedule->id)
+        ->whereDate('session_date', today())
+        ->first();
+
+    expect($session)->not->toBeNull();
+    expect($session->role)->toBe('primary');
 });
 
-it('cannot check in twice', function () {
-    CoachAttendance::create([
+it('cannot check in twice to the same session', function () {
+    CoachSession::create([
+        'schedule_id'   => $this->schedule->id,
         'coach_id'      => $this->coach->id,
-        'location_id'   => $this->location->id,
+        'session_date'  => today(),
+        'role'          => 'primary',
         'checked_in_at' => now(),
-        'expires_at'    => now()->addHours(8),
     ]);
 
     Livewire::actingAs($this->coachUser)
         ->test(CheckIn::class)
-        ->set('locationId', $this->location->id)
-        ->call('checkIn')
-        ->assertHasErrors(['locationId']);
+        ->call('checkIn', $this->schedule->id);
 
-    expect(CoachAttendance::where('coach_id', $this->coach->id)->count())->toBe(1);
+    expect(CoachSession::where('coach_id', $this->coach->id)
+        ->where('schedule_id', $this->schedule->id)
+        ->whereDate('session_date', today())
+        ->count())->toBe(1);
 });
 
-it('can check out', function () {
-    $checkin = CoachAttendance::create([
+it('can check out of a session', function () {
+    $session = CoachSession::create([
+        'schedule_id'   => $this->schedule->id,
         'coach_id'      => $this->coach->id,
-        'location_id'   => $this->location->id,
+        'session_date'  => today(),
+        'role'          => 'primary',
         'checked_in_at' => now(),
-        'expires_at'    => now()->addHours(8),
     ]);
 
     Livewire::actingAs($this->coachUser)
         ->test(CheckIn::class)
-        ->call('checkOut');
+        ->call('checkOut', $session->id);
 
-    expect($checkin->fresh()->checked_out_at)->not->toBeNull();
-    expect($this->coach->fresh()->isCheckedIn())->toBeFalse();
+    expect($session->fresh()->checked_out_at)->not->toBeNull();
 });
 
-it('requires location to check in', function () {
+it('cannot check in to another coachs private schedule', function () {
+    $otherCoachUser = User::factory()->withRole('coach')->approved()->create();
+    $otherCoach     = Coach::factory()->create(['user_id' => $otherCoachUser->id]);
+
+    $private = Schedule::factory()->create([
+        'location_id' => $this->location->id,
+        'type'        => 'private',
+        'coach_id'    => $otherCoach->id,
+        'day_of_week' => strtolower(now()->format('l')),
+        'is_active'   => true,
+    ]);
+
     Livewire::actingAs($this->coachUser)
         ->test(CheckIn::class)
-        ->set('locationId', '')
-        ->call('checkIn')
-        ->assertHasErrors(['locationId']);
+        ->call('checkIn', $private->id);
+
+    expect(CoachSession::where('coach_id', $this->coach->id)->count())->toBe(0);
 });

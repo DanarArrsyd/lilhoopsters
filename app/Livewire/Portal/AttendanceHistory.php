@@ -2,52 +2,138 @@
 
 namespace App\Livewire\Portal;
 
-use App\Models\Attendance;
+use App\Models\Enrollment;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
-use Livewire\WithPagination;
 
 class AttendanceHistory extends Component
 {
-    use WithPagination;
+    public string $filterChildId    = '';
+    public ?int   $filterEnrollment = null;
 
-    public string $filterChildId = '';
-    public string $filterStatus  = '';
+    public function mount(): void
+    {
+        $user  = Auth::user();
+        $first = $user->children()->whereIn('status', ['active', 'inactive'])->orderBy('name')->first();
+        if ($first) {
+            $this->filterChildId = (string) $first->id;
+        }
+    }
 
-    public function updatingFilterChildId(): void { $this->resetPage(); }
-    public function updatingFilterStatus(): void  { $this->resetPage(); }
+    public function selectChild(int $childId): void
+    {
+        $this->filterChildId    = (string) $childId;
+        $this->filterEnrollment = null;
+    }
+
+    public function selectEnrollment(?int $enrollmentId): void
+    {
+        $this->filterEnrollment = $enrollmentId;
+    }
 
     public function render()
     {
         $user     = Auth::user();
-        $childIds = $user->children()->pluck('id');
-
-        $attendances = Attendance::whereIn('child_id', $childIds)
-            ->with(['child', 'schedule.program', 'schedule.location', 'enrollment.package'])
-            ->when($this->filterChildId, fn($q) => $q->where('child_id', $this->filterChildId))
-            ->when($this->filterStatus, fn($q) => $q->where('status', $this->filterStatus))
-            ->orderBy('attended_at', 'desc')
-            ->paginate(20);
-
-        // Summary stats per child (all records, not paginated)
-        $stats = [];
-        foreach ($user->children()->where('status', 'active')->get() as $child) {
-            $records = Attendance::where('child_id', $child->id)->get();
-            $total   = $records->count();
-            $stats[$child->id] = [
-                'name'    => $child->name,
-                'total'   => $total,
-                'present' => $records->where('status', 'present')->count(),
-                'absent'  => $records->whereIn('status', ['no_show'])->count(),
-                'leave'   => $records->whereIn('status', ['sick', 'permit'])->count(),
-                'rate'    => $total > 0
-                    ? round($records->where('status', 'present')->count() / $total * 100)
-                    : null,
-            ];
-        }
-
         $children = $user->children()->whereIn('status', ['active', 'inactive'])->orderBy('name')->get();
 
-        return view('livewire.portal.attendance', compact('attendances', 'stats', 'children'));
+        // Approved program enrollments for the selected child
+        $enrollmentsQuery = Enrollment::where('status', 'approved')
+            ->where('type', 'program')
+            ->whereNotNull('schedule_id')
+            ->with(['schedule.program', 'schedule.location', 'attendances'])
+            ->when($this->filterChildId, fn($q) => $q->where('child_id', $this->filterChildId));
+
+        $enrollments = $enrollmentsQuery->get();
+
+        // Default to first enrollment if none selected
+        $activeEnrollment = $this->filterEnrollment
+            ? $enrollments->firstWhere('id', $this->filterEnrollment)
+            : $enrollments->first();
+
+        $sessions = collect();
+
+        if ($activeEnrollment) {
+            $sessions = $this->generateSessions($activeEnrollment);
+        }
+
+        return view('livewire.portal.attendance', compact('children', 'enrollments', 'activeEnrollment', 'sessions'));
+    }
+
+    private function generateSessions(Enrollment $enrollment): \Illuminate\Support\Collection
+    {
+        $schedule  = $enrollment->schedule;
+        $startDate = $enrollment->started_at
+            ? Carbon::parse($enrollment->started_at)
+            : Carbon::parse($enrollment->created_at)->startOfWeek();
+        $endDate = $enrollment->expires_at
+            ? Carbon::parse($enrollment->expires_at)
+            : now();
+
+        // Map day_of_week string to Carbon constant
+        $dayMap = [
+            'monday'    => Carbon::MONDAY,
+            'tuesday'   => Carbon::TUESDAY,
+            'wednesday' => Carbon::WEDNESDAY,
+            'thursday'  => Carbon::THURSDAY,
+            'friday'    => Carbon::FRIDAY,
+            'saturday'  => Carbon::SATURDAY,
+            'sunday'    => Carbon::SUNDAY,
+        ];
+        $targetDay = $dayMap[$schedule->day_of_week] ?? Carbon::MONDAY;
+
+        // Find first occurrence of the target day on or after startDate
+        $current = $startDate->copy();
+        if ($current->dayOfWeek !== $targetDay) {
+            $current->next($targetDay);
+        }
+
+        // Build an attendance lookup keyed by date string
+        $attendanceLookup = $enrollment->attendances
+            ->keyBy(fn($a) => Carbon::parse($a->attended_at)->format('Y-m-d'));
+
+        $sessions = collect();
+        $sessionNumber = 1;
+
+        $maxSessions = $enrollment->total_sessions ?: null;
+
+        while ($current->lte($endDate)) {
+            if ($maxSessions && $sessionNumber > $maxSessions) break;
+            $dateKey    = $current->format('Y-m-d');
+            $attendance = $attendanceLookup->get($dateKey);
+            $isPast     = $current->isPast() && !$current->isToday();
+            $isToday    = $current->isToday();
+
+            if ($attendance) {
+                $statusMap = [
+                    'present' => ['label' => 'Attend',   'class' => 'bg-green-50 text-green-700'],
+                    'sick'    => ['label' => 'Sick',     'class' => 'bg-amber-50 text-amber-700'],
+                    'permit'  => ['label' => 'Permit',   'class' => 'bg-blue-50 text-blue-700'],
+                    'no_show' => ['label' => 'No Show',  'class' => 'bg-red-50 text-red-600'],
+                    'make_up' => ['label' => 'Make Up',  'class' => 'bg-violet-50 text-violet-700'],
+                ];
+                $badge = $statusMap[$attendance->status] ?? ['label' => ucfirst($attendance->status), 'class' => 'bg-off text-muted'];
+            } elseif ($isToday) {
+                $badge = ['label' => 'Today', 'class' => 'bg-navy text-white'];
+            } elseif ($isPast) {
+                $badge = ['label' => 'No Record', 'class' => 'bg-line text-faint'];
+            } else {
+                $badge = ['label' => 'Upcoming', 'class' => 'bg-off text-muted'];
+            }
+
+            $sessions->push([
+                'number'     => $sessionNumber,
+                'date'       => $current->copy(),
+                'badge'      => $badge,
+                'is_past'    => $isPast,
+                'is_today'   => $isToday,
+                'attendance' => $attendance,
+            ]);
+
+            $sessionNumber++;
+            $current->addWeek();
+        }
+
+        return $sessions->values();
     }
 }

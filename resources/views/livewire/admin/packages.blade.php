@@ -1,12 +1,15 @@
 <div>
     {{-- Header --}}
-    <div class="flex items-start justify-between gap-4 mb-6">
-        <div>
-            <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Packages</h2>
-            <p class="text-sm text-muted">Manage pricing packages per location.</p>
-        </div>
-        <x-btn wire:click="openCreate">+ Add Package</x-btn>
+    <div class="mb-6">
+        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Packages</h2>
+        <p class="text-sm text-muted">Manage pricing packages per location.</p>
     </div>
+    <button wire:click="openCreate"
+            class="fixed bottom-6 right-5 z-30 w-14 h-14 bg-navy text-off rounded-full shadow-lg flex items-center justify-center hover:bg-navy/90 active:scale-95 transition-all">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+        </svg>
+    </button>
 
     @if (session('success'))
         <x-alert type="success" class="mb-4">{{ session('success') }}</x-alert>
@@ -14,7 +17,7 @@
 
     {{-- Filters --}}
     <x-card class="mb-4" padding="p-4">
-        <div class="flex flex-col sm:flex-row gap-3">
+        <div class="flex flex-col sm:flex-row gap-3 sm:items-center">
             <div class="flex-1">
                 <x-input wire:model.live.debounce.300ms="search" placeholder="Search packages..." />
             </div>
@@ -27,74 +30,151 @@
                 </x-select>
             </div>
         </div>
-    </x-card>
-
-    {{-- Table --}}
-    <x-card padding="p-0">
-        <div class="overflow-x-auto">
-        <table class="w-full text-sm min-w-[640px]">
-            <thead>
-                <tr class="border-b border-line">
-                    <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Package</th>
-                    <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Location</th>
-                    <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Type</th>
-                    <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Price</th>
-                    <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Status</th>
-                    <th class="py-3 px-4"></th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-line">
-                @forelse ($packages as $package)
-                    <tr class="hover:bg-off transition-colors">
-                        <td class="py-3 px-4">
-                            <div class="font-semibold text-ink">{{ $package->name }}</div>
-                            @if ($package->is_popular)
-                                <span class="text-[10px] font-semibold text-[#B45309] uppercase tracking-wide">Popular</span>
-                            @endif
-                        </td>
-                        <td class="py-3 px-4 text-muted">{{ $package->location->name }}</td>
-                        <td class="py-3 px-4">
-                            <x-badge status="info">{{ str_replace('_', ' ', $package->type) }}</x-badge>
-                        </td>
-                        <td class="py-3 px-4 font-semibold text-ink">{{ $package->formattedPrice() }}</td>
-                        <td class="py-3 px-4">
-                            <x-badge :status="$package->is_active ? 'active' : 'inactive'">
-                                {{ $package->is_active ? 'Active' : 'Inactive' }}
-                            </x-badge>
-                        </td>
-                        <td class="py-3 px-4">
-                            <div class="flex items-center gap-2 justify-end">
-                                <x-btn variant="ghost" size="sm"
-                                       wire:click="openEdit({{ $package->id }})"
-                                       wire:loading.attr="disabled">Edit</x-btn>
-                                <x-btn variant="ghost" size="sm"
-                                       wire:click="toggleActive({{ $package->id }})"
-                                       wire:loading.attr="disabled">
-                                    {{ $package->is_active ? 'Deactivate' : 'Activate' }}
-                                </x-btn>
-                                <x-btn variant="ghost" size="sm"
-                                       wire:click="confirmDelete({{ $package->id }})"
-                                       wire:confirm="Delete this package?"
-                                       wire:loading.attr="disabled">Delete</x-btn>
-                            </div>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="6" class="py-2">
-                            <x-empty-state title="No packages yet" description="Add your first pricing package." />
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-        </div>
-        @if ($packages->hasPages())
-            <div class="px-4 py-3 border-t border-line">
-                {{ $packages->links() }}
-            </div>
+        @if ($totalCount > 0)
+            <p class="text-xs text-muted mt-3">
+                <span class="font-semibold text-ink">{{ $totalCount }}</span>
+                package{{ $totalCount === 1 ? '' : 's' }}
+                across <span class="font-semibold text-ink">{{ $locationCount }}</span>
+                location{{ $locationCount === 1 ? '' : 's' }}.
+            </p>
         @endif
     </x-card>
+
+    @php
+        $typeMeta = [
+            'registration' => ['label' => 'Registration', 'class' => 'bg-[#1D4ED8]/10 text-[#1D4ED8]', 'dot' => 'bg-[#1D4ED8]'],
+            'regular'      => ['label' => 'Regular',      'class' => 'bg-navy/10 text-navy',           'dot' => 'bg-navy'],
+            'drop_in'      => ['label' => 'Drop-in',      'class' => 'bg-[#B45309]/10 text-[#B45309]', 'dot' => 'bg-[#B45309]'],
+            'private'      => ['label' => 'Private',      'class' => 'bg-[#7C3AED]/10 text-[#7C3AED]', 'dot' => 'bg-[#7C3AED]'],
+        ];
+    @endphp
+
+    {{-- Grouped by location --}}
+    @forelse ($groups as $group)
+        @php
+            $location    = $group->first()->location;
+            $activeCount = $group->where('is_active', true)->count();
+        @endphp
+
+        <x-card padding="p-0" class="mb-4 overflow-hidden"
+                x-data="{ expanded: {{ ($search || $filterLocation) ? 'true' : 'false' }} }">
+            {{-- Location header (toggle) --}}
+            <button type="button" x-on:click="expanded = !expanded"
+                    class="w-full flex items-center gap-3 px-4 sm:px-5 py-3.5 text-left transition-colors hover:bg-navy/[0.05]"
+                    :class="expanded ? 'bg-navy/[0.04]' : 'bg-navy/[0.02]'">
+                <div class="w-9 h-9 rounded-xl bg-navy/8 text-navy flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <p class="font-extrabold text-navy text-sm sm:text-base truncate leading-tight">{{ $location?->name ?? 'Unassigned' }}</p>
+                    @if ($location?->address)
+                        <p class="text-[11px] text-muted truncate">{{ $location->address }}</p>
+                    @endif
+                </div>
+                <span class="shrink-0 text-[11px] font-semibold text-muted tabular-nums">
+                    {{ $group->count() }} {{ $group->count() === 1 ? 'package' : 'packages' }}
+                    <span class="text-faint hidden sm:inline">· {{ $activeCount }} active</span>
+                </span>
+                <svg class="w-4 h-4 text-muted shrink-0 transition-transform duration-200"
+                     :class="{ 'rotate-180': expanded }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+
+            {{-- Packages (collapsible) --}}
+            <div x-show="expanded" x-cloak
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 -translate-y-1"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 class="overflow-x-auto border-t border-line">
+                <table class="w-full text-sm min-w-[680px]">
+                    <tbody class="divide-y divide-line">
+                        @foreach ($group as $package)
+                            @php $meta = $typeMeta[$package->type] ?? ['label' => str_replace('_', ' ', $package->type), 'class' => 'bg-navy/5 text-muted', 'dot' => 'bg-muted']; @endphp
+                            <tr class="hover:bg-off transition-colors {{ $package->is_active ? '' : 'opacity-60' }}">
+                                {{-- Name + meta --}}
+                                <td class="py-3 pl-4 sm:pl-5 pr-4">
+                                    <div class="flex items-center gap-2.5">
+                                        <span class="w-1.5 h-1.5 rounded-full shrink-0 {{ $meta['dot'] }}"></span>
+                                        <div class="min-w-0">
+                                            <div class="flex items-center gap-2">
+                                                <span class="font-semibold text-ink truncate">{{ $package->name }}</span>
+                                                @if ($package->is_popular)
+                                                    <span class="inline-flex items-center gap-0.5 text-[10px] font-bold text-[#B45309] uppercase tracking-wide shrink-0">
+                                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                                        Popular
+                                                    </span>
+                                                @endif
+                                            </div>
+                                            @php
+                                                $bits = [];
+                                                if ($package->session_count) $bits[] = $package->session_count . ' session' . ($package->session_count === 1 ? '' : 's');
+                                                if ($package->validity_days) $bits[] = $package->validity_days . '-day validity';
+                                            @endphp
+                                            @if ($bits)
+                                                <p class="text-[11px] text-muted truncate">{{ implode(' · ', $bits) }}</p>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </td>
+                                {{-- Type --}}
+                                <td class="py-3 px-4">
+                                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide {{ $meta['class'] }}">
+                                        {{ $meta['label'] }}
+                                    </span>
+                                </td>
+                                {{-- Price --}}
+                                <td class="py-3 px-4 text-right">
+                                    <span class="font-bold text-ink tabular-nums whitespace-nowrap">{{ $package->formattedPrice() }}</span>
+                                </td>
+                                {{-- Status --}}
+                                <td class="py-3 px-4">
+                                    <x-badge :status="$package->is_active ? 'active' : 'inactive'">
+                                        {{ $package->is_active ? 'Active' : 'Inactive' }}
+                                    </x-badge>
+                                </td>
+                                {{-- Actions --}}
+                                <td class="py-3 pr-4 sm:pr-5 pl-4">
+                                    <div class="flex items-center gap-2 justify-end">
+                                        <x-btn variant="edit" size="sm" wire:click="openEdit({{ $package->id }})" wire:loading.attr="disabled">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                                            Edit
+                                        </x-btn>
+                                        <x-btn variant="{{ $package->is_active ? 'warning' : 'success' }}" size="sm"
+                                               wire:click="toggleActive({{ $package->id }})" wire:loading.attr="disabled">
+                                            @if ($package->is_active)
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                                                Deactivate
+                                            @else
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.636 5.636a9 9 0 1012.728 0M12 3v9"/></svg>
+                                                Activate
+                                            @endif
+                                        </x-btn>
+                                        <x-btn variant="danger" size="sm"
+                                               wire:click="confirmDelete({{ $package->id }})"
+                                               wire:confirm="Delete this package?" wire:loading.attr="disabled">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                            Delete
+                                        </x-btn>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </x-card>
+    @empty
+        <x-card padding="p-0">
+            <x-empty-state
+                title="{{ $search || $filterLocation ? 'No packages match your filters' : 'No packages yet' }}"
+                description="{{ $search || $filterLocation ? 'Try a different search or location.' : 'Add your first pricing package.' }}" />
+        </x-card>
+    @endforelse
 
     {{-- Modal --}}
     @if ($showModal)
@@ -125,11 +205,10 @@
                 <x-input wire:model="price" type="number" label="Price (Rp)" placeholder="350000" required :error="$errors->first('price')" />
 
                 @if ($type === 'regular')
-                    <div class="grid grid-cols-2 gap-4">
-                        <x-input wire:model="period_start" type="date" label="Period Start" :error="$errors->first('period_start')" />
-                        <x-input wire:model="period_end" type="date" label="Period End" :error="$errors->first('period_end')" />
-                    </div>
-                    <x-input wire:model="session_count" type="number" label="Session Count" placeholder="8" :error="$errors->first('session_count')" />
+                    <x-input wire:model="validity_days" type="number" label="Validity (Days)" placeholder="e.g. 30"
+                             required :error="$errors->first('validity_days')"
+                             helper="How many days the package is valid from the parent's chosen start date." />
+                    <x-input wire:model="session_count" type="number" label="Session Count" placeholder="e.g. 8" :error="$errors->first('session_count')" />
                 @elseif ($type === 'drop_in')
                     <x-input wire:model="validity_days" type="number" label="Validity (days)" placeholder="30" :error="$errors->first('validity_days')" />
                 @elseif ($type === 'private')
@@ -153,9 +232,13 @@
                 </div>
             </div>
             <div class="flex gap-3 px-6 pb-6">
-                <x-btn variant="secondary" class="flex-1" wire:click="$set('showModal', false)">Cancel</x-btn>
+                <x-btn variant="secondary" class="flex-1" wire:click="$set('showModal', false)">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    Cancel
+                </x-btn>
                 <x-btn class="flex-1" wire:click="save" wire:loading.attr="disabled">
-                    <span wire:loading.remove wire:target="save">{{ $editingId ? 'Update' : 'Create' }}</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                    <span wire:loading.remove wire:target="save">{{ $editingId ? 'Update' : 'Save' }}</span>
                     <span wire:loading wire:target="save">Saving...</span>
                 </x-btn>
             </div>

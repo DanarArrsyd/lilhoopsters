@@ -4,6 +4,7 @@ use App\Livewire\Coach\QrScanner;
 use App\Models\Attendance;
 use App\Models\Child;
 use App\Models\Coach;
+use App\Models\CoachSession;
 use App\Models\Enrollment;
 use App\Models\Role;
 use App\Models\Schedule;
@@ -32,9 +33,19 @@ beforeEach(function () {
     $parentUser    = User::factory()->withRole('parent')->approved()->create();
     $this->child   = Child::factory()->create(['user_id' => $parentUser->id]);
 
-    $this->enrollment = Enrollment::factory()->approved()->create([
+    // Scan/marking requires an approved *program* enrollment for the schedule.
+    $this->enrollment = Enrollment::factory()->program()->approved()->create([
         'child_id'    => $this->child->id,
         'schedule_id' => $this->schedule->id,
+    ]);
+
+    // activateScanner() now requires the coach to be checked in today.
+    CoachSession::create([
+        'schedule_id'   => $this->schedule->id,
+        'coach_id'      => $this->coach->id,
+        'session_date'  => today(),
+        'role'          => 'primary',
+        'checked_in_at' => now(),
     ]);
 });
 
@@ -47,8 +58,8 @@ it('renders qr scanner page', function () {
 it('can activate scanner with valid schedule', function () {
     Livewire::actingAs($this->coachUser)
         ->test(QrScanner::class)
-        ->set('scheduleId', $this->schedule->id)
         ->set('scanDate', now()->toDateString())
+        ->set('scheduleId', $this->schedule->id)
         ->call('activateScanner')
         ->assertSet('scannerActive', true);
 });
@@ -64,8 +75,8 @@ it('requires schedule to activate scanner', function () {
 it('records attendance on valid qr scan', function () {
     Livewire::actingAs($this->coachUser)
         ->test(QrScanner::class)
-        ->set('scheduleId', $this->schedule->id)
         ->set('scanDate', now()->toDateString())
+        ->set('scheduleId', $this->schedule->id)
         ->call('activateScanner')
         ->call('processQr', $this->child->qr_identifier);
 
@@ -76,8 +87,8 @@ it('records attendance on valid qr scan', function () {
 it('shows success message after valid scan', function () {
     Livewire::actingAs($this->coachUser)
         ->test(QrScanner::class)
-        ->set('scheduleId', $this->schedule->id)
         ->set('scanDate', now()->toDateString())
+        ->set('scheduleId', $this->schedule->id)
         ->call('activateScanner')
         ->call('processQr', $this->child->qr_identifier)
         ->assertSet('lastScanStatus', 'success');
@@ -86,8 +97,8 @@ it('shows success message after valid scan', function () {
 it('rejects unknown qr code', function () {
     Livewire::actingAs($this->coachUser)
         ->test(QrScanner::class)
-        ->set('scheduleId', $this->schedule->id)
         ->set('scanDate', now()->toDateString())
+        ->set('scheduleId', $this->schedule->id)
         ->call('activateScanner')
         ->call('processQr', 'unknown-qr-value-xyz')
         ->assertSet('lastScanStatus', 'not_found');
@@ -100,8 +111,8 @@ it('rejects child not enrolled in this schedule', function () {
 
     Livewire::actingAs($this->coachUser)
         ->test(QrScanner::class)
-        ->set('scheduleId', $this->schedule->id)
         ->set('scanDate', now()->toDateString())
+        ->set('scheduleId', $this->schedule->id)
         ->call('activateScanner')
         ->call('processQr', $otherChild->qr_identifier)
         ->assertSet('lastScanStatus', 'not_enrolled');
@@ -121,8 +132,8 @@ it('rejects duplicate scan on same date', function () {
 
     Livewire::actingAs($this->coachUser)
         ->test(QrScanner::class)
-        ->set('scheduleId', $this->schedule->id)
         ->set('scanDate', now()->toDateString())
+        ->set('scheduleId', $this->schedule->id)
         ->call('activateScanner')
         ->call('processQr', $this->child->qr_identifier)
         ->assertSet('lastScanStatus', 'duplicate');

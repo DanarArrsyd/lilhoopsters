@@ -59,6 +59,7 @@
 
         <div class="px-6 pb-6">
             <x-btn wire:click="saveProfile" wire:loading.attr="disabled">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                 <span wire:loading.remove wire:target="saveProfile">Save Changes</span>
                 <span wire:loading wire:target="saveProfile">Saving...</span>
             </x-btn>
@@ -99,6 +100,7 @@
 
         <div class="px-6 pb-6">
             <x-btn wire:click="changePassword" wire:loading.attr="disabled">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                 <span wire:loading.remove wire:target="changePassword">Change Password</span>
                 <span wire:loading wire:target="changePassword">Updating...</span>
             </x-btn>
