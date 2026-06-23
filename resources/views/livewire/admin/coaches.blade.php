@@ -1,12 +1,15 @@
 <div>
     {{-- Header --}}
-    <div class="flex items-start justify-between gap-4 mb-6">
-        <div>
-            <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Coaches</h2>
-            <p class="text-sm text-muted">Manage coach accounts and location assignments.</p>
-        </div>
-        <x-btn wire:click="openCreate">+ Add Coach</x-btn>
+    <div class="mb-6">
+        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Coaches</h2>
+        <p class="text-sm text-muted">Manage coach accounts and location assignments.</p>
     </div>
+    <button wire:click="openCreate"
+            class="fixed bottom-6 right-5 z-30 w-14 h-14 bg-navy text-off rounded-full shadow-lg flex items-center justify-center hover:bg-navy/90 active:scale-95 transition-all">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+        </svg>
+    </button>
 
     @if (session('success'))
         <x-alert type="success" class="mb-4">{{ session('success') }}</x-alert>
@@ -61,13 +64,22 @@
                             </td>
                             <td class="py-3 px-4">
                                 <div class="flex items-center gap-2 justify-end">
-                                    <x-btn variant="ghost" size="sm"
+                                    <x-btn variant="edit" size="sm"
                                         wire:click="openEdit({{ $coach->id }})"
-                                        wire:loading.attr="disabled">Edit</x-btn>
-                                    <x-btn variant="ghost" size="sm"
+                                        wire:loading.attr="disabled">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                                        Edit
+                                    </x-btn>
+                                    <x-btn variant="{{ $coach->is_active ? 'warning' : 'success' }}" size="sm"
                                         wire:click="toggleActive({{ $coach->id }})"
                                         wire:loading.attr="disabled">
-                                        {{ $coach->is_active ? 'Deactivate' : 'Activate' }}
+                                        @if ($coach->is_active)
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                                            Deactivate
+                                        @else
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.636 5.636a9 9 0 1012.728 0M12 3v9"/></svg>
+                                            Activate
+                                        @endif
                                     </x-btn>
                                 </div>
                             </td>
@@ -113,29 +125,18 @@
                              placeholder="e.g. Dribbling, Defense"
                              :error="$errors->first('specialization')" />
 
-                    @if ($locations->count() > 0)
-                        <div class="space-y-2">
-                            <label class="block text-xs font-semibold uppercase tracking-wide text-navy">Assigned Locations</label>
-                            <div class="space-y-1.5 border border-line rounded-xl p-3">
-                                @foreach ($locations as $loc)
-                                    <label class="flex items-center gap-2 text-sm text-ink cursor-pointer">
-                                        <input type="checkbox" wire:model="selectedLocations" value="{{ $loc->id }}" class="rounded accent-navy">
-                                        {{ $loc->name }}
-                                        <span class="text-xs text-faint">{{ $loc->city }}</span>
-                                    </label>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endif
-
                     <label class="flex items-center gap-2 text-sm text-ink cursor-pointer">
                         <input type="checkbox" wire:model="is_active" class="rounded accent-navy"> Active
                     </label>
                 </div>
                 <div class="flex gap-3 px-6 pb-6">
-                    <x-btn variant="secondary" class="flex-1" wire:click="$set('showModal', false)">Cancel</x-btn>
+                    <x-btn variant="secondary" class="flex-1" wire:click="$set('showModal', false)">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        Cancel
+                    </x-btn>
                     <x-btn class="flex-1" wire:click="save" wire:loading.attr="disabled">
-                        <span wire:loading.remove wire:target="save">{{ $editingId ? 'Update' : 'Create' }}</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                        <span wire:loading.remove wire:target="save">{{ $editingId ? 'Update' : 'Save' }}</span>
                         <span wire:loading wire:target="save">Saving...</span>
                     </x-btn>
                 </div>

@@ -52,7 +52,7 @@
                             <div class="flex items-center gap-2 flex-wrap justify-end">
                                 @foreach ([
                                     'present' => ['label' => 'Present', 'active' => 'bg-[#15803D] text-white border-[#15803D]'],
-                                    'no_show' => ['label' => 'Absent',  'active' => 'bg-[#B91C1C] text-white border-[#B91C1C]'],
+                                    'no_show' => ['label' => 'No Show', 'active' => 'bg-[#B91C1C] text-white border-[#B91C1C]'],
                                     'sick'    => ['label' => 'Sick',    'active' => 'bg-[#1D4ED8] text-white border-[#1D4ED8]'],
                                     'permit'  => ['label' => 'Permit',  'active' => 'bg-[#B45309] text-white border-[#B45309]'],
                                 ] as $val => $cfg)
@@ -71,7 +71,8 @@
                 </div>
 
                 <div class="px-4 py-4 border-t border-line">
-                    <x-btn wire:click="saveAttendance" wire:loading.attr="disabled">
+                    <x-btn variant="success" wire:click="saveAttendance" wire:loading.attr="disabled">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                         <span wire:loading.remove wire:target="saveAttendance">Save Attendance</span>
                         <span wire:loading wire:target="saveAttendance">Saving...</span>
                     </x-btn>

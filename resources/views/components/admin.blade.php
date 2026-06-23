@@ -59,10 +59,11 @@
                     <h1 class="text-sm font-bold uppercase tracking-wide text-navy">{{ $title ?? 'Dashboard' }}</h1>
                 </div>
                 {{ $actions ?? '' }}
+                <livewire:notification-bell />
             </header>
 
             {{-- Content --}}
-            <main class="flex-1 bg-off p-6">
+            <main class="flex-1 bg-off p-4 sm:p-6">
                 {{ $slot }}
             </main>
         </div>

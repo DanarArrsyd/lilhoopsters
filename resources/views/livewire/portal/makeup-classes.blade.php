@@ -1,14 +1,17 @@
 <div>
     {{-- Header --}}
-    <div class="flex items-start justify-between gap-4 mb-6">
-        <div>
-            <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Make-Up Classes</h2>
-            <p class="text-sm text-muted">Request a replacement session for an approved leave.</p>
-        </div>
-        @if ($approvedLeaves->isNotEmpty())
-            <x-btn wire:click="openForm">Request Make-Up</x-btn>
-        @endif
+    <div class="mb-6">
+        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Make-Up Classes</h2>
+        <p class="text-sm text-muted">Request a replacement session for an approved leave.</p>
     </div>
+    @if ($approvedLeaves->isNotEmpty())
+        <button wire:click="openForm"
+                class="fixed bottom-6 right-5 z-30 w-14 h-14 bg-navy text-off rounded-full shadow-lg flex items-center justify-center hover:bg-navy/90 active:scale-95 transition-all">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+            </svg>
+        </button>
+    @endif
 
     {{-- Flash --}}
     @if (session('success'))
@@ -91,8 +94,12 @@
                          required :error="$errors->first('targetDate')" />
             </div>
             <div class="flex gap-3 px-6 pb-6">
-                <x-btn variant="secondary" class="flex-1" wire:click="closeForm">Cancel</x-btn>
+                <x-btn variant="secondary" class="flex-1" wire:click="closeForm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    Cancel
+                </x-btn>
                 <x-btn class="flex-1" wire:click="submit" wire:loading.attr="disabled">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                     <span wire:loading.remove wire:target="submit">Submit Request</span>
                     <span wire:loading wire:target="submit">Submitting...</span>
                 </x-btn>

@@ -3,7 +3,9 @@
 namespace App\Livewire\Coach;
 
 use App\Models\Attendance;
+use App\Models\CoachSession;
 use App\Models\Enrollment;
+use App\Models\Schedule;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
@@ -16,20 +18,30 @@ class TakeAttendance extends Component
 
     public function mount(): void
     {
-        $this->date = now()->toDateString();
+        $this->date  = now()->toDateString();
+        $coach       = Auth::user()->coach;
+        $today       = strtolower(now()->format('l'));
 
-        $coach = Auth::user()->coach;
-        if ($coach) {
-            $today = strtolower(now()->format('l'));
-            $first = $coach->schedules()
+        if (!$coach) return;
+
+        // Prefer a schedule the coach has already checked into today
+        $checkedInScheduleId = CoachSession::where('coach_id', $coach->id)
+            ->whereDate('session_date', today())
+            ->value('schedule_id');
+
+        if ($checkedInScheduleId) {
+            $this->scheduleId = $checkedInScheduleId;
+        } else {
+            // Fall back to an assigned private schedule for today
+            $first = Schedule::where('type', 'private')
+                ->where('coach_id', $coach->id)
                 ->where('is_active', true)
                 ->where('day_of_week', $today)
                 ->first();
-            if ($first) {
-                $this->scheduleId = $first->id;
-                $this->loadRoster();
-            }
+            if ($first) $this->scheduleId = $first->id;
         }
+
+        if ($this->scheduleId) $this->loadRoster();
     }
 
     public function updatedScheduleId(): void
@@ -52,7 +64,7 @@ class TakeAttendance extends Component
             return;
         }
 
-        $this->authorizeCoachOwnsSchedule();
+        $this->authorizeCoach();
 
         $enrollments = Enrollment::where('schedule_id', $this->scheduleId)
             ->where('status', 'approved')
@@ -83,11 +95,9 @@ class TakeAttendance extends Component
 
     public function saveAttendance(): void
     {
-        if (!$this->scheduleId || empty($this->roster)) {
-            return;
-        }
+        if (!$this->scheduleId || empty($this->roster)) return;
 
-        $this->authorizeCoachOwnsSchedule();
+        $this->authorizeCoach();
 
         $coach = Auth::user()->coach;
 
@@ -111,26 +121,49 @@ class TakeAttendance extends Component
         session()->flash('attendance_success', 'Attendance saved.');
     }
 
-    private function authorizeCoachOwnsSchedule(): void
+    private function authorizeCoach(): void
     {
         $coach = Auth::user()->coach;
-        if (!$coach) {
-            abort(403);
-        }
-        $owns = $coach->schedules()->where('id', $this->scheduleId)->exists();
-        if (!$owns) {
-            abort(403);
+        if (!$coach) abort(403);
+
+        $schedule = Schedule::find($this->scheduleId);
+        if (!$schedule) abort(403);
+
+        if ($schedule->type === 'private') {
+            // Private: must be the assigned coach
+            if ($schedule->coach_id !== $coach->id) abort(403);
+        } else {
+            // Regular: must have checked in to this schedule today
+            $hasSession = CoachSession::where('schedule_id', $this->scheduleId)
+                ->where('coach_id', $coach->id)
+                ->whereDate('session_date', today())
+                ->exists();
+            if (!$hasSession) abort(403);
         }
     }
 
     public function render()
     {
         $coach = Auth::user()->coach;
+        $today = strtolower(now()->format('l'));
 
+        // Build the list of schedules this coach can manage attendance for
         $schedules = $coach
-            ? $coach->schedules()
+            ? Schedule::with(['location', 'program'])
                 ->where('is_active', true)
-                ->with(['location', 'program'])
+                ->where(function ($q) use ($coach, $today) {
+                    // Private sessions assigned to this coach
+                    $q->where(function ($q) use ($coach, $today) {
+                        $q->where('type', 'private')
+                          ->where('coach_id', $coach->id)
+                          ->where('day_of_week', $today);
+                    })
+                    // Regular sessions checked into today
+                    ->orWhereHas('coachSessions', fn($s) =>
+                        $s->where('coach_id', $coach->id)
+                          ->whereDate('session_date', today())
+                    );
+                })
                 ->orderByRaw("FIELD(day_of_week,'monday','tuesday','wednesday','thursday','friday','saturday','sunday')")
                 ->orderBy('start_time')
                 ->get()

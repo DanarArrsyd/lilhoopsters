@@ -59,6 +59,7 @@
                     <h1 class="text-sm font-bold uppercase tracking-wide text-navy">{{ $title ?? 'Dashboard' }}</h1>
                 </div>
                 {{ $actions ?? '' }}
+                <livewire:notification-bell />
             </header>
 
             {{-- Content --}}

@@ -85,9 +85,12 @@ it('validates required fields on create', function () {
 });
 
 it('can update a package', function () {
+    // Explicit non-regular type: a random 'regular' would require validity_days
+    // (which the factory leaves null), making this test flaky.
     $package = Package::factory()->create([
         'location_id' => $this->location->id,
         'name'        => 'Old Package',
+        'type'        => 'drop_in',
     ]);
 
     Livewire::actingAs($this->admin)

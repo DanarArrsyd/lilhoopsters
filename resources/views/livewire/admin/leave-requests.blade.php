@@ -1,11 +1,9 @@
 <div>
-    {{-- Header --}}
     <div class="mb-6">
         <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Leave Requests</h2>
         <p class="text-sm text-muted">Review and approve parent-submitted leave requests.</p>
     </div>
 
-    {{-- Flash --}}
     @if (session('success'))
         <x-alert type="success" class="mb-4">{{ session('success') }}</x-alert>
     @endif
@@ -20,13 +18,14 @@
             ''              => ['label' => 'All',           'count' => null],
         ] as $val => $tab)
             <button wire:click="$set('filterStatus', '{{ $val }}')"
-                    class="px-4 py-2 rounded-xl text-sm font-semibold border transition-colors
-                        {{ $filterStatus === $val
-                            ? 'bg-navy text-off border-navy'
-                            : 'bg-surface text-ink border-line hover:bg-off' }}">
+                    @class([
+                        'px-4 py-1.5 rounded-full text-sm font-semibold border transition-colors',
+                        'bg-navy text-off border-navy'                 => $filterStatus === $val,
+                        'bg-surface text-ink border-line hover:bg-off' => $filterStatus !== $val,
+                    ])>
                 {{ $tab['label'] }}
-                @if ($tab['count'] !== null)
-                    <span class="ml-1 text-xs {{ $filterStatus === $val ? 'opacity-70' : 'text-muted' }}">
+                @if ($tab['count'])
+                    <span @class(['ml-1 text-xs', 'opacity-70' => $filterStatus === $val, 'text-muted' => $filterStatus !== $val])>
                         {{ $tab['count'] }}
                     </span>
                 @endif
@@ -35,11 +34,10 @@
     </div>
 
     {{-- Search --}}
-    <x-card class="mb-4" padding="p-4">
+    <div class="mb-4">
         <x-input wire:model.live.debounce.300ms="search" placeholder="Search by child name..." />
-    </x-card>
+    </div>
 
-    {{-- Table --}}
     <x-card padding="p-0">
         <div class="overflow-x-auto">
             <table class="w-full text-sm min-w-[640px]">
@@ -74,15 +72,11 @@
                             <td class="py-3 px-4 text-xs text-faint">
                                 {{ $req->auto_approve_at?->format('d M Y H:i') ?? '—' }}
                             </td>
-                            <td class="py-3 px-4">
+                            <td class="py-3 px-4 text-right">
                                 @if ($req->status === 'pending')
                                     <div class="flex items-center gap-2 justify-end">
-                                        <x-btn variant="primary" size="sm"
-                                               wire:click="openReview({{ $req->id }}, 'approve')"
-                                               wire:loading.attr="disabled">Approve</x-btn>
-                                        <x-btn variant="ghost" size="sm"
-                                               wire:click="openReview({{ $req->id }}, 'reject')"
-                                               wire:loading.attr="disabled">Reject</x-btn>
+                                        <x-btn variant="success" size="sm" wire:click="openReview({{ $req->id }}, 'approve')" wire:loading.attr="disabled">Approve</x-btn>
+                                        <x-btn variant="danger" size="sm" wire:click="openReview({{ $req->id }}, 'reject')" wire:loading.attr="disabled">Reject</x-btn>
                                     </div>
                                 @else
                                     <span class="text-faint text-xs">—</span>
@@ -90,19 +84,15 @@
                             </td>
                         </tr>
                     @empty
-                        <tr>
-                            <td colspan="7" class="py-2">
-                                <x-empty-state title="No leave requests found" description="No requests match the current filter." />
-                            </td>
-                        </tr>
+                        <tr><td colspan="7" class="py-2">
+                            <x-empty-state title="No leave requests found" description="No requests match the current filter." />
+                        </td></tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
         @if ($requests->hasPages())
-            <div class="px-4 py-3 border-t border-line">
-                {{ $requests->links() }}
-            </div>
+            <div class="px-4 py-3 border-t border-line">{{ $requests->links() }}</div>
         @endif
     </x-card>
 
@@ -120,7 +110,7 @@
             <div class="p-6 space-y-4">
                 <div class="space-y-1.5">
                     <label class="block text-xs font-semibold uppercase tracking-wide text-navy">Admin Notes (optional)</label>
-                    <textarea wire:model="adminNotes" rows="3" aria-label="Admin notes for leave request"
+                    <textarea wire:model="adminNotes" rows="3" aria-label="Admin notes"
                               class="block w-full rounded-xl border border-line bg-surface px-3.5 py-3 text-sm text-ink placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-navy/15 focus:border-navy resize-none"
                               placeholder="Leave a note..."></textarea>
                     @error('adminNotes') <p class="text-xs text-[#B91C1C]">{{ $message }}</p> @enderror
@@ -128,11 +118,9 @@
             </div>
             <div class="flex gap-3 px-6 pb-6">
                 <x-btn variant="secondary" class="flex-1" wire:click="closeReview">Cancel</x-btn>
-                <x-btn variant="{{ $reviewAction === 'approve' ? 'primary' : 'danger' }}" class="flex-1"
+                <x-btn variant="{{ $reviewAction === 'approve' ? 'success' : 'danger' }}" class="flex-1"
                        wire:click="saveReview" wire:loading.attr="disabled">
-                    <span wire:loading.remove wire:target="saveReview">
-                        {{ $reviewAction === 'approve' ? 'Approve' : 'Reject' }}
-                    </span>
+                    <span wire:loading.remove wire:target="saveReview">{{ $reviewAction === 'approve' ? 'Approve' : 'Reject' }}</span>
                     <span wire:loading wire:target="saveReview">Saving...</span>
                 </x-btn>
             </div>

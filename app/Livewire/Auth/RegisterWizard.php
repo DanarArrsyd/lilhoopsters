@@ -2,63 +2,62 @@
 
 namespace App\Livewire\Auth;
 
-use App\Models\Child;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
 
 class RegisterWizard extends Component
 {
-    public int $step = 1;
-    public int $totalSteps = 3;
+    public int $step      = 1;
+    public int $totalSteps = 6;
 
-    // Step 1: Account
-    public string $name     = '';
-    public string $email    = '';
-    public string $password = '';
+    public string $name                  = '';
+    public string $email                 = '';
+    public string $password              = '';
     public string $password_confirmation = '';
-
-    // Step 2: Parent info
-    public string $whatsapp_number = '';
-    public string $address         = '';
-    public string $occupation      = '';
-
-    // Step 3: First child
-    public string $child_name       = '';
-    public string $child_birth_date = '';
-    public string $child_gender     = '';
-    public string $child_school     = '';
+    public string $whatsapp_number       = '';
+    public string $address               = '';
+    public string $occupation            = '';
 
     protected function rules(): array
     {
         return match ($this->step) {
-            1 => [
-                'name'                  => 'required|string|max:255',
-                'email'                 => 'required|email|unique:users,email',
+            1 => ['name'  => 'required|string|max:255'],
+            2 => ['email' => 'required|email|unique:users,email'],
+            3 => [
                 'password'              => 'required|min:8|confirmed',
                 'password_confirmation' => 'required',
             ],
-            2 => [
-                'whatsapp_number' => 'required|string|max:20',
-                'address'         => 'nullable|string|max:500',
-                'occupation'      => 'nullable|string|max:100',
-            ],
-            3 => [
-                'child_name'       => 'required|string|max:255',
-                'child_birth_date' => 'required|date|before:today',
-                'child_gender'     => 'required|in:male,female',
-                'child_school'     => 'nullable|string|max:255',
-            ],
+            4 => ['whatsapp_number' => ['required', 'string', 'regex:/^[0-9]{9,15}$/']],
+            5 => ['address'    => 'nullable|string|max:500'],
+            6 => ['occupation' => 'nullable|string|max:100'],
             default => [],
         };
+    }
+
+    protected function messages(): array
+    {
+        return [
+            'name.required'                  => 'Full name is required.',
+            'name.max'                       => 'Name may not exceed 255 characters.',
+            'email.required'                 => 'Email address is required.',
+            'email.email'                    => 'Please enter a valid email address.',
+            'email.unique'                   => 'This email is already registered.',
+            'password.required'              => 'Password is required.',
+            'password.min'                   => 'Password must be at least 8 characters.',
+            'password.confirmed'             => 'Passwords do not match.',
+            'password_confirmation.required' => 'Please confirm your password.',
+            'whatsapp_number.required'       => 'WhatsApp number is required.',
+            'whatsapp_number.regex'          => 'Invalid format. Example: 628123456789',
+        ];
     }
 
     public function nextStep(): void
     {
         $this->validate();
+
         if ($this->step < $this->totalSteps) {
             $this->step++;
         }
@@ -75,31 +74,19 @@ class RegisterWizard extends Component
     {
         $this->validate();
 
-        $user = DB::transaction(function () {
-            $parentRole = Role::where('name', 'parent')->firstOrFail();
+        $parentRole = Role::where('name', 'parent')->firstOrFail();
 
-            $user = User::create([
-                'role_id'             => $parentRole->id,
-                'name'                => $this->name,
-                'email'               => $this->email,
-                'password'            => Hash::make($this->password),
-                'whatsapp_number'     => $this->whatsapp_number,
-                'address'             => $this->address ?: null,
-                'occupation'          => $this->occupation ?: null,
-                'registration_status' => 'pending',
-            ]);
-
-            Child::create([
-                'user_id'    => $user->id,
-                'name'       => $this->child_name,
-                'birth_date' => $this->child_birth_date,
-                'gender'     => $this->child_gender,
-                'school'     => $this->child_school ?: null,
-                'status'     => 'unregistered',
-            ]);
-
-            return $user;
-        });
+        $user = User::create([
+            'role_id'             => $parentRole->id,
+            'name'                => $this->name,
+            'email'               => $this->email,
+            'password'            => Hash::make($this->password),
+            'whatsapp_number'     => $this->whatsapp_number,
+            'address'             => $this->address ?: null,
+            'occupation'          => $this->occupation ?: null,
+            'registration_status' => 'pending',
+            'is_active'           => true,
+        ]);
 
         Auth::login($user);
 
@@ -108,6 +95,7 @@ class RegisterWizard extends Component
 
     public function render()
     {
-        return view('livewire.auth.register-wizard');
+        return view('livewire.auth.register-wizard')
+            ->layout('components.app', ['title' => 'Create Account']);
     }
 }

@@ -52,9 +52,10 @@
                                 </td>
                                 <td class="py-3 px-4">
                                     @if (in_array($card->status, ['draft', 'submitted']))
-                                        <x-btn variant="ghost" size="sm"
+                                        <x-btn variant="edit" size="sm"
                                                wire:click="openScoreModal({{ $card->id }})"
                                                wire:loading.attr="disabled">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                                             {{ $card->status === 'draft' ? 'Input Scores' : 'Edit Scores' }}
                                         </x-btn>
                                     @endif
@@ -103,8 +104,12 @@
                 @endforeach
             </div>
             <div class="flex gap-3 px-6 pb-6">
-                <x-btn variant="secondary" class="flex-1" wire:click="closeScoreModal">Cancel</x-btn>
+                <x-btn variant="secondary" class="flex-1" wire:click="closeScoreModal">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    Cancel
+                </x-btn>
                 <x-btn class="flex-1" wire:click="saveScores" wire:loading.attr="disabled">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                     <span wire:loading.remove wire:target="saveScores">Save Scores</span>
                     <span wire:loading wire:target="saveScores">Saving...</span>
                 </x-btn>

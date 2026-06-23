@@ -35,6 +35,11 @@ class Coach extends Model
         return $this->hasMany(CoachAttendance::class);
     }
 
+    public function coachSessions(): HasMany
+    {
+        return $this->hasMany(CoachSession::class);
+    }
+
     public function activeCheckin(): ?CoachAttendance
     {
         return $this->attendances()

@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use App\Models\LeaveRequest;
+use App\Services\NotificationService;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -39,12 +40,34 @@ class LeaveRequests extends Component
 
         $status = $this->reviewAction === 'approve' ? 'approved' : 'rejected';
 
-        LeaveRequest::findOrFail($this->reviewId)->update([
+        $leaveRequest = LeaveRequest::with(['child.user', 'schedule.program'])->findOrFail($this->reviewId);
+        $leaveRequest->update([
             'status'      => $status,
             'admin_notes' => $this->adminNotes ?: null,
             'reviewed_by' => Auth::id(),
             'reviewed_at' => now(),
         ]);
+
+        $parentUser = $leaveRequest->child?->user;
+        if ($parentUser) {
+            $childName = $leaveRequest->child->name;
+            $date      = $leaveRequest->leave_date?->format('d M Y') ?? '';
+            if ($status === 'approved') {
+                NotificationService::send(
+                    $parentUser->id,
+                    'leave_approved',
+                    'Leave Request Approved',
+                    "Leave request for {$childName} on {$date} has been approved.",
+                );
+            } else {
+                NotificationService::send(
+                    $parentUser->id,
+                    'leave_rejected',
+                    'Leave Request Not Approved',
+                    "Leave request for {$childName} on {$date} was not approved." . ($this->adminNotes ? " Note: {$this->adminNotes}" : ''),
+                );
+            }
+        }
 
         $this->showReview = false;
         $this->reviewId   = null;
