@@ -23,7 +23,7 @@ class Payments extends Component
 
     public function verify(int $id): void
     {
-        $transaction = Transaction::with(['enrollment.child', 'child'])->findOrFail($id);
+        $transaction = Transaction::with(['enrollment.child', 'child', 'package'])->findOrFail($id);
 
         $transaction->update([
             'status'      => 'paid',
@@ -56,6 +56,14 @@ class Payments extends Component
                 'payment_verified',
                 'Payment Verified ✓',
                 "Your payment of Rp " . number_format($transaction->amount, 0, ',', '.') . " has been verified. Enrollment is now active!",
+                [],
+                email: true,
+                emailDetails: [
+                    'Package'  => $transaction->package?->name ?? '—',
+                    'Amount'   => 'Rp ' . number_format($transaction->amount, 0, ',', '.'),
+                    'Code'     => $transaction->transaction_code,
+                    'Paid at'  => optional($transaction->paid_at)->format('d M Y H:i'),
+                ],
             );
         }
 

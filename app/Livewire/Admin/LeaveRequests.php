@@ -58,6 +58,8 @@ class LeaveRequests extends Component
                     'leave_approved',
                     'Leave Request Approved',
                     "Leave request for {$childName} on {$date} has been approved.",
+                    [],
+                    email: true,
                 );
             } else {
                 NotificationService::send(
@@ -65,6 +67,8 @@ class LeaveRequests extends Component
                     'leave_rejected',
                     'Leave Request Not Approved',
                     "Leave request for {$childName} on {$date} was not approved." . ($this->adminNotes ? " Note: {$this->adminNotes}" : ''),
+                    [],
+                    email: true,
                 );
             }
         }

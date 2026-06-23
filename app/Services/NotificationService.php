@@ -2,14 +2,27 @@
 
 namespace App\Services;
 
+use App\Mail\ParentNotification;
 use App\Models\Notification;
 use App\Models\Role;
 use App\Models\User;
+use Illuminate\Support\Facades\Mail;
 
 class NotificationService
 {
-    public static function send(int $userId, string $type, string $title, string $body, array $data = []): void
-    {
+    /**
+     * @param bool  $email        Also send a branded email to the user.
+     * @param array $emailDetails Optional key => value rows for the email (e.g. a receipt).
+     */
+    public static function send(
+        int $userId,
+        string $type,
+        string $title,
+        string $body,
+        array $data = [],
+        bool $email = false,
+        array $emailDetails = [],
+    ): void {
         Notification::create([
             'user_id' => $userId,
             'type'    => $type,
@@ -19,11 +32,23 @@ class NotificationService
         ]);
 
         $user = User::find($userId);
+
         if ($user?->whatsapp_number) {
             app(WhatsAppService::class)->send(
                 $user->whatsapp_number,
                 "*{$title}*\n{$body}\n\n_Lil' Hoopsters_"
             );
+        }
+
+        // Email is queued; a failure here must never break the triggering action.
+        if ($email && $user?->email) {
+            try {
+                Mail::to($user->email)->queue(
+                    new ParentNotification($title, $title, [$body], $emailDetails)
+                );
+            } catch (\Throwable $e) {
+                report($e);
+            }
         }
     }
 
