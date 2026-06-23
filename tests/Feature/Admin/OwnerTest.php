@@ -134,3 +134,69 @@ it('computes class capacity utilization', function () {
     expect($capacity['total_book'])->toBe(4);
     expect($capacity['overall'])->toBe(40.0);
 });
+
+it('ranks action center by money impact, outstanding above renewal risk', function () {
+    // Outstanding Rp 500k (pending transaction)
+    Transaction::factory()->create([
+        'package_id' => $this->package->id,
+        'amount'     => 500000,
+        'status'     => 'pending',
+    ]);
+
+    // Expiring enrollment worth Rp 200k (renewal value)
+    $pkg   = Package::factory()->regular()->create(['location_id' => $this->location->id, 'price' => 200000]);
+    $child = Child::factory()->create();
+    Enrollment::factory()->program()->approved()->create([
+        'child_id'           => $child->id,
+        'package_id'         => $pkg->id,
+        'expires_at'         => today()->addDays(5),
+        'remaining_sessions' => 2,
+    ]);
+
+    $insights = Livewire::actingAs($this->admin)->test(Owner::class)->viewData('insights');
+
+    expect($insights['actions'])->not->toBeEmpty();
+    // 500k outstanding ranks above 200k renewal risk
+    expect($insights['actions'][0]['money'])->toBe(500000);
+    expect($insights['actions'][1]['money'])->toBe(200000);
+});
+
+it('flags cashflow as bad when an invoice is overdue', function () {
+    Transaction::factory()->create([
+        'package_id' => $this->package->id,
+        'amount'     => 150000,
+        'status'     => 'pending',
+        'expired_at' => now()->subDay(), // past due
+    ]);
+
+    $insights = Livewire::actingAs($this->admin)->test(Owner::class)->viewData('insights');
+
+    $cashflow = collect($insights['health'])->firstWhere('key', 'cashflow');
+    expect($cashflow['status'])->toBe('bad');
+    expect($insights['actions'][0]['severity'])->toBe('danger');
+});
+
+it('computes the 30-day revenue trend', function () {
+    Transaction::factory()->paid()->create([
+        'package_id' => $this->package->id,
+        'amount'     => 1000000,
+        'paid_at'    => now()->subDays(5),   // current window
+    ]);
+    Transaction::factory()->paid()->create([
+        'package_id' => $this->package->id,
+        'amount'     => 500000,
+        'paid_at'    => now()->subDays(45),  // previous window
+    ]);
+
+    $insights = Livewire::actingAs($this->admin)->test(Owner::class)->viewData('insights');
+
+    expect($insights['trends']['revenue']['value'])->toBe(1000000);
+    expect($insights['trends']['revenue']['delta']['dir'])->toBe('up');
+    expect($insights['trends']['revenue']['delta']['pct'])->toBe(100.0);
+});
+
+it('shows no actions when everything is clear', function () {
+    $insights = Livewire::actingAs($this->admin)->test(Owner::class)->viewData('insights');
+
+    expect($insights['actions'])->toBeEmpty();
+});
