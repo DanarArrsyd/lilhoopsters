@@ -54,38 +54,35 @@ it('renders leave requests page for parent', function () {
 });
 
 it('shows only own childrens leave requests', function () {
-    LeaveRequest::factory()->create([
+    LeaveRequest::create([
         'child_id'      => $this->child->id,
         'enrollment_id' => $this->enrollment->id,
         'schedule_id'   => $this->schedule->id,
-        'leave_date'    => now()->addDays(3)->format('Y-m-d'),
+        'leave_date'    => now()->subDay()->format('Y-m-d'),
+        'type'          => 'sick',
     ]);
 
-    $other      = User::factory()->withRole('parent')->approved()->create();
-    $otherChild = Child::factory()->active()->create(['user_id' => $other->id]);
-    LeaveRequest::factory()->create([
-        'child_id'      => $otherChild->id,
-        'enrollment_id' => $this->enrollment->id,
-        'schedule_id'   => $this->schedule->id,
-        'leave_date'    => now()->addDays(5)->format('Y-m-d'),
-    ]);
+    $other = User::factory()->withRole('parent')->approved()->create();
+    Child::factory()->active()->create(['user_id' => $other->id, 'name' => 'Outsider Kid']);
 
     Livewire::actingAs($this->parent)
         ->test(LeaveRequests::class)
-        ->assertSee($this->child->name)
-        ->assertDontSee($otherChild->name);
+        ->assertSee(now()->subDay()->format('d M Y'))
+        ->assertDontSee('Outsider Kid');
 });
 
 it('can submit a sick leave request', function () {
-    $leaveDate = now()->addDays(3)->format('Y-m-d');
+    // leave_date must fall within the last 7 days through today (a missed session).
+    $leaveDate = now()->format('Y-m-d');
 
     Livewire::actingAs($this->parent)
         ->test(LeaveRequests::class)
         ->call('openCreate')
+        ->set('selectedChildId', $this->child->id)
         ->set('enrollmentId', $this->enrollment->id)
         ->set('leaveDate', $leaveDate)
         ->set('type', 'sick')
-        ->set('reason', 'Demam tinggi')
+        ->set('reason', 'High fever')
         ->call('submit');
 
     $this->assertDatabaseHas('leave_requests', [
@@ -94,7 +91,7 @@ it('can submit a sick leave request', function () {
         'schedule_id'   => $this->schedule->id,
         'leave_date'    => $leaveDate,
         'type'          => 'sick',
-        'reason'        => 'Demam tinggi',
+        'reason'        => 'High fever',
         'status'        => 'pending',
     ]);
 });
@@ -107,12 +104,13 @@ it('validates required fields', function () {
         ->assertHasErrors(['enrollmentId', 'leaveDate', 'type']);
 });
 
-it('cannot submit leave date in the past', function () {
+it('cannot submit a future leave date', function () {
     Livewire::actingAs($this->parent)
         ->test(LeaveRequests::class)
         ->call('openCreate')
+        ->set('selectedChildId', $this->child->id)
         ->set('enrollmentId', $this->enrollment->id)
-        ->set('leaveDate', now()->subDays(1)->format('Y-m-d'))
+        ->set('leaveDate', now()->addDays(3)->format('Y-m-d'))
         ->set('type', 'sick')
         ->call('submit')
         ->assertHasErrors(['leaveDate']);
@@ -151,8 +149,9 @@ it('cannot submit for another parents enrollment', function () {
     Livewire::actingAs($this->parent)
         ->test(LeaveRequests::class)
         ->call('openCreate')
+        ->set('selectedChildId', $this->child->id)
         ->set('enrollmentId', $otherEnroll->id)
-        ->set('leaveDate', now()->addDays(3)->format('Y-m-d'))
+        ->set('leaveDate', now()->format('Y-m-d'))
         ->set('type', 'permit')
         ->call('submit');
 })->throws(\Illuminate\Database\Eloquent\ModelNotFoundException::class);

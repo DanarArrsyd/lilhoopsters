@@ -25,7 +25,7 @@ beforeEach(function () {
     $this->coach     = Coach::factory()->create(['user_id' => $this->coachUser->id]);
     $this->schedule  = Schedule::factory()->create(['coach_id' => $this->coach->id, 'is_active' => true]);
     $this->child     = Child::factory()->create();
-    $this->enrollment = Enrollment::factory()->approved()->create([
+    $this->enrollment = Enrollment::factory()->program()->approved()->create([
         'child_id'    => $this->child->id,
         'schedule_id' => $this->schedule->id,
     ]);
@@ -69,7 +69,8 @@ it('shows not recorded for students without attendance', function () {
 
 it('cannot view roster for other coach schedule', function () {
     $other = Coach::factory()->create(['user_id' => User::factory()->withRole('coach')->approved()->create()->id]);
-    $otherSchedule = Schedule::factory()->create(['coach_id' => $other->id]);
+    // Private schedules are owner-only; a regular one is shared and viewable.
+    $otherSchedule = Schedule::factory()->create(['coach_id' => $other->id, 'type' => 'private']);
 
     Livewire::actingAs($this->coachUser)
         ->test(Roster::class)

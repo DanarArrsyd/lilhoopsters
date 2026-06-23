@@ -85,7 +85,6 @@ it('can submit registration enrollment', function () {
         ->call('selectChild', $child->id)
         ->set('selectedLocationId', $this->location->id)
         ->set('selectedPackageId', $this->package->id)
-        ->call('goToStep3Registration')
         ->set('jerseyName', 'BUDI')
         ->set('jerseyNumber', '10')
         ->call('submit');
@@ -117,7 +116,6 @@ it('requires package to be selected before submitting', function () {
         ->test(EnrollPlayer::class)
         ->call('selectChild', $child->id)
         ->set('selectedLocationId', $this->location->id)
-        ->call('goToStep3Registration')
         ->call('submit')
         ->assertHasErrors(['selectedPackageId']);
 });
@@ -150,18 +148,16 @@ it('can submit program enrollment after selecting schedule', function () {
     ]);
 });
 
-it('resets to step 1 after successful submission', function () {
+it('redirects to payments after successful submission', function () {
     $child = Child::factory()->create(['user_id' => $this->parent->id, 'status' => 'unregistered']);
 
-    $component = Livewire::actingAs($this->parent)
+    Livewire::actingAs($this->parent)
         ->test(EnrollPlayer::class)
         ->call('selectChild', $child->id)
         ->set('selectedLocationId', $this->location->id)
         ->set('selectedPackageId', $this->package->id)
-        ->call('goToStep3Registration')
-        ->call('submit');
-
-    $component->assertSet('step', 1);
+        ->call('submit')
+        ->assertRedirect(route('parent.payments'));
 });
 
 it('can go back from step 2 to step 1', function () {
@@ -183,7 +179,6 @@ it('transaction is linked to enrollment', function () {
         ->call('selectChild', $child->id)
         ->set('selectedLocationId', $this->location->id)
         ->set('selectedPackageId', $this->package->id)
-        ->call('goToStep3Registration')
         ->call('submit');
 
     $enrollment  = Enrollment::where('child_id', $child->id)->first();
