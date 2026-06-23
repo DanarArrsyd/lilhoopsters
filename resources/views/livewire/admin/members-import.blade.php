@@ -22,12 +22,15 @@
         <ol class="space-y-1.5 text-sm text-ink list-decimal list-inside">
             <li>Download the Excel template above.</li>
             <li>Fill in each row with one child per line. Parents with multiple children get one row per child.</li>
+            <li>For existing members who are still active, also fill the <strong>Location, Program, Day, Package, Remaining Sessions</strong> and <strong>Expiry Date</strong> columns — leave them blank for brand-new members.</li>
             <li>Delete the two grey example rows, then save the file.</li>
             <li>Upload the filled file here and click <strong>Import</strong>.</li>
         </ol>
         <div class="mt-3 p-3 rounded-xl bg-amber-50 border border-amber-100 text-xs text-amber-800">
-            <strong>Note:</strong> If a parent email already exists, the child will be added to that parent's account.
-            The parent's password will be set randomly — they can log in via Google or use the password reset flow.
+            <strong>Note:</strong> If a parent email already exists, the child is added to that parent's account.
+            Passwords are set randomly — parents log in via Google (or password reset). If the imported email matches
+            their Google account, they sign in straight away with no approval needed. Migrated enrollments don't create
+            a payment record, so revenue reports are unaffected.
         </div>
     </x-card>
 

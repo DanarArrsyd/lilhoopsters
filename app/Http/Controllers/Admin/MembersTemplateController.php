@@ -28,6 +28,15 @@ class MembersTemplateController extends Controller
             'G' => 'School',
             'H' => 'Jersey Name',
             'I' => 'Jersey Number',
+            // Optional — active enrollment for existing members being migrated.
+            // Fill ALL of J–O together, or leave them all blank.
+            'J' => 'Location',
+            'K' => 'Program',
+            'L' => 'Day',
+            'M' => 'Package',
+            'N' => 'Remaining Sessions',
+            'O' => 'Expiry Date (DD/MM/YYYY)',
+            'P' => 'Start Date (DD/MM/YYYY)',
         ];
 
         foreach ($headers as $col => $label) {
@@ -35,14 +44,20 @@ class MembersTemplateController extends Controller
         }
 
         // ── Header style: navy background, white bold text ───────────────
-        $sheet->getStyle('A1:I1')->applyFromArray([
+        $sheet->getStyle('A1:P1')->applyFromArray([
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF'], 'size' => 11],
             'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '1E3A5F']],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
         ]);
 
+        // Tint the optional enrollment block (J–P) so it reads as a group.
+        $sheet->getStyle('J1:P1')->applyFromArray([
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '2D5C8A']],
+        ]);
+
         // ── Column widths ────────────────────────────────────────────────
-        $widths = ['A'=>24,'B'=>28,'C'=>22,'D'=>24,'E'=>30,'F'=>26,'G'=>22,'H'=>18,'I'=>16];
+        $widths = ['A'=>24,'B'=>28,'C'=>22,'D'=>24,'E'=>30,'F'=>26,'G'=>22,'H'=>18,'I'=>16,
+                   'J'=>22,'K'=>20,'L'=>14,'M'=>22,'N'=>18,'O'=>26,'P'=>26];
         foreach ($widths as $col => $width) {
             $sheet->getColumnDimension($col)->setWidth($width);
         }
@@ -59,12 +74,26 @@ class MembersTemplateController extends Controller
             $validation->setShowErrorMessage(true);
             $validation->setErrorTitle('Invalid');
             $validation->setError('Please enter male or female.');
+
+            // Day dropdown for column L (optional — blank allowed)
+            $dayVal = $sheet->getCell("L{$i}")->getDataValidation();
+            $dayVal->setType(DataValidation::TYPE_LIST);
+            $dayVal->setErrorStyle(DataValidation::STYLE_INFORMATION);
+            $dayVal->setAllowBlank(true);
+            $dayVal->setShowDropDown(false);
+            $dayVal->setFormula1('"Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday"');
+            $dayVal->setShowErrorMessage(true);
+            $dayVal->setErrorTitle('Invalid');
+            $dayVal->setError('Pick a day of the week (or leave blank).');
         }
 
         // ── Example rows ─────────────────────────────────────────────────
         $examples = [
-            ['Ahmad Fauzi', 'ahmad.fauzi@email.com', '08123456789', 'Rizki Fauzi',  '15/03/2016', 'male',   'SD Negeri 1',  'Rizki', '7'],
-            ['Dewi Susanti', 'dewi.susanti@email.com', '08987654321', 'Siti Susanti', '22/08/2017', 'female', 'SD Islam Al-Kautsar', 'Siti',  '12'],
+            // Plain member (no enrollment) — J–P blank
+            ['Ahmad Fauzi', 'ahmad.fauzi@email.com', '08123456789', 'Rizki Fauzi',  '15/03/2016', 'male',   'SD Negeri 1',  'Rizki', '7', '', '', '', '', '', '', ''],
+            // Migrated active member — with package/program/location/sessions
+            ['Dewi Susanti', 'dewi.susanti@email.com', '08987654321', 'Siti Susanti', '22/08/2017', 'female', 'SD Islam Al-Kautsar', 'Siti', '12',
+             'Cikarang Court', 'Junior', 'Monday', 'Regular 8 Sessions', '5', '31/12/2026', '01/06/2026'],
         ];
 
         foreach ($examples as $i => $row) {
@@ -73,7 +102,7 @@ class MembersTemplateController extends Controller
                 $sheet->setCellValue(chr(65 + $j) . $rowNum, $val);
             }
             // Light grey background for example rows
-            $sheet->getStyle("A{$rowNum}:I{$rowNum}")->applyFromArray([
+            $sheet->getStyle("A{$rowNum}:P{$rowNum}")->applyFromArray([
                 'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'F5F5F5']],
             ]);
         }
@@ -95,11 +124,24 @@ class MembersTemplateController extends Controller
             ['Jersey Name',    'No',       'Name printed on jersey (optional)'],
             ['Jersey Number',  'No',       'Jersey number (optional)'],
             [''],
+            ['ACTIVE ENROLLMENT (optional — for migrating existing members)'],
+            ['Fill ALL of these together, or leave them ALL blank.'],
+            ['Location',          'If enrolling', 'Must match an existing location name exactly (e.g. Cikarang Court).'],
+            ['Program',           'If enrolling', 'Must match an existing program name (e.g. Junior).'],
+            ['Day',               'If enrolling', 'Day of the weekly class: Monday..Sunday (Senin..Minggu also accepted).'],
+            ['Package',           'If enrolling', 'Must match a package name that belongs to the Location above.'],
+            ['Remaining Sessions','If enrolling', 'How many sessions the member still has left (number).'],
+            ['Expiry Date',       'If enrolling', 'When the package expires. Format: DD/MM/YYYY.'],
+            ['Start Date',        'No',           'When the member originally started. Format: DD/MM/YYYY. Optional.'],
+            [''],
             ['TIPS'],
             ['- Delete the two grey example rows before importing.'],
             ['- Do not modify or rename the column headers.'],
             ['- One row = one child. If a parent has two children, add two rows with the same parent email.'],
-            ['- The system will not import duplicate children for the same parent. However duplicates are not blocked — review before importing large files.'],
+            ['- Leave J–P blank for brand-new members who have not paid for a package yet.'],
+            ['- Location + Program + Day must point to a real class schedule, otherwise that row is skipped with an error.'],
+            ['- Migrated enrollments do NOT create a payment record (no effect on revenue reports).'],
+            ['- If the parent email matches their Google account, they can log in with Google straight away — no approval needed.'],
         ];
 
         foreach ($notesData as $r => $row) {
