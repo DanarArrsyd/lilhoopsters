@@ -1,11 +1,14 @@
 <x-app>
     <x-slot name="title">{{ $title ?? 'Coach' }}</x-slot>
 
-    <div class="flex min-h-[100dvh]">
+    <div class="flex min-h-[100dvh]"
+         x-data="{ collapsed: false, mobileOpen: false, toggle() { window.innerWidth >= 1024 ? (this.collapsed = !this.collapsed) : (this.mobileOpen = !this.mobileOpen) } }"
+         x-init="collapsed = localStorage.getItem('sidebarCollapsed') === '1'; $watch('collapsed', v => localStorage.setItem('sidebarCollapsed', v ? '1' : '0'))">
         {{-- Sidebar --}}
         <aside id="sidebar"
                class="fixed inset-y-0 left-0 z-50 w-60 bg-surface border-r border-line flex flex-col
-                      transform -translate-x-full lg:translate-x-0 transition-transform duration-300">
+                      transform transition-transform duration-300"
+               :class="{ 'translate-x-0': mobileOpen, '-translate-x-full': !mobileOpen, 'lg:translate-x-0': !collapsed, 'lg:-translate-x-full': collapsed }">
 
             {{-- Logo --}}
             <div class="h-16 flex items-center gap-3 px-4 border-b border-line">
@@ -44,13 +47,16 @@
         </aside>
 
         {{-- Overlay mobile --}}
-        <div id="sidebar-overlay" class="fixed inset-0 bg-navy/40 z-40 hidden lg:hidden" onclick="closeSidebar()"></div>
+        <div x-show="mobileOpen" x-transition.opacity @click="mobileOpen = false"
+             class="fixed inset-0 bg-navy/40 z-40 lg:hidden" style="display:none"></div>
 
         {{-- Main --}}
-        <div class="flex-1 flex flex-col min-w-0 lg:ml-60">
+        <div class="flex-1 flex flex-col min-w-0 transition-[margin] duration-300"
+             :class="collapsed ? 'lg:ml-0' : 'lg:ml-60'">
             {{-- Topbar --}}
             <header class="h-14 bg-surface border-b border-line flex items-center px-4 gap-4 sticky top-0 z-30">
-                <button class="lg:hidden p-2 rounded-lg hover:bg-off text-muted" onclick="openSidebar()">
+                <button type="button" @click="toggle()" title="Toggle menu"
+                        class="p-2 rounded-lg hover:bg-off text-muted">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                     </svg>
@@ -69,16 +75,4 @@
         </div>
     </div>
 
-    @push('scripts')
-    <script>
-        function openSidebar() {
-            document.getElementById('sidebar').classList.remove('-translate-x-full');
-            document.getElementById('sidebar-overlay').classList.remove('hidden');
-        }
-        function closeSidebar() {
-            document.getElementById('sidebar').classList.add('-translate-x-full');
-            document.getElementById('sidebar-overlay').classList.add('hidden');
-        }
-    </script>
-    @endpush
 </x-app>

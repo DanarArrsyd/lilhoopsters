@@ -24,15 +24,20 @@ beforeEach(function () {
     $this->child  = Child::factory()->create(['user_id' => $this->parent->id]);
     $this->coach  = Coach::factory()->create();
 
+    // Distinct period labels — the factory picks one of four at random, so
+    // pin them or the published/draft labels can collide and flake the
+    // assertSee / assertDontSee checks.
     $this->publishedCard = ReportCard::factory()->published()->create([
-        'child_id' => $this->child->id,
-        'coach_id' => $this->coach->id,
+        'child_id'     => $this->child->id,
+        'coach_id'     => $this->coach->id,
+        'period_label' => 'Published Q1 2025',
     ]);
 
     $this->draftCard = ReportCard::factory()->create([
-        'child_id' => $this->child->id,
-        'coach_id' => $this->coach->id,
-        'status'   => 'draft',
+        'child_id'     => $this->child->id,
+        'coach_id'     => $this->coach->id,
+        'status'       => 'draft',
+        'period_label' => 'Draft Q4 2025',
     ]);
 });
 
