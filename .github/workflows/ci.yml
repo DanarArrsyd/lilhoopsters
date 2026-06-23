@@ -7,7 +7,7 @@ on:
 
 jobs:
   test:
-    name: Tests (PHP 8.3 / MySQL 8)
+    name: Tests (PHP 8.4 / MySQL 8)
     runs-on: ubuntu-latest
 
     services:
@@ -38,14 +38,14 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: '8.4'
           extensions: mbstring, pdo_mysql, bcmath, gd, zip, intl
           coverage: none
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: npm
 
       - name: Install Composer dependencies
