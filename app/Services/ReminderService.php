@@ -73,22 +73,22 @@ class ReminderService
             return false;
         }
 
-        $childName = $e->child?->name ?? 'anak Anda';
-        $pkg       = $e->package?->name ?? 'paket latihan';
+        $childName = $e->child?->name ?? 'your child';
+        $pkg       = $e->package?->name ?? 'training package';
 
         if ($e->remaining_sessions !== null && $e->remaining_sessions <= 2) {
-            $detail = "sisa {$e->remaining_sessions} sesi";
+            $detail = "has {$e->remaining_sessions} sessions left";
         } elseif ($e->expires_at) {
-            $detail = 'berakhir ' . Carbon::parse($e->expires_at)->format('d M Y');
+            $detail = 'ends ' . Carbon::parse($e->expires_at)->format('d M Y');
         } else {
-            $detail = 'segera berakhir';
+            $detail = 'is ending soon';
         }
 
         NotificationService::send(
             $parent->id,
             self::RENEWAL,
-            'Paket Segera Habis',
-            "Paket {$pkg} untuk {$childName} {$detail}. Yuk perpanjang agar latihan tidak terputus.",
+            'Package Expiring Soon',
+            "The {$pkg} package for {$childName} {$detail}. Renew now so training isn't interrupted.",
             ['enrollment_id' => $e->id, 'child_id' => $e->child_id],
         );
 
@@ -106,13 +106,13 @@ class ReminderService
         }
 
         $amount = 'Rp ' . number_format($t->amount, 0, ',', '.');
-        $pkg    = $t->package?->name ?? 'paket';
+        $pkg    = $t->package?->name ?? 'package';
 
         NotificationService::send(
             $parent->id,
             self::PAYMENT,
-            'Tagihan Belum Lunas',
-            "Pembayaran {$pkg} sebesar {$amount} masih menunggu. Kode: {$t->transaction_code}.",
+            'Outstanding Payment',
+            "Payment for {$pkg} of {$amount} is still pending. Code: {$t->transaction_code}.",
             ['transaction_id' => $t->id],
         );
 

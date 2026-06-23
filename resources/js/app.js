@@ -70,7 +70,7 @@ document.addEventListener('alpine:init', () => {
                         },
                         {
                             type: 'line',
-                            label: 'Rata-rata',
+                            label: 'Average',
                             data: amounts.map(() => avg),
                             borderColor: '#B45309',
                             borderDash: [6, 3],

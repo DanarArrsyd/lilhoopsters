@@ -7,7 +7,7 @@
 
         {{-- Preset pill group --}}
         <div class="flex items-center bg-off rounded-lg p-1 gap-0.5">
-            @foreach (['month' => 'Bulan Ini', '30d' => '30 Hari', 'year' => 'Tahun Ini'] as $key => $label)
+            @foreach (['month' => 'This Month', '30d' => '30 Days', 'year' => 'This Year'] as $key => $label)
                 <button wire:click="setPreset('{{ $key }}')"
                         class="px-3 py-1 text-xs font-semibold rounded-md transition-all duration-150
                                {{ $preset === $key
@@ -22,7 +22,7 @@
 
         {{-- Date range --}}
         <div class="flex items-center gap-2">
-            <span class="text-xs text-muted hidden sm:inline">Dari</span>
+            <span class="text-xs text-muted hidden sm:inline">From</span>
             <input type="date" wire:model.live="dateFrom"
                    class="text-xs border rounded-lg px-2.5 py-1.5 text-ink bg-off focus:outline-none
                           focus:ring-2 focus:ring-navy/20 focus:border-navy/40
@@ -39,7 +39,7 @@
         {{-- Location --}}
         <div class="min-w-36">
             <x-select wire:model.live="filterLocation">
-                <option value="">Semua Lokasi</option>
+                <option value="">All Locations</option>
                 @foreach ($locations as $loc)
                     <option value="{{ $loc->id }}">{{ $loc->name }}</option>
                 @endforeach
@@ -61,7 +61,7 @@
                 <circle class="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                 <path fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
             </svg>
-            Memuat…
+            Loading…
         </div>
 
         {{-- Export CSV --}}
@@ -94,7 +94,7 @@
                 'key'     => 'total_revenue',
                 'label'   => 'Total Revenue',
                 'value'   => 'Rp ' . number_format($kpis['total_revenue'], 0, ',', '.'),
-                'sub'     => 'transaksi terbayar',
+                'sub'     => 'paid transactions',
                 'ib'      => 'bg-[#15803D]/10',
                 'it'      => 'text-[#15803D]',
                 'bar'     => 'bg-[#15803D]',
@@ -103,9 +103,9 @@
             ],
             [
                 'key'     => 'paid_count',
-                'label'   => 'Transaksi Dibayar',
+                'label'   => 'Paid Transactions',
                 'value'   => number_format($kpis['paid_count']),
-                'sub'     => 'transaksi selesai',
+                'sub'     => 'completed transactions',
                 'ib'      => 'bg-navy/10',
                 'it'      => 'text-navy',
                 'bar'     => 'bg-navy',
@@ -114,9 +114,9 @@
             ],
             [
                 'key'     => 'avg_transaction',
-                'label'   => 'Rata-rata Transaksi',
+                'label'   => 'Average Transaction',
                 'value'   => 'Rp ' . number_format($kpis['avg_transaction'], 0, ',', '.'),
-                'sub'     => 'nilai rata-rata',
+                'sub'     => 'average value',
                 'ib'      => 'bg-[#1D4ED8]/10',
                 'it'      => 'text-[#1D4ED8]',
                 'bar'     => 'bg-[#1D4ED8]',
@@ -127,7 +127,7 @@
                 'key'     => 'conversion_rate',
                 'label'   => 'Conversion Rate',
                 'value'   => $kpis['conversion_rate'] . '%',
-                'sub'     => 'dibayar ÷ semua inisiasi',
+                'sub'     => 'paid ÷ all initiated',
                 'ib'      => 'bg-[#B45309]/10',
                 'it'      => 'text-[#B45309]',
                 'bar'     => 'bg-[#B45309]',
@@ -169,7 +169,7 @@
                                 @endif
                                 {{ $d['pct'] }}%
                             </span>
-                            <span class="text-[10px] text-faint">vs periode lalu</span>
+                            <span class="text-[10px] text-faint">vs previous period</span>
                         @else
                             <p class="text-[11px] text-muted">{{ $card['sub'] }}</p>
                         @endif
@@ -188,17 +188,17 @@
             <div>
                 <h3 class="text-sm font-extrabold text-navy uppercase tracking-wide">Revenue Over Time</h3>
                 <p class="text-xs text-muted mt-0.5">
-                    Berdasarkan paid_at · {{ $bucketMode === 'daily' ? 'Harian' : 'Bulanan' }}
+                    Based on paid_at · {{ $bucketMode === 'daily' ? 'Daily' : 'Monthly' }}
                 </p>
             </div>
             <div class="flex items-center gap-4 text-xs text-muted">
                 <span class="flex items-center gap-1.5">
                     <span class="inline-block w-4 h-3 rounded bg-navy"></span>
-                    Di atas rata-rata
+                    Above average
                 </span>
                 <span class="flex items-center gap-1.5">
                     <span class="inline-block w-4 h-3 rounded bg-[#94a3b8]"></span>
-                    Di bawah rata-rata
+                    Below average
                 </span>
                 <span class="flex items-center gap-1.5">
                     <span class="inline-block w-4 border-t-2 border-dashed border-[#B45309]"></span>
@@ -215,8 +215,8 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="text-sm font-bold text-ink">Belum ada data</p>
-                    <p class="text-xs text-muted mt-0.5">Tidak ada transaksi terbayar di periode ini.</p>
+                    <p class="text-sm font-bold text-ink">No data yet</p>
+                    <p class="text-xs text-muted mt-0.5">No paid transactions in this period.</p>
                 </div>
             </div>
         @else
@@ -280,7 +280,7 @@
                         </div>
                     </div>
                 @empty
-                    <p class="text-xs text-muted py-6 text-center">Tidak ada data di periode ini.</p>
+                    <p class="text-xs text-muted py-6 text-center">No data in this period.</p>
                 @endforelse
             </div>
         </div>
@@ -313,7 +313,7 @@
                         </div>
                     </div>
                 @empty
-                    <p class="text-xs text-muted py-6 text-center">Tidak ada data di periode ini.</p>
+                    <p class="text-xs text-muted py-6 text-center">No data in this period.</p>
                 @endforelse
             </div>
         </div>
@@ -325,7 +325,7 @@
     <div class="bg-surface border border-line rounded-xl mb-5 overflow-hidden">
         <div class="px-5 py-3 border-b border-line">
             <h3 class="text-sm font-extrabold text-navy uppercase tracking-wide">Top Packages</h3>
-            <p class="text-xs text-muted mt-0.5">10 paket tertinggi berdasarkan revenue.</p>
+            <p class="text-xs text-muted mt-0.5">Top 10 packages by revenue.</p>
         </div>
 
         @if ($topPackages->isEmpty())
@@ -336,8 +336,8 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="text-sm font-bold text-ink">Belum ada paket terjual</p>
-                    <p class="text-xs text-muted">Tidak ada transaksi terbayar di periode ini.</p>
+                    <p class="text-sm font-bold text-ink">No packages sold yet</p>
+                    <p class="text-xs text-muted">No paid transactions in this period.</p>
                 </div>
             </div>
         @else
@@ -346,9 +346,9 @@
                     <thead>
                         <tr class="border-b border-line bg-off/50">
                             <th class="px-5 py-2.5 text-left font-semibold text-muted uppercase tracking-wide text-[10px] w-8">#</th>
-                            <th class="px-5 py-2.5 text-left font-semibold text-muted uppercase tracking-wide text-[10px]">Paket</th>
+                            <th class="px-5 py-2.5 text-left font-semibold text-muted uppercase tracking-wide text-[10px]">Package</th>
                             <th class="px-5 py-2.5 text-left font-semibold text-muted uppercase tracking-wide text-[10px]">Tipe</th>
-                            <th class="px-5 py-2.5 text-left font-semibold text-muted uppercase tracking-wide text-[10px] hidden md:table-cell">Lokasi</th>
+                            <th class="px-5 py-2.5 text-left font-semibold text-muted uppercase tracking-wide text-[10px] hidden md:table-cell">Location</th>
                             <th class="px-5 py-2.5 text-right font-semibold text-muted uppercase tracking-wide text-[10px]">Unit</th>
                             <th class="px-5 py-2.5 text-right font-semibold text-muted uppercase tracking-wide text-[10px]">Revenue</th>
                         </tr>
@@ -392,14 +392,14 @@
     <div class="bg-surface border border-line rounded-xl mb-5 overflow-hidden">
         <div class="px-5 py-3 border-b border-line">
             <h3 class="text-sm font-extrabold text-navy uppercase tracking-wide">Payment Funnel</h3>
-            <p class="text-xs text-muted mt-0.5">Berdasarkan tanggal inisiasi transaksi (created_at).</p>
+            <p class="text-xs text-muted mt-0.5">Based on transaction initiation date (created_at).</p>
         </div>
 
         <div class="p-5">
             @if ($funnelTotal === 0)
                 <div class="py-6 text-center">
-                    <p class="text-sm font-bold text-ink">Belum ada transaksi</p>
-                    <p class="text-xs text-muted mt-1">Tidak ada transaksi di periode ini.</p>
+                    <p class="text-sm font-bold text-ink">No transactions yet</p>
+                    <p class="text-xs text-muted mt-1">No transactions in this period.</p>
                 </div>
             @else
                 {{-- Proportional bar --}}
@@ -431,7 +431,7 @@
                                 <span class="{{ $meta['text'] }} text-[11px] font-bold uppercase tracking-wide">{{ $meta['label'] }}</span>
                             </div>
                             <p class="{{ $meta['text'] }} text-3xl font-extrabold leading-none tabular-nums">{{ $count }}</p>
-                            <p class="{{ $meta['text'] }} text-xs mt-2 font-medium">{{ $pct }}% dari total</p>
+                            <p class="{{ $meta['text'] }} text-xs mt-2 font-medium">{{ $pct }}% of total</p>
                         </div>
                     @endforeach
                 </div>

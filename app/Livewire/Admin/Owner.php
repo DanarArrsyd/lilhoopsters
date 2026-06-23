@@ -40,8 +40,8 @@ class Owner extends Component
         $ok = $e && ReminderService::sendRenewal($e, force: true);
 
         session()->flash('owner_flash', $ok
-            ? 'Reminder renewal terkirim.'
-            : 'Gagal mengirim — orang tua tidak ditemukan.');
+            ? 'Renewal reminder sent.'
+            : 'Failed to send — parent not found.');
     }
 
     public function sendPaymentReminder(int $transactionId): void
@@ -51,20 +51,20 @@ class Owner extends Component
         $ok = $t && ReminderService::sendPayment($t, force: true);
 
         session()->flash('owner_flash', $ok
-            ? 'Reminder tagihan terkirim.'
-            : 'Gagal mengirim — orang tua tidak ditemukan.');
+            ? 'Payment reminder sent.'
+            : 'Failed to send — parent not found.');
     }
 
     public function remindAllExpiring(): void
     {
         $n = ReminderService::remindExpiring(14);
-        session()->flash('owner_flash', "{$n} reminder renewal terkirim.");
+        session()->flash('owner_flash', "{$n} renewal reminders sent.");
     }
 
     public function remindAllOutstanding(): void
     {
         $n = ReminderService::remindOutstanding();
-        session()->flash('owner_flash', "{$n} reminder tagihan terkirim.");
+        session()->flash('owner_flash', "{$n} payment reminders sent.");
     }
 
     // ─── A. Renewal & Churn ──────────────────────────────────────────

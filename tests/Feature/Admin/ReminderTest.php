@@ -84,7 +84,7 @@ it('manual renewal reminder bypasses cooldown', function () {
     // Owner clicks the button — force send creates a second.
     Livewire::actingAs($this->admin)->test(Owner::class)
         ->call('sendRenewalReminder', $e->id)
-        ->assertSee('terkirim');
+        ->assertSee('sent');
 
     expect(Notification::where('type', ReminderService::RENEWAL)->count())->toBe(2);
 });

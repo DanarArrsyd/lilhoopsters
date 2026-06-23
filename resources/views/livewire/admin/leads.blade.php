@@ -1,23 +1,23 @@
 <div>
     @php
         $statusMeta = [
-            'new'             => ['label' => 'Baru',              'cls' => 'bg-[#1D4ED8]/10 text-[#1D4ED8]'],
-            'contacted'       => ['label' => 'Dihubungi',         'cls' => 'bg-[#B45309]/10 text-[#B45309]'],
-            'trial_scheduled' => ['label' => 'Trial Dijadwalkan', 'cls' => 'bg-[#7C3AED]/10 text-[#7C3AED]'],
-            'trial_done'      => ['label' => 'Trial Selesai',     'cls' => 'bg-navy/10 text-navy'],
-            'converted'       => ['label' => 'Konversi',          'cls' => 'bg-[#15803D]/10 text-[#15803D]'],
-            'lost'            => ['label' => 'Hilang',            'cls' => 'bg-[#B91C1C]/10 text-[#B91C1C]'],
+            'new'             => ['label' => 'New',              'cls' => 'bg-[#1D4ED8]/10 text-[#1D4ED8]'],
+            'contacted'       => ['label' => 'Contacted',         'cls' => 'bg-[#B45309]/10 text-[#B45309]'],
+            'trial_scheduled' => ['label' => 'Trial Scheduled', 'cls' => 'bg-[#7C3AED]/10 text-[#7C3AED]'],
+            'trial_done'      => ['label' => 'Trial Done',     'cls' => 'bg-navy/10 text-navy'],
+            'converted'       => ['label' => 'Converted',          'cls' => 'bg-[#15803D]/10 text-[#15803D]'],
+            'lost'            => ['label' => 'Lost',            'cls' => 'bg-[#B91C1C]/10 text-[#B91C1C]'],
         ];
         $sourceLabel = [
             'walk_in' => 'Walk-in', 'instagram' => 'Instagram', 'whatsapp' => 'WhatsApp',
-            'referral' => 'Referral', 'web' => 'Web', 'other' => 'Lainnya',
+            'referral' => 'Referral', 'web' => 'Web', 'other' => 'Other',
         ];
     @endphp
 
     {{-- Header --}}
     <div class="mb-6">
         <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Leads</h2>
-        <p class="text-sm text-muted">Pipeline calon member — dari prospek sampai konversi.</p>
+        <p class="text-sm text-muted">Prospect pipeline — from lead to conversion.</p>
     </div>
 
     <button wire:click="openCreate"
@@ -36,7 +36,7 @@
         <button wire:click="$set('statusFilter', '')"
                 class="px-3 py-1.5 text-xs font-semibold rounded-lg border transition-colors
                        {{ $statusFilter === '' ? 'bg-navy text-off border-navy' : 'bg-surface text-muted border-line hover:text-ink' }}">
-            Semua <span class="opacity-70">{{ $total }}</span>
+            All <span class="opacity-70">{{ $total }}</span>
         </button>
         @foreach ($statusMeta as $key => $meta)
             <button wire:click="$set('statusFilter', '{{ $key }}')"
@@ -48,7 +48,7 @@
     </div>
 
     <x-card class="mb-4" padding="p-4">
-        <x-input wire:model.live.debounce.300ms="search" placeholder="Cari nama orang tua / anak / WhatsApp..." />
+        <x-input wire:model.live.debounce.300ms="search" placeholder="Search parent / child / WhatsApp..." />
     </x-card>
 
     <x-card padding="p-0">
@@ -56,9 +56,9 @@
             <table class="w-full text-sm min-w-[760px]">
                 <thead>
                     <tr class="border-b border-line">
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Prospek</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Sumber</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Minat</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Prospect</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Source</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Interest</th>
                         <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Trial</th>
                         <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Status</th>
                         <th class="py-3 px-4"></th>
@@ -98,11 +98,11 @@
                                     </x-btn>
                                     <x-btn variant="danger" size="sm"
                                            wire:click="confirmDelete({{ $lead->id }})"
-                                           wire:confirm="Hapus lead ini?"
+                                           wire:confirm="Delete this lead?"
                                            wire:loading.attr="disabled"
                                            wire:target="confirmDelete({{ $lead->id }})">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                        Hapus
+                                        Delete
                                     </x-btn>
                                 </div>
                             </td>
@@ -110,7 +110,7 @@
                     @empty
                         <tr>
                             <td colspan="6" class="py-2">
-                                <x-empty-state title="Belum ada lead" description="Tambah prospek pertama lewat tombol +." />
+                                <x-empty-state title="No leads yet" description="Add your first prospect with the + button." />
                             </td>
                         </tr>
                     @endforelse
@@ -128,34 +128,34 @@
             <div class="absolute inset-0 bg-navy/40" wire:click="$set('showModal', false)"></div>
             <div class="relative bg-surface rounded-2xl border border-line shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
                 <div class="flex items-center justify-between px-6 py-4 border-b border-line sticky top-0 bg-surface">
-                    <h3 class="text-lg font-extrabold uppercase tracking-tight text-navy">{{ $editingId ? 'Edit Lead' : 'Lead Baru' }}</h3>
+                    <h3 class="text-lg font-extrabold uppercase tracking-tight text-navy">{{ $editingId ? 'Edit Lead' : 'New Lead' }}</h3>
                     <button wire:click="$set('showModal', false)" class="text-muted hover:text-navy p-1 leading-none">✕</button>
                 </div>
                 <div class="p-6 space-y-4">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <x-input wire:model="parent_name" label="Nama Orang Tua" placeholder="cth. Budi Santoso"
+                        <x-input wire:model="parent_name" label="Parent Name" placeholder="cth. Budi Santoso"
                                  required :error="$errors->first('parent_name')" />
-                        <x-input wire:model="child_name" label="Nama Anak" placeholder="cth. Arka"
+                        <x-input wire:model="child_name" label="Child Name" placeholder="cth. Arka"
                                  :error="$errors->first('child_name')" />
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <x-input wire:model="whatsapp" label="WhatsApp" placeholder="08xxxxxxxxxx"
                                  :error="$errors->first('whatsapp')" />
                         <div class="space-y-1.5">
-                            <label class="block text-xs font-semibold uppercase tracking-wide text-navy">Sumber</label>
+                            <label class="block text-xs font-semibold uppercase tracking-wide text-navy">Source</label>
                             <x-select wire:model="source">
                                 <option value="walk_in">Walk-in</option>
                                 <option value="instagram">Instagram</option>
                                 <option value="whatsapp">WhatsApp</option>
                                 <option value="referral">Referral</option>
                                 <option value="web">Web</option>
-                                <option value="other">Lainnya</option>
+                                <option value="other">Other</option>
                             </x-select>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div class="space-y-1.5">
-                            <label class="block text-xs font-semibold uppercase tracking-wide text-navy">Lokasi Diminati</label>
+                            <label class="block text-xs font-semibold uppercase tracking-wide text-navy">Interested Location</label>
                             <x-select wire:model="location_id">
                                 <option value="">—</option>
                                 @foreach ($locations as $loc)
@@ -164,7 +164,7 @@
                             </x-select>
                         </div>
                         <div class="space-y-1.5">
-                            <label class="block text-xs font-semibold uppercase tracking-wide text-navy">Program Diminati</label>
+                            <label class="block text-xs font-semibold uppercase tracking-wide text-navy">Interested Program</label>
                             <x-select wire:model="program_id">
                                 <option value="">—</option>
                                 @foreach ($programs as $prog)
@@ -177,34 +177,34 @@
                         <div class="space-y-1.5">
                             <label class="block text-xs font-semibold uppercase tracking-wide text-navy">Status</label>
                             <x-select wire:model="status">
-                                <option value="new">Baru</option>
-                                <option value="contacted">Dihubungi</option>
-                                <option value="trial_scheduled">Trial Dijadwalkan</option>
-                                <option value="trial_done">Trial Selesai</option>
-                                <option value="converted">Konversi</option>
-                                <option value="lost">Hilang</option>
+                                <option value="new">New</option>
+                                <option value="contacted">Contacted</option>
+                                <option value="trial_scheduled">Trial Scheduled</option>
+                                <option value="trial_done">Trial Done</option>
+                                <option value="converted">Converted</option>
+                                <option value="lost">Lost</option>
                             </x-select>
                         </div>
-                        <x-input wire:model="trial_date" type="date" label="Tanggal Trial"
+                        <x-input wire:model="trial_date" type="date" label="Trial Date"
                                  :error="$errors->first('trial_date')" />
                     </div>
                     <div class="space-y-1.5">
-                        <label class="block text-xs font-semibold uppercase tracking-wide text-navy">Catatan</label>
-                        <textarea wire:model="notes" rows="3" aria-label="Catatan lead"
+                        <label class="block text-xs font-semibold uppercase tracking-wide text-navy">Notes</label>
+                        <textarea wire:model="notes" rows="3" aria-label="Lead notes"
                                   class="block w-full rounded-xl border border-line bg-surface px-3.5 py-3 text-sm text-ink placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-navy/15 focus:border-navy resize-none"
-                                  placeholder="Catatan tambahan..."></textarea>
+                                  placeholder="Additional notes..."></textarea>
                         @error('notes') <p class="text-xs text-[#B91C1C]">{{ $message }}</p> @enderror
                     </div>
                 </div>
                 <div class="flex gap-3 px-6 pb-6">
                     <x-btn variant="secondary" class="flex-1" wire:click="$set('showModal', false)">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                        Batal
+                        Cancel
                     </x-btn>
                     <x-btn class="flex-1" wire:click="save" wire:loading.attr="disabled">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                        <span wire:loading.remove wire:target="save">{{ $editingId ? 'Update' : 'Simpan' }}</span>
-                        <span wire:loading wire:target="save">Menyimpan...</span>
+                        <span wire:loading.remove wire:target="save">{{ $editingId ? 'Update' : 'Save' }}</span>
+                        <span wire:loading wire:target="save">Saving...</span>
                     </x-btn>
                 </div>
             </div>
