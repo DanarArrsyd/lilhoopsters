@@ -47,12 +47,15 @@ it('can create a program', function () {
         ->test(Programs::class)
         ->call('openCreate')
         ->set('name', 'Rookie')
-        ->set('min_age_months', 18)
-        ->set('max_age_months', 36)
+        ->set('minAgeYears', 2)
+        ->set('maxAgeYears', 5)
         ->call('save')
         ->assertHasNoErrors();
 
-    expect(Program::where('name', 'Rookie')->exists())->toBeTrue();
+    $program = Program::where('name', 'Rookie')->first();
+    expect($program)->not->toBeNull();
+    expect($program->min_age_months)->toBe(24);
+    expect($program->max_age_months)->toBe(60);
 });
 
 it('validates required fields on create', function () {
@@ -69,10 +72,10 @@ it('validates max age must be greater than min age', function () {
         ->test(Programs::class)
         ->call('openCreate')
         ->set('name', 'MVP')
-        ->set('min_age_months', 60)
-        ->set('max_age_months', 30)
+        ->set('minAgeYears', 5)
+        ->set('maxAgeYears', 2)
         ->call('save')
-        ->assertHasErrors(['max_age_months']);
+        ->assertHasErrors(['maxAgeYears']);
 });
 
 it('can update a program', function () {

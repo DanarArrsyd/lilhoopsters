@@ -92,7 +92,9 @@ it('validates required fields on create', function () {
         ->test(Schedules::class)
         ->call('openCreate')
         ->call('save')
-        ->assertHasErrors(['location_id', 'program_id', 'day_of_week', 'start_time', 'end_time']);
+        // start_time/end_time are composed from hour/minute/period dropdowns
+        // (which have defaults), so they can't be empty — only these can.
+        ->assertHasErrors(['location_id', 'program_id', 'day_of_week']);
 });
 
 it('can update a schedule', function () {
