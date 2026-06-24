@@ -77,3 +77,11 @@ it('fully localises the make-up classes page to Indonesian', function () {
         ->assertSee('Kelas Pengganti')                          // page title
         ->assertSee('Belum ada permintaan kelas pengganti');   // empty state
 });
+
+it('fully localises the parent Events page to Indonesian', function () {
+    $this->parent->update(['locale' => 'id']);
+
+    $this->actingAs($this->parent)->get(route('parent.events'))
+        ->assertSee('Acara')              // page title
+        ->assertSee('Belum ada acara');   // empty state (no open events)
+});
