@@ -33,6 +33,7 @@ class Events extends Component
     // Participant management panel
     public ?int $managingEventId  = null;
     public ?int $addChildId       = null;
+    public string $attendanceDate = '';
 
     protected function rules(): array
     {
@@ -154,12 +155,44 @@ class Events extends Component
     {
         $this->managingEventId = $id;
         $this->addChildId      = null;
+
+        // Default the attendance date to today if the event is running, else its start.
+        $event = Event::find($id);
+        $this->attendanceDate = $event && today()->betweenIncluded($event->start_date, $event->end_date)
+            ? today()->toDateString()
+            : ($event ? $event->start_date->toDateString() : today()->toDateString());
+    }
+
+    public function markAttendance(int $childId, string $status): void
+    {
+        if (! $this->managingEventId || ! in_array($status, ['present', 'absent'], true)) {
+            return;
+        }
+
+        $event = Event::findOrFail($this->managingEventId);
+        $date  = $this->attendanceDate ?: today()->toDateString();
+
+        if (! \Carbon\Carbon::parse($date)->betweenIncluded($event->start_date, $event->end_date)) {
+            session()->flash('error', 'Attendance date must be within the event period.');
+            return;
+        }
+
+        // Only confirmed participants can be marked.
+        if (! $event->registrations()->where('child_id', $childId)->where('status', 'confirmed')->exists()) {
+            return;
+        }
+
+        \App\Models\EventAttendance::updateOrCreate(
+            ['event_id' => $event->id, 'child_id' => $childId, 'attendance_date' => $date],
+            ['status' => $status, 'recorded_by' => auth()->id()],
+        );
     }
 
     public function closeParticipants(): void
     {
         $this->managingEventId = null;
         $this->addChildId      = null;
+        $this->attendanceDate  = '';
     }
 
     public function addParticipant(): void
@@ -193,6 +226,7 @@ class Events extends Component
     {
         $managingEvent     = null;
         $availableChildren = collect();
+        $attendanceMap     = collect();
 
         if ($this->managingEventId) {
             $managingEvent = Event::with([
@@ -210,6 +244,14 @@ class Events extends Component
                     ->whereNotIn('id', $taken)
                     ->orderBy('name')
                     ->get();
+
+                // child_id => status for the selected attendance date
+                if ($this->attendanceDate) {
+                    $attendanceMap = \App\Models\EventAttendance::query()
+                        ->where('event_id', $managingEvent->id)
+                        ->whereDate('attendance_date', $this->attendanceDate)
+                        ->pluck('status', 'child_id');
+                }
             }
         }
 
@@ -224,6 +266,7 @@ class Events extends Component
             'programs'          => Program::where('is_active', true)->orderBy('name')->get(),
             'managingEvent'     => $managingEvent,
             'availableChildren' => $availableChildren,
+            'attendanceMap'     => $attendanceMap,
         ]);
     }
 }

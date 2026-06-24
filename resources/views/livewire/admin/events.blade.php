@@ -233,6 +233,15 @@
                         </div>
                     @endif
 
+                    {{-- Attendance date --}}
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs font-semibold uppercase tracking-wide text-navy">Attendance for</label>
+                        <input type="date" wire:model.live="attendanceDate"
+                               min="{{ $managingEvent->start_date->toDateString() }}"
+                               max="{{ $managingEvent->end_date->toDateString() }}"
+                               class="text-xs border border-line rounded-lg px-2.5 py-1.5 text-ink bg-off focus:outline-none focus:ring-2 focus:ring-navy/20" />
+                    </div>
+
                     {{-- Participant list --}}
                     <div class="border border-line rounded-xl overflow-hidden">
                         @if ($managingEvent->registrations->isEmpty())
@@ -246,6 +255,7 @@
                                         @if ($managingEvent->isPaid())
                                             <th class="text-left font-semibold px-3 py-2.5">Payment</th>
                                         @endif
+                                        <th class="text-center font-semibold px-3 py-2.5">Attendance</th>
                                         <th class="px-4 py-2.5"></th>
                                     </tr>
                                 </thead>
@@ -269,6 +279,19 @@
                                             @if ($managingEvent->isPaid())
                                                 <td class="px-3 py-2.5 text-muted">{{ $reg->transaction ? ucfirst($reg->transaction->status) : '—' }}</td>
                                             @endif
+                                            <td class="px-3 py-2.5">
+                                                @if ($reg->status === 'confirmed')
+                                                    @php $att = $attendanceMap[$reg->child_id] ?? null; @endphp
+                                                    <div class="flex items-center justify-center gap-1">
+                                                        <button wire:click="markAttendance({{ $reg->child_id }}, 'present')"
+                                                                class="text-[11px] font-semibold px-2 py-1 rounded-lg transition-colors {{ $att === 'present' ? 'bg-[#15803D] text-white' : 'bg-[#15803D]/10 text-[#15803D] hover:bg-[#15803D]/20' }}">Present</button>
+                                                        <button wire:click="markAttendance({{ $reg->child_id }}, 'absent')"
+                                                                class="text-[11px] font-semibold px-2 py-1 rounded-lg transition-colors {{ $att === 'absent' ? 'bg-[#B91C1C] text-white' : 'bg-[#B91C1C]/10 text-[#B91C1C] hover:bg-[#B91C1C]/20' }}">Absent</button>
+                                                    </div>
+                                                @else
+                                                    <p class="text-center text-faint">—</p>
+                                                @endif
+                                            </td>
                                             <td class="px-4 py-2.5 text-right">
                                                 @if ($reg->status !== 'cancelled')
                                                     <x-btn variant="danger" size="sm" wire:click="cancelRegistration({{ $reg->id }})"
