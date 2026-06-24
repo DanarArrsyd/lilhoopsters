@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Route;
 // Public: redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 
+// Public trial booking — anyone can submit; creates a web lead.
+Route::get('/trial', \App\Livewire\Public\TrialBooking::class)->name('trial');
+
 // ─── Auth routes (guests only) ───────────────────────────────────────
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showForm'])->name('login');
