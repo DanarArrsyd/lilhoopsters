@@ -1,0 +1,52 @@
+<?php
+// tests/Feature/I18nTest.php
+
+use App\Livewire\LocaleSwitcher;
+use App\Models\Role;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
+
+uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    Role::insert([
+        ['name' => 'super_admin', 'created_at' => now(), 'updated_at' => now()],
+        ['name' => 'admin',       'created_at' => now(), 'updated_at' => now()],
+        ['name' => 'coach',       'created_at' => now(), 'updated_at' => now()],
+        ['name' => 'parent',      'created_at' => now(), 'updated_at' => now()],
+    ]);
+
+    $this->parent = User::factory()->withRole('parent')->approved()->create();
+});
+
+it('defaults to English for a parent with no saved locale', function () {
+    $this->actingAs($this->parent)
+        ->get(route('parent.dashboard'))
+        ->assertSee('Dashboard')
+        ->assertDontSee('Dasbor');
+});
+
+it('renders the portal in Indonesian when the user locale is id', function () {
+    $this->parent->update(['locale' => 'id']);
+
+    $this->actingAs($this->parent)
+        ->get(route('parent.dashboard'))
+        ->assertSee('Dasbor')        // dashboard title
+        ->assertSee('Berita')        // nav: News
+        ->assertSee('Pembayaran');   // nav: Payments
+});
+
+it('switcher saves the chosen locale to the user', function () {
+    Livewire::actingAs($this->parent)->test(LocaleSwitcher::class)
+        ->call('switchTo', 'id');
+
+    expect($this->parent->fresh()->locale)->toBe('id');
+});
+
+it('switcher ignores an unsupported locale', function () {
+    Livewire::actingAs($this->parent)->test(LocaleSwitcher::class)
+        ->call('switchTo', 'fr');
+
+    expect($this->parent->fresh()->locale)->toBeNull();
+});

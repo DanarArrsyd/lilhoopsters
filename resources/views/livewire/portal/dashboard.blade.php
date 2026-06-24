@@ -2,8 +2,8 @@
 
     {{-- Page header --}}
     <div>
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Dashboard</h2>
-        <p class="text-sm text-muted">Welcome back, {{ auth()->user()->name }}</p>
+        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.dashboard.title') }}</h2>
+        <p class="text-sm text-muted">{{ __('messages.dashboard.welcome', ['name' => auth()->user()->name]) }}</p>
     </div>
 
     {{-- Active event banner — classes paused, package auto-extended --}}
