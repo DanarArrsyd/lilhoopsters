@@ -92,6 +92,11 @@ class AttendanceHistory extends Component
         $attendanceLookup = $enrollment->attendances
             ->keyBy(fn($a) => Carbon::parse($a->attended_at)->format('Y-m-d'));
 
+        // Active events pause this schedule — skip those dates entirely.
+        $events = \App\Services\EventService::eventsForSchedule(
+            $schedule->location_id, $schedule->program_id
+        );
+
         $sessions = collect();
         $sessionNumber = 1;
 
@@ -99,6 +104,16 @@ class AttendanceHistory extends Component
 
         while ($current->lte($endDate)) {
             if ($maxSessions && $sessionNumber > $maxSessions) break;
+
+            // Skip weeks that fall inside an event period (classes paused).
+            $paused = $events->contains(
+                fn($e) => $current->betweenIncluded($e->start_date, $e->end_date)
+            );
+            if ($paused) {
+                $current->addWeek();
+                continue;
+            }
+
             $dateKey    = $current->format('Y-m-d');
             $attendance = $attendanceLookup->get($dateKey);
             $isPast     = $current->isPast() && !$current->isToday();

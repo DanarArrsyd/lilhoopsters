@@ -38,6 +38,7 @@ Route::middleware(['auth', 'role:admin,super_admin', 'registration.status'])
         Route::get('/packages',    fn() => view('admin.packages'))->name('packages');
         Route::get('/coaches',     fn() => view('admin.coaches'))->name('coaches');
         Route::get('/schedules',   fn() => view('admin.schedules'))->name('schedules');
+        Route::get('/events',      fn() => view('admin.events'))->name('events');
         Route::get('/parents',     fn() => view('admin.parents'))->name('parents');
         Route::get('/players',     fn() => view('admin.players'))->name('players');
         Route::get('/leads',       fn() => view('admin.leads'))->name('leads');

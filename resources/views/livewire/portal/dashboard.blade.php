@@ -6,6 +6,23 @@
         <p class="text-sm text-muted">Welcome back, {{ auth()->user()->name }}</p>
     </div>
 
+    {{-- Active event banner — classes paused, package auto-extended --}}
+    @foreach ($activeEvents as $event)
+        <div class="bg-[#1D4ED8]/8 border border-[#1D4ED8]/20 rounded-xl px-4 py-3 flex items-start gap-3">
+            <svg class="w-5 h-5 shrink-0 text-[#1D4ED8] mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+            </svg>
+            <div class="min-w-0">
+                <p class="text-sm font-bold text-[#1D4ED8]">{{ $event->name }} — regular classes paused</p>
+                <p class="text-xs text-muted mt-0.5">
+                    {{ $event->start_date->format('d M') }} – {{ $event->end_date->format('d M Y') }}.
+                    Your package is automatically extended for the event — no sessions lost.
+                    @if ($event->description) <span class="block mt-1">{{ $event->description }}</span> @endif
+                </p>
+            </div>
+        </div>
+    @endforeach
+
 <div class="flex flex-col lg:flex-row gap-6 items-start">
 
     {{-- LEFT: Weekly Calendar --}}
