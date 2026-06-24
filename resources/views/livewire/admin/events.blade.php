@@ -15,6 +15,9 @@
     @if (session('success'))
         <x-alert type="success" class="mb-4">{{ session('success') }}</x-alert>
     @endif
+    @if (session('error'))
+        <x-alert type="danger" class="mb-4">{{ session('error') }}</x-alert>
+    @endif
 
     <x-card class="mb-4" padding="p-4">
         <x-input wire:model.live.debounce.300ms="search" placeholder="Search events..." />
@@ -66,6 +69,12 @@
                             </td>
                             <td class="py-3 px-4">
                                 <div class="flex items-center gap-2 justify-end">
+                                    @if ($event->is_registerable)
+                                        <x-btn variant="add" size="sm" wire:click="openParticipants({{ $event->id }})" wire:loading.attr="disabled">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                            {{ $event->registrations_count }}@if($event->capacity)/{{ $event->capacity }}@endif
+                                        </x-btn>
+                                    @endif
                                     <x-btn variant="edit" size="sm" wire:click="openEdit({{ $event->id }})" wire:loading.attr="disabled">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                                         Edit
@@ -155,6 +164,24 @@
                     <p class="text-xs text-muted bg-off border border-line rounded-lg px-3 py-2">
                         When active, members in scope have their package expiry pushed back by the event length, and the event dates are skipped on their attendance calendar.
                     </p>
+
+                    {{-- Registration (Phase 2A) --}}
+                    <div class="border-t border-line pt-4 space-y-3" x-data>
+                        <label class="flex items-center gap-2 text-sm text-ink cursor-pointer">
+                            <input type="checkbox" wire:model.live="is_registerable" class="rounded accent-navy">
+                            Open for registration (children can be enrolled in this event)
+                        </label>
+
+                        @if ($is_registerable)
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <x-input wire:model="price" type="number" label="Price (Rp)" placeholder="0 = free"
+                                         :error="$errors->first('price')" />
+                                <x-input wire:model="capacity" type="number" label="Capacity" placeholder="Blank = unlimited"
+                                         :error="$errors->first('capacity')" />
+                            </div>
+                            <p class="text-[11px] text-faint">Leave price blank or 0 for a free event (registration confirms instantly). A price creates a pending payment.</p>
+                        @endif
+                    </div>
                 </div>
                 <div class="flex gap-3 px-6 pb-6">
                     <x-btn variant="secondary" class="flex-1" wire:click="$set('showModal', false)">
@@ -166,6 +193,94 @@
                         <span wire:loading.remove wire:target="save">{{ $editingId ? 'Update' : 'Save' }}</span>
                         <span wire:loading wire:target="save">Saving...</span>
                     </x-btn>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- Participants panel --}}
+    @if ($managingEvent)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-navy/40" wire:click="closeParticipants"></div>
+            <div class="relative bg-surface rounded-2xl border border-line shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-line sticky top-0 bg-surface">
+                    <div>
+                        <h3 class="text-lg font-extrabold uppercase tracking-tight text-navy">{{ $managingEvent->name }} — Participants</h3>
+                        <p class="text-xs text-muted">
+                            {{ $managingEvent->takenCount() }}@if($managingEvent->capacity)/{{ $managingEvent->capacity }}@endif registered
+                            · {{ $managingEvent->isPaid() ? 'Rp ' . number_format($managingEvent->price, 0, ',', '.') : 'Free' }}
+                        </p>
+                    </div>
+                    <button wire:click="closeParticipants" class="text-muted hover:text-navy p-1 leading-none">✕</button>
+                </div>
+
+                <div class="p-6 space-y-4">
+                    {{-- Add participant --}}
+                    @if ($managingEvent->isFull())
+                        <p class="text-sm text-[#B45309] bg-[#B45309]/10 border border-[#B45309]/20 rounded-lg px-3 py-2">This event is full.</p>
+                    @else
+                        <div class="flex gap-2 items-end">
+                            <div class="flex-1 space-y-1.5">
+                                <label class="block text-xs font-semibold uppercase tracking-wide text-navy">Add a child</label>
+                                <x-select wire:model="addChildId">
+                                    <option value="">Select a child...</option>
+                                    @foreach ($availableChildren as $c)
+                                        <option value="{{ $c->id }}">{{ $c->name }} — {{ $c->parent?->name }}</option>
+                                    @endforeach
+                                </x-select>
+                            </div>
+                            <x-btn variant="add" wire:click="addParticipant" wire:loading.attr="disabled" wire:target="addParticipant">Add</x-btn>
+                        </div>
+                    @endif
+
+                    {{-- Participant list --}}
+                    <div class="border border-line rounded-xl overflow-hidden">
+                        @if ($managingEvent->registrations->isEmpty())
+                            <p class="px-4 py-6 text-center text-sm text-muted">No participants yet.</p>
+                        @else
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="text-[11px] uppercase tracking-wide text-faint border-b border-line">
+                                        <th class="text-left font-semibold px-4 py-2.5">Child</th>
+                                        <th class="text-left font-semibold px-3 py-2.5">Status</th>
+                                        @if ($managingEvent->isPaid())
+                                            <th class="text-left font-semibold px-3 py-2.5">Payment</th>
+                                        @endif
+                                        <th class="px-4 py-2.5"></th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-line">
+                                    @foreach ($managingEvent->registrations->sortByDesc('registered_at') as $reg)
+                                        @php
+                                            $sb = match ($reg->status) {
+                                                'confirmed' => 'bg-[#15803D]/10 text-[#15803D]',
+                                                'pending'   => 'bg-[#B45309]/10 text-[#B45309]',
+                                                default     => 'bg-line text-faint',
+                                            };
+                                        @endphp
+                                        <tr wire:key="reg-{{ $reg->id }}" class="{{ $reg->status === 'cancelled' ? 'opacity-50' : '' }}">
+                                            <td class="px-4 py-2.5">
+                                                <span class="font-semibold text-ink">{{ $reg->child?->name ?? '—' }}</span>
+                                                <span class="block text-[11px] text-faint">{{ $reg->child?->parent?->name }}</span>
+                                            </td>
+                                            <td class="px-3 py-2.5">
+                                                <span class="inline-flex text-[11px] font-bold px-2 py-0.5 rounded-md {{ $sb }}">{{ ucfirst($reg->status) }}</span>
+                                            </td>
+                                            @if ($managingEvent->isPaid())
+                                                <td class="px-3 py-2.5 text-muted">{{ $reg->transaction ? ucfirst($reg->transaction->status) : '—' }}</td>
+                                            @endif
+                                            <td class="px-4 py-2.5 text-right">
+                                                @if ($reg->status !== 'cancelled')
+                                                    <x-btn variant="danger" size="sm" wire:click="cancelRegistration({{ $reg->id }})"
+                                                           wire:confirm="Cancel this registration?" wire:loading.attr="disabled">Cancel</x-btn>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>

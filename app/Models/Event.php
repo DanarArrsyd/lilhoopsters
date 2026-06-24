@@ -6,21 +6,52 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Event extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'name', 'description', 'start_date', 'end_date',
+        'name', 'description', 'is_registerable', 'price', 'capacity',
+        'start_date', 'end_date',
         'location_id', 'program_id', 'is_active', 'created_by',
     ];
 
     protected $casts = [
-        'start_date' => 'date',
-        'end_date'   => 'date',
-        'is_active'  => 'boolean',
+        'start_date'      => 'date',
+        'end_date'        => 'date',
+        'is_active'       => 'boolean',
+        'is_registerable' => 'boolean',
+        'price'           => 'integer',
+        'capacity'        => 'integer',
     ];
+
+    public function isPaid(): bool
+    {
+        return (int) $this->price > 0;
+    }
+
+    /** Registrations holding a spot (everything except cancelled). */
+    public function takenCount(): int
+    {
+        return $this->registrations()->where('status', '!=', 'cancelled')->count();
+    }
+
+    public function isFull(): bool
+    {
+        return $this->capacity !== null && $this->takenCount() >= $this->capacity;
+    }
+
+    public function spotsLeft(): ?int
+    {
+        return $this->capacity === null ? null : max(0, $this->capacity - $this->takenCount());
+    }
+
+    public function registrations(): HasMany
+    {
+        return $this->hasMany(EventRegistration::class);
+    }
 
     /** Inclusive day count of the event period. */
     public function dayCount(): int
