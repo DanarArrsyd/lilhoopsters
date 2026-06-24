@@ -173,9 +173,21 @@ class Dashboard extends Component
             }
         }
 
+        // Events running today that pause this parent's classes (package auto-extended).
+        $activeEvents = \App\Models\Event::query()
+            ->where('is_active', true)
+            ->whereDate('start_date', '<=', today())
+            ->whereDate('end_date', '>=', today())
+            ->get()
+            ->filter(fn($ev) => $enrollments->contains(fn($e) =>
+                (is_null($ev->location_id) || $ev->location_id === $e->schedule->location_id)
+                && (is_null($ev->program_id) || $ev->program_id === $e->schedule->program_id)
+            ))
+            ->values();
+
         return view('livewire.portal.dashboard', compact(
             'weekDays', 'schedulesByDay', 'todaySchedules', 'activePackages',
-            'calendar', 'selectedSessions',
+            'calendar', 'selectedSessions', 'activeEvents',
         ));
     }
 }
