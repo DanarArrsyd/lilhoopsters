@@ -4,6 +4,7 @@ namespace App\Livewire\Admin;
 
 use App\Models\CoachSession;
 use App\Models\Enrollment;
+use App\Models\Event;
 use App\Models\Lead;
 use App\Models\Schedule;
 use App\Models\Transaction;
@@ -429,6 +430,52 @@ class Owner extends Component
         return ['health' => $health, 'trends' => $trends, 'actions' => $actions];
     }
 
+    // ─── F. Events — revenue, participation, attendance ──────────────
+
+    private function eventsData(): array
+    {
+        $events = Event::query()
+            ->where('is_registerable', true)
+            ->withCount([
+                'registrations as confirmed_count' => fn($q) => $q->where('status', 'confirmed'),
+                'registrations as pending_count'   => fn($q) => $q->where('status', 'pending'),
+                'attendances as present_marks'     => fn($q) => $q->where('status', 'present'),
+                'attendances as total_marks',
+            ])
+            ->with(['registrations.transaction'])
+            ->orderByDesc('start_date')
+            ->limit(8)
+            ->get();
+
+        $rows = $events->map(function ($e) {
+            $revenue = (int) $e->registrations
+                ->filter(fn($r) => $r->transaction && $r->transaction->status === 'paid')
+                ->sum(fn($r) => $r->transaction->amount);
+
+            $pendingValue = (int) $e->registrations
+                ->filter(fn($r) => $r->transaction && $r->transaction->status === 'pending')
+                ->sum(fn($r) => $r->transaction->amount);
+
+            return [
+                'name'         => $e->name,
+                'period'       => $e->start_date->format('d M') . ' – ' . $e->end_date->format('d M Y'),
+                'confirmed'    => $e->confirmed_count,
+                'pending'      => $e->pending_count,
+                'revenue'      => $revenue,
+                'pending_val'  => $pendingValue,
+                'attendance'   => $e->total_marks > 0 ? (int) round($e->present_marks / $e->total_marks * 100) : null,
+                'is_paid'      => (int) $e->price > 0,
+            ];
+        });
+
+        return [
+            'rows'          => $rows,
+            'total_revenue' => (int) $rows->sum('revenue'),
+            'total_pending' => (int) $rows->sum('pending_val'),
+            'total_people'  => (int) $rows->sum('confirmed'),
+        ];
+    }
+
     public function render()
     {
         $renewal  = $this->renewalData();
@@ -442,6 +489,7 @@ class Owner extends Component
             'payroll'  => $this->payrollData(),
             'capacity' => $capacity,
             'leads'    => $leads,
+            'events'   => $this->eventsData(),
             'insights' => $this->insightsData($renewal, $ar, $capacity, $leads),
         ]);
     }

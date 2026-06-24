@@ -481,4 +481,78 @@
         </div>
     </section>
 
+    {{-- ══════════════════════════════════════════════
+         F. EVENTS — revenue, participation, attendance
+    ══════════════════════════════════════════════ --}}
+    <section>
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div class="flex items-center gap-2">
+                <h2 class="text-sm font-extrabold text-navy uppercase tracking-wide">Events</h2>
+                <span class="text-[11px] text-faint">revenue & participation</span>
+            </div>
+            <a href="{{ route('admin.events') }}" class="text-[11px] font-semibold text-navy hover:underline">Manage Events →</a>
+        </div>
+
+        <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
+            <div class="bg-surface border border-line rounded-xl px-4 pt-4 pb-3 flex flex-col gap-3">
+                <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">Event Revenue</p>
+                <div>
+                    <p class="text-xl font-extrabold text-navy leading-none tracking-tight">Rp {{ number_format($events['total_revenue'], 0, ',', '.') }}</p>
+                    <p class="text-[11px] text-muted mt-1.5">collected (paid)</p>
+                </div>
+                <div class="h-0.5 w-10 bg-[#15803D] rounded-full"></div>
+            </div>
+            <div class="bg-surface border border-line rounded-xl px-4 pt-4 pb-3 flex flex-col gap-3">
+                <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">Awaiting Payment</p>
+                <div>
+                    <p class="text-xl font-extrabold text-navy leading-none tracking-tight">Rp {{ number_format($events['total_pending'], 0, ',', '.') }}</p>
+                    <p class="text-[11px] text-muted mt-1.5">pending registrations</p>
+                </div>
+                <div class="h-0.5 w-10 bg-[#B45309] rounded-full"></div>
+            </div>
+            <div class="bg-surface border border-line rounded-xl px-4 pt-4 pb-3 flex flex-col gap-3">
+                <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">Confirmed Participants</p>
+                <div>
+                    <p class="text-xl font-extrabold text-navy leading-none tracking-tight">{{ number_format($events['total_people']) }}</p>
+                    <p class="text-[11px] text-muted mt-1.5">across events</p>
+                </div>
+                <div class="h-0.5 w-10 bg-navy rounded-full"></div>
+            </div>
+        </div>
+
+        <div class="bg-surface border border-line rounded-xl overflow-hidden">
+            @if ($events['rows']->isEmpty())
+                <p class="px-5 py-8 text-center text-sm text-muted">No registerable events yet.</p>
+            @else
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="text-[11px] uppercase tracking-wide text-faint border-b border-line">
+                                <th class="text-left font-semibold px-5 py-2.5">Event</th>
+                                <th class="text-right font-semibold px-3 py-2.5">Confirmed</th>
+                                <th class="text-right font-semibold px-3 py-2.5 hidden sm:table-cell">Pending</th>
+                                <th class="text-right font-semibold px-3 py-2.5">Attendance</th>
+                                <th class="text-right font-semibold px-5 py-2.5">Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-line">
+                            @foreach ($events['rows'] as $row)
+                                <tr class="hover:bg-off/60">
+                                    <td class="px-5 py-2.5">
+                                        <span class="font-semibold text-ink">{{ $row['name'] }}</span>
+                                        <span class="block text-[11px] text-faint">{{ $row['period'] }}{{ $row['is_paid'] ? '' : ' · Free' }}</span>
+                                    </td>
+                                    <td class="px-3 py-2.5 text-right font-bold text-navy">{{ $row['confirmed'] }}</td>
+                                    <td class="px-3 py-2.5 text-right text-muted hidden sm:table-cell">{{ $row['pending'] }}</td>
+                                    <td class="px-3 py-2.5 text-right text-muted">{{ $row['attendance'] === null ? '—' : $row['attendance'] . '%' }}</td>
+                                    <td class="px-5 py-2.5 text-right font-semibold text-ink">Rp {{ number_format($row['revenue'], 0, ',', '.') }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+        </div>
+    </section>
+
 </div>
