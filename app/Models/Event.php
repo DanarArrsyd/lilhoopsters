@@ -53,6 +53,11 @@ class Event extends Model
         return $this->hasMany(EventRegistration::class);
     }
 
+    public function attendances(): HasMany
+    {
+        return $this->hasMany(EventAttendance::class);
+    }
+
     /** Inclusive day count of the event period. */
     public function dayCount(): int
     {
