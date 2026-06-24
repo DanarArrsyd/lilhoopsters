@@ -85,3 +85,15 @@ it('fully localises the parent Events page to Indonesian', function () {
         ->assertSee('Acara')              // page title
         ->assertSee('Belum ada acara');   // empty state (no open events)
 });
+
+it('fully localises the My Players and News pages to Indonesian', function () {
+    $this->parent->update(['locale' => 'id']);
+
+    $this->actingAs($this->parent)->get(route('parent.players'))
+        ->assertSee('Anak Saya')        // page title
+        ->assertSee('Belum ada pemain'); // empty state
+
+    $this->actingAs($this->parent)->get(route('parent.news'))
+        ->assertSee('Berita')           // page title
+        ->assertSee('Belum ada berita'); // empty state
+});
