@@ -1,8 +1,8 @@
 <div>
     {{-- Header --}}
     <div class="mb-6">
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Leave Requests</h2>
-        <p class="text-sm text-muted">Submit and track sick or permit requests.</p>
+        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.pages.leaves.title') }}</h2>
+        <p class="text-sm text-muted">{{ __('messages.pages.leaves.subtitle') }}</p>
     </div>
 
     {{-- FAB --}}

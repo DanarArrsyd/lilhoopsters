@@ -1,7 +1,7 @@
 <div class="space-y-6">
     <div>
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">News</h2>
-        <p class="text-sm text-muted">Announcements and updates from Lil' Hoopsters.</p>
+        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.pages.news.title') }}</h2>
+        <p class="text-sm text-muted">{{ __('messages.pages.news.subtitle') }}</p>
     </div>
 
     @forelse ($posts as $post)

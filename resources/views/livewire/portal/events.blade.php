@@ -1,7 +1,7 @@
 <div class="space-y-6">
     <div>
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Events</h2>
-        <p class="text-sm text-muted">Register your child for academy events.</p>
+        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.pages.events.title') }}</h2>
+        <p class="text-sm text-muted">{{ __('messages.pages.events.subtitle') }}</p>
     </div>
 
     @if (session('success'))

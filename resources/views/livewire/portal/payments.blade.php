@@ -239,8 +239,8 @@
 
         {{-- Page header --}}
         <div class="mb-6">
-            <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Payments</h2>
-            <p class="text-sm text-muted">Transaction history &amp; payment proof upload.</p>
+            <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.pages.payments.title') }}</h2>
+            <p class="text-sm text-muted">{{ __('messages.pages.payments.subtitle') }}</p>
         </div>
 
         {{-- Pending summary card --}}
