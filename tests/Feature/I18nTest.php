@@ -61,3 +61,11 @@ it('localises parent page headers to Indonesian', function () {
     $this->actingAs($this->parent)->get(route('parent.attendance'))
         ->assertSee('Kehadiran');
 });
+
+it('fully localises the leave requests page to Indonesian', function () {
+    $this->parent->update(['locale' => 'id']);
+
+    $this->actingAs($this->parent)->get(route('parent.leaves'))
+        ->assertSee('Izin / Sakit')                  // page title
+        ->assertSee('Belum ada pendaftaran aktif');  // empty state (no enrollment)
+});
