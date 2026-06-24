@@ -50,6 +50,10 @@ class Payments extends Component
             ]);
         }
 
+        // Event registration paid for by this transaction → confirm it.
+        \App\Models\EventRegistration::where('transaction_id', $transaction->id)
+            ->update(['status' => 'confirmed']);
+
         if ($transaction->user_id) {
             NotificationService::send(
                 $transaction->user_id,
@@ -82,6 +86,10 @@ class Payments extends Component
             'status'      => 'rejected',
             'admin_notes' => $this->adminNote ?: null,
         ]);
+
+        // Event registration paid for by this transaction → cancel it.
+        \App\Models\EventRegistration::where('transaction_id', $this->rejectingId)
+            ->update(['status' => 'cancelled']);
 
         $trx = Transaction::find($this->rejectingId);
         if ($trx?->user_id) {

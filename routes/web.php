@@ -91,6 +91,7 @@ Route::middleware(['auth', 'role:parent', 'registration.status'])
         Route::get('/dashboard',  fn() => view('parent.dashboard'))->name('dashboard');
         Route::get('/players',    fn() => view('parent.players'))->name('players');
         Route::get('/enroll',     \App\Livewire\Portal\EnrollPlayer::class)->name('enroll');
+        Route::get('/events',     fn() => view('parent.events'))->name('events');
         Route::get('/payments',   fn() => view('parent.payments'))->name('payments');
         Route::get('/leaves',     fn() => view('parent.leaves'))->name('leaves');
         Route::get('/attendance',    fn() => view('parent.attendance'))->name('attendance');
