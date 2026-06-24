@@ -17,7 +17,7 @@ class User extends Authenticatable
         'role_id', 'name', 'email', 'password',
         'google_id', 'avatar', 'profile_photo',
         'whatsapp_number', 'address', 'occupation',
-        'is_active', 'registration_status',
+        'is_active', 'registration_status', 'locale',
     ];
 
     protected $hidden = ['password', 'remember_token'];

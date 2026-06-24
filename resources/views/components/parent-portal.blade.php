@@ -65,6 +65,7 @@
                     <h1 class="text-sm font-bold uppercase tracking-wide text-navy">{{ $title ?? 'Dashboard' }}</h1>
                 </div>
                 {{ $actions ?? '' }}
+                <livewire:locale-switcher />
                 <livewire:notification-bell />
             </header>
 
