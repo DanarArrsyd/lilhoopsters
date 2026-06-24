@@ -69,3 +69,11 @@ it('fully localises the leave requests page to Indonesian', function () {
         ->assertSee('Izin / Sakit')                  // page title
         ->assertSee('Belum ada pendaftaran aktif');  // empty state (no enrollment)
 });
+
+it('fully localises the make-up classes page to Indonesian', function () {
+    $this->parent->update(['locale' => 'id']);
+
+    $this->actingAs($this->parent)->get(route('parent.makeup'))
+        ->assertSee('Kelas Pengganti')                          // page title
+        ->assertSee('Belum ada permintaan kelas pengganti');   // empty state
+});
