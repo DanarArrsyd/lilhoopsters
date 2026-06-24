@@ -137,6 +137,12 @@
         </svg>
         Report Cards
     </x-sidebar-link>
+    <x-sidebar-link href="{{ route('admin.news') }}" :active="request()->routeIs('admin.news')">
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m0 0h2a2 2 0 012 2v9a2 2 0 11-4 0V5a2 2 0 00-2-2H5"/>
+        </svg>
+        News
+    </x-sidebar-link>
 </x-sidebar-section>
 
 <x-sidebar-section label="Account">

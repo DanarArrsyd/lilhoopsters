@@ -49,6 +49,7 @@ Route::middleware(['auth', 'role:admin,super_admin', 'registration.status'])
         Route::get('/payments',       fn() => view('admin.payments'))->name('payments');
         Route::get('/reports',        fn() => view('admin.reports'))->name('reports');
         Route::get('/owner',          fn() => view('admin.owner'))->name('owner');
+        Route::get('/news',           fn() => view('admin.news'))->name('news');
         Route::get('/attendances',    fn() => view('admin.attendances'))->name('attendances');
         Route::get('/leave-requests', fn() => view('admin.leave-requests'))->name('leave-requests');
         Route::get('/makeup-classes', fn() => view('admin.makeup-classes'))->name('makeup-classes');
@@ -74,6 +75,7 @@ Route::middleware(['auth', 'role:coach', 'registration.status'])
     ->name('coach.')
     ->group(function () {
         Route::get('/dashboard',   fn() => view('coach.dashboard'))->name('dashboard');
+        Route::get('/news',        fn() => view('coach.news'))->name('news');
         Route::get('/schedules',   fn() => view('coach.schedules'))->name('schedules');
         Route::get('/attendance',  fn() => view('coach.attendance'))->name('attendance');
         Route::get('/checkin',       fn() => view('coach.checkin'))->name('checkin');
@@ -95,6 +97,7 @@ Route::middleware(['auth', 'role:parent', 'registration.status'])
         Route::get('/players',    fn() => view('parent.players'))->name('players');
         Route::get('/enroll',     \App\Livewire\Portal\EnrollPlayer::class)->name('enroll');
         Route::get('/events',     fn() => view('parent.events'))->name('events');
+        Route::get('/news',       fn() => view('parent.news'))->name('news');
         Route::get('/payments',   fn() => view('parent.payments'))->name('payments');
         Route::get('/leaves',     fn() => view('parent.leaves'))->name('leaves');
         Route::get('/attendance',    fn() => view('parent.attendance'))->name('attendance');
