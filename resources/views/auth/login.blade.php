@@ -127,10 +127,13 @@
         </div>
     </div>
 
-    {{-- Bottom: register link --}}
-    <div class="fixed bottom-6 left-6 z-20">
+    {{-- Bottom: register + trial links --}}
+    <div class="fixed bottom-6 left-6 z-20 flex flex-col gap-1.5">
         <a href="{{ route('register') }}" class="text-xs text-gray-400 hover:text-navy transition-colors duration-150">
             New here? <span class="font-semibold">Create an account</span>
+        </a>
+        <a href="{{ route('trial') }}" class="text-xs text-gray-400 hover:text-navy transition-colors duration-150">
+            Not a member yet? <span class="font-semibold">Book a free trial</span>
         </a>
     </div>
 
