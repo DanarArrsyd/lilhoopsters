@@ -1,8 +1,8 @@
 <div>
     {{-- Header --}}
     <div class="mb-6">
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Attendance</h2>
-        <p class="text-sm text-muted">Session schedule and attendance history.</p>
+        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.pages.attendance.title') }}</h2>
+        <p class="text-sm text-muted">{{ __('messages.pages.attendance.subtitle') }}</p>
     </div>
 
     {{-- Child filter tabs --}}

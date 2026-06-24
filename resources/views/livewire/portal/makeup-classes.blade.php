@@ -1,8 +1,8 @@
 <div>
     {{-- Header --}}
     <div class="mb-6">
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Make-Up Classes</h2>
-        <p class="text-sm text-muted">Request a replacement session for an approved leave.</p>
+        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.pages.makeup.title') }}</h2>
+        <p class="text-sm text-muted">{{ __('messages.pages.makeup.subtitle') }}</p>
     </div>
     @if ($approvedLeaves->isNotEmpty())
         <button wire:click="openForm"

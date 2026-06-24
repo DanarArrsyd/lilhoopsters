@@ -1,8 +1,8 @@
 <div>
     {{-- Header --}}
     <div class="mb-6">
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">My Players</h2>
-        <p class="text-sm text-muted">Manage your children's profiles.</p>
+        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.pages.players.title') }}</h2>
+        <p class="text-sm text-muted">{{ __('messages.pages.players.subtitle') }}</p>
     </div>
 
     {{-- FAB --}}

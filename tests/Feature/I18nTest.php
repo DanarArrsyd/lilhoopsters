@@ -50,3 +50,14 @@ it('switcher ignores an unsupported locale', function () {
 
     expect($this->parent->fresh()->locale)->toBeNull();
 });
+
+it('localises parent page headers to Indonesian', function () {
+    $this->parent->update(['locale' => 'id']);
+
+    $this->actingAs($this->parent)->get(route('parent.payments'))
+        ->assertSee('Pembayaran')
+        ->assertSee('Riwayat transaksi');
+
+    $this->actingAs($this->parent)->get(route('parent.attendance'))
+        ->assertSee('Kehadiran');
+});

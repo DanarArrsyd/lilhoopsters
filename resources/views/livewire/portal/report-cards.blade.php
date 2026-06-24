@@ -1,8 +1,8 @@
 <div>
     {{-- Header --}}
     <div class="mb-6">
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Report Cards</h2>
-        <p class="text-sm text-muted">View your children's skill evaluations.</p>
+        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.pages.report_cards.title') }}</h2>
+        <p class="text-sm text-muted">{{ __('messages.pages.report_cards.subtitle') }}</p>
     </div>
 
     {{-- Child filter --}}
