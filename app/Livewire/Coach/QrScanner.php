@@ -59,7 +59,7 @@ class QrScanner extends Component
 
         $this->validate([
             'scheduleId' => 'required|integer',
-            'scanDate'   => 'required|date',
+            'scanDate'   => 'required|date|before_or_equal:today',
         ]);
 
         $this->authorizeOwnsSchedule();
@@ -75,6 +75,7 @@ class QrScanner extends Component
     public function markPresent(int $childId): void
     {
         if (!$this->scheduleId || !$this->scanDate) return;
+        if ($this->scanDate > today()->toDateString()) return;
 
         $this->authorizeOwnsSchedule();
 
@@ -109,6 +110,41 @@ class QrScanner extends Component
         ]);
     }
 
+    public function markNoShow(int $childId): void
+    {
+        if (!$this->scheduleId || !$this->scanDate) return;
+        if ($this->scanDate > today()->toDateString()) return;
+
+        $this->authorizeOwnsSchedule();
+
+        $enrollment = Enrollment::where('child_id', $childId)
+            ->where('schedule_id', $this->scheduleId)
+            ->where('status', 'approved')
+            ->where('type', 'program')
+            ->first();
+
+        if (!$enrollment) return;
+
+        $coach = Auth::user()->coach;
+
+        Attendance::updateOrCreate(
+            [
+                'child_id'    => $childId,
+                'schedule_id' => $this->scheduleId,
+                'attended_at' => $this->scanDate,
+            ],
+            [
+                'enrollment_id' => $enrollment->id,
+                'coach_id'      => $coach?->id,
+                'status'        => 'no_show',
+                'source'        => 'manual',
+                'ip_address'    => request()->ip(),
+                'latitude'      => $this->latitude,
+                'longitude'     => $this->longitude,
+            ]
+        );
+    }
+
     public function undoPresent(int $childId): void
     {
         if (!$this->scheduleId || !$this->scanDate) return;
@@ -118,13 +154,18 @@ class QrScanner extends Component
         Attendance::where('child_id', $childId)
             ->where('schedule_id', $this->scheduleId)
             ->whereDate('attended_at', $this->scanDate)
-            ->where('source', 'manual')
             ->delete();
     }
 
     public function processQr(string $qrValue): void
     {
         $this->resetScanResult();
+
+        if ($this->scanDate > today()->toDateString()) {
+            $this->lastScanStatus  = 'error';
+            $this->lastScanMessage = 'Cannot record attendance for a future date.';
+            return;
+        }
 
         $child = Child::where('qr_identifier', trim($qrValue))->first();
 
@@ -246,8 +287,8 @@ class QrScanner extends Component
                 $childId = $enrollment->child_id;
 
                 if (isset($attendances[$childId])) {
-                    $status = 'present';
-                    $presentCount++;
+                    $status = $attendances[$childId]; // 'present', 'no_show', etc.
+                    if ($status === 'present') $presentCount++;
                 } elseif (isset($leaveRequests[$childId])) {
                     $status = $leaveRequests[$childId]; // 'sick' or 'permit'
                 } else {
@@ -261,9 +302,9 @@ class QrScanner extends Component
                 ]);
             }
 
-            // Sort: present first, then leave, then not_yet
-            $order = ['present' => 0, 'sick' => 1, 'permit' => 1, 'not_yet' => 2];
-            $roster = $roster->sortBy(fn($r) => $order[$r['status']] ?? 3)->values();
+            // Sort: present(0) → sick/permit(1) → no_show(2) → not_yet(3)
+            $order = ['present' => 0, 'sick' => 1, 'permit' => 1, 'no_show' => 2, 'not_yet' => 3];
+            $roster = $roster->sortBy(fn($r) => $order[$r['status']] ?? 4)->values();
         }
 
         return view('livewire.coach.qr-scanner', compact('schedules', 'roster', 'presentCount'));

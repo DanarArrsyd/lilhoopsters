@@ -14,7 +14,7 @@
         <div class="space-y-4">
             <div class="grid sm:grid-cols-2 gap-4">
                 {{-- Date first — drives day-of-week filter on schedule dropdown --}}
-                <x-input type="date" wire:model.live="scanDate" label="Date" :error="$errors->first('scanDate')" />
+                <x-input type="date" wire:model.live="scanDate" label="Date" max="{{ today()->toDateString() }}" :error="$errors->first('scanDate')" />
 
                 <x-select wire:model.live="scheduleId" label="Schedule" :error="$errors->first('scheduleId')">
                     <option value="">
@@ -95,19 +95,18 @@
                 @if ($roster->isEmpty())
                     <p class="text-sm text-faint">{{ __('messages.coach.qr_scanner.no_students') }}</p>
                 @else
-                    <div class="space-y-1.5 max-h-[420px] overflow-y-auto pr-1">
+                    <div class="space-y-1.5 max-h-[480px] overflow-y-auto pr-1">
                         @foreach ($roster as $row)
                             @php
                                 $status = $row['status'];
                                 $child  = $row['child'];
+                                $init   = strtoupper(substr($child->name, 0, 1));
                             @endphp
 
                             @if ($status === 'present')
-                                {{-- Present row: green bg + undo button --}}
+                                {{-- ✅ Present --}}
                                 <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-[#F0FDF4] border border-[#BBF7D0]">
-                                    <div class="w-7 h-7 rounded-full bg-[#15803D] flex items-center justify-center text-[11px] font-bold text-white shrink-0">
-                                        {{ strtoupper(substr($child->name, 0, 1)) }}
-                                    </div>
+                                    <div class="w-7 h-7 rounded-full bg-[#15803D] flex items-center justify-center text-[11px] font-bold text-white shrink-0">{{ $init }}</div>
                                     <span class="text-sm font-semibold text-[#15803D] flex-1 truncate">{{ $child->name }}</span>
                                     <span class="text-[10px] font-bold text-[#15803D] flex items-center gap-1 shrink-0">
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
@@ -117,37 +116,68 @@
                                             wire:click="undoPresent({{ $child->id }})"
                                             wire:confirm="Undo attendance for {{ $child->name }}?"
                                             title="Undo"
-                                            class="w-6 h-6 flex items-center justify-center rounded-full bg-white border border-[#FECACA] text-[#B91C1C] hover:bg-[#FEF2F2] transition-colors shrink-0 text-xs font-bold">
-                                        ×
+                                            class="w-6 h-6 flex items-center justify-center rounded-full bg-white border border-[#FECACA] text-[#B91C1C] hover:bg-[#FEF2F2] transition-colors shrink-0 text-xs font-bold">×</button>
+                                </div>
+
+                            @elseif ($status === 'no_show')
+                                {{-- ❌ No Show (explicitly recorded) --}}
+                                <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-[#FEF2F2] border border-[#FECACA]">
+                                    <div class="w-7 h-7 rounded-full bg-[#B91C1C]/20 flex items-center justify-center text-[11px] font-bold text-[#B91C1C] shrink-0">{{ $init }}</div>
+                                    <span class="text-sm font-semibold text-[#B91C1C] flex-1 truncate">{{ $child->name }}</span>
+                                    <span class="text-[10px] font-bold text-[#B91C1C] shrink-0">No Show</span>
+                                    <button type="button"
+                                            wire:click="markPresent({{ $child->id }})"
+                                            title="Mark present"
+                                            class="text-[10px] font-bold text-[#15803D] bg-[#F0FDF4] border border-[#BBF7D0] px-2 py-1 rounded-lg hover:bg-[#DCFCE7] transition-colors shrink-0">
+                                        Present
+                                    </button>
+                                    <button type="button"
+                                            wire:click="undoPresent({{ $child->id }})"
+                                            wire:confirm="Remove no-show record for {{ $child->name }}?"
+                                            title="Clear record"
+                                            class="w-6 h-6 flex items-center justify-center rounded-full bg-white border border-[#FECACA] text-[#B91C1C] hover:bg-[#FEF2F2] transition-colors shrink-0 text-xs font-bold">×</button>
+                                </div>
+
+                            @elseif (in_array($status, ['sick', 'permit']))
+                                {{-- 🟡 Sick / Permit (leave request) --}}
+                                @php
+                                    $leaveLabel = $status === 'sick' ? __('messages.admin.attendances.opt_sick') : __('messages.admin.attendances.opt_permit');
+                                @endphp
+                                <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-amber-50 border border-amber-100">
+                                    <div class="w-7 h-7 rounded-full bg-amber-200 flex items-center justify-center text-[11px] font-bold text-amber-800 shrink-0">{{ $init }}</div>
+                                    <div class="flex-1 min-w-0">
+                                        <span class="text-sm font-semibold text-ink truncate block">{{ $child->name }}</span>
+                                        <span class="text-[10px] text-amber-700">Leave request submitted</span>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-amber-700 bg-amber-100 border border-amber-200 px-2 py-0.5 rounded-full shrink-0">
+                                        {{ $leaveLabel }}
+                                    </span>
+                                    <button type="button"
+                                            wire:click="markPresent({{ $child->id }})"
+                                            title="Override — mark present"
+                                            class="text-[10px] font-bold text-[#15803D] bg-[#F0FDF4] border border-[#BBF7D0] px-2 py-1 rounded-lg hover:bg-[#DCFCE7] transition-colors shrink-0">
+                                        Present
                                     </button>
                                 </div>
 
-                            @elseif ($status === 'not_yet')
-                                {{-- Not yet: tap the whole row to mark present --}}
-                                <button type="button"
-                                        @click="$wire.markPresent({{ $child->id }})"
-                                        class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-off border border-line
-                                               hover:bg-navy/5 hover:border-navy/20 active:scale-[.99] transition-all text-left">
-                                    <div class="w-7 h-7 rounded-full bg-navy/10 flex items-center justify-center text-[11px] font-bold text-navy shrink-0">
-                                        {{ strtoupper(substr($child->name, 0, 1)) }}
-                                    </div>
-                                    <span class="text-sm text-ink flex-1 truncate">{{ $child->name }}</span>
-                                    <span class="text-[10px] font-semibold text-faint shrink-0 flex items-center gap-1">
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                                        {{ __('messages.coach.qr_scanner.tap_to_mark') }}
-                                    </span>
-                                </button>
-
                             @else
-                                {{-- Sick / Permit: read-only --}}
-                                <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-amber-50 border border-amber-100">
-                                    <div class="w-7 h-7 rounded-full bg-amber-200 flex items-center justify-center text-[11px] font-bold text-amber-800 shrink-0">
-                                        {{ strtoupper(substr($child->name, 0, 1)) }}
-                                    </div>
+                                {{-- ⬜ No Record --}}
+                                <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-off border border-line">
+                                    <div class="w-7 h-7 rounded-full bg-navy/10 flex items-center justify-center text-[11px] font-bold text-navy shrink-0">{{ $init }}</div>
                                     <span class="text-sm text-ink flex-1 truncate">{{ $child->name }}</span>
-                                    <span class="text-[10px] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full shrink-0 capitalize">
-                                        {{ $status }}
-                                    </span>
+                                    <span class="text-[10px] font-semibold text-faint bg-line/60 px-2 py-0.5 rounded-full shrink-0">No Record</span>
+                                    <button type="button"
+                                            wire:click="markPresent({{ $child->id }})"
+                                            title="Mark present"
+                                            class="text-[10px] font-bold text-[#15803D] bg-[#F0FDF4] border border-[#BBF7D0] px-2 py-1 rounded-lg hover:bg-[#DCFCE7] transition-colors shrink-0">
+                                        Present
+                                    </button>
+                                    <button type="button"
+                                            wire:click="markNoShow({{ $child->id }})"
+                                            title="Mark no show"
+                                            class="text-[10px] font-bold text-[#B91C1C] bg-[#FEF2F2] border border-[#FECACA] px-2 py-1 rounded-lg hover:bg-[#FEE2E2] transition-colors shrink-0">
+                                        No Show
+                                    </button>
                                 </div>
                             @endif
 
