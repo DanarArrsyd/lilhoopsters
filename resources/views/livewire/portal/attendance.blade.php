@@ -40,7 +40,7 @@
     @endif
 
     @if (!$activeEnrollment)
-        <x-empty-state title="No active programs" description="This player has no approved program enrollments yet." />
+        <x-empty-state :title="__('messages.attendance.no_programs_title')" :description="__('messages.attendance.no_programs_desc')" />
     @else
         {{-- Enrollment info bar --}}
         <div class="flex items-center gap-3 mb-4 px-1">
@@ -60,13 +60,13 @@
             </div>
             @if ($activeEnrollment->total_sessions)
                 <div class="ml-auto shrink-0 text-right">
-                    <p class="text-xs font-bold text-navy">{{ $sessions->count() }} sessions</p>
+                    <p class="text-xs font-bold text-navy">{{ __('messages.attendance.sessions_count', ['n' => $sessions->count()]) }}</p>
                     @php
                         $attended = $sessions->filter(fn($s) => $s['attendance'] && $s['attendance']->status === 'present')->count();
                         $pastCount = $sessions->filter(fn($s) => $s['is_past'] || $s['is_today'])->count();
                     @endphp
                     @if ($pastCount > 0)
-                        <p class="text-[10px] text-faint">{{ $attended }}/{{ $pastCount }} attended</p>
+                        <p class="text-[10px] text-faint">{{ __('messages.attendance.attended', ['a' => $attended, 'b' => $pastCount]) }}</p>
                     @endif
                 </div>
             @endif
@@ -82,7 +82,7 @@
                     <div class="flex items-center justify-between gap-3">
                         <div class="flex items-center gap-2 min-w-0">
                             <span class="text-xs font-bold bg-off text-ink px-2.5 py-1 rounded-lg shrink-0">
-                                Session {{ $session['number'] }}
+                                {{ __('messages.attendance.session', ['n' => $session['number']]) }}
                             </span>
                             <span @class([
                                 'text-xs',
@@ -90,7 +90,7 @@
                                 'text-faint'              => !$session['is_today'] && !$session['is_past'],
                                 'text-muted'              => $session['is_past'],
                             ])>
-                                {{ $session['is_today'] ? 'Today' : ($session['is_past'] ? 'Finished' : 'Scheduled') }}
+                                {{ $session['is_today'] ? __('messages.attendance.today') : ($session['is_past'] ? __('messages.attendance.finished') : __('messages.attendance.scheduled')) }}
                             </span>
                         </div>
                         <span class="text-xs font-semibold px-2.5 py-1 rounded-lg shrink-0 {{ $session['badge']['class'] }}">
@@ -106,7 +106,7 @@
                     @endif
                 </div>
             @empty
-                <x-empty-state title="No sessions found" description="Sessions will appear once the enrollment period begins." />
+                <x-empty-state :title="__('messages.attendance.no_sessions_title')" :description="__('messages.attendance.no_sessions_desc')" />
             @endforelse
         </x-card>
     @endif

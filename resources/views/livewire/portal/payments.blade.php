@@ -16,7 +16,7 @@
                 </svg>
             </button>
             <div>
-                <h2 class="text-xl font-extrabold uppercase tracking-tight text-navy leading-tight">Upload Proof</h2>
+                <h2 class="text-xl font-extrabold uppercase tracking-tight text-navy leading-tight">{{ __('messages.payments.upload_proof') }}</h2>
                 @if ($uploadingTransaction)
                     <p class="text-xs text-faint">{{ $uploadingTransaction->transaction_code }}</p>
                 @endif
@@ -26,7 +26,7 @@
         {{-- Transaction summary --}}
         @if ($uploadingTransaction)
         <div class="bg-surface border border-line rounded-2xl p-4 mb-4">
-            <p class="text-[10px] font-bold uppercase tracking-wider text-faint mb-3">Transaction Details</p>
+            <p class="text-[10px] font-bold uppercase tracking-wider text-faint mb-3">{{ __('messages.payments.txn_details') }}</p>
             <div class="flex items-center gap-3 pb-3 border-b border-line mb-3">
                 <div class="w-10 h-10 bg-navy rounded-full flex items-center justify-center text-off font-extrabold text-sm flex-shrink-0">
                     {{ strtoupper(substr($uploadingTransaction->child?->name ?? '?', 0, 1)) }}
@@ -39,12 +39,12 @@
                 </div>
             </div>
             <div class="flex justify-between items-center mb-2">
-                <span class="text-xs text-muted">Total Payment</span>
+                <span class="text-xs text-muted">{{ __('messages.payments.total_payment') }}</span>
                 <span class="text-lg font-extrabold text-navy">Rp {{ number_format($uploadingTransaction->amount, 0, ',', '.') }}</span>
             </div>
             <div class="flex justify-between items-center">
-                <span class="text-xs text-muted">Status</span>
-                <x-badge :status="$uploadingTransaction->status">{{ ucfirst($uploadingTransaction->status) }}</x-badge>
+                <span class="text-xs text-muted">{{ __('messages.payments.status_label') }}</span>
+                <x-badge :status="$uploadingTransaction->status">{{ __('messages.status.'.$uploadingTransaction->status) }}</x-badge>
             </div>
         </div>
         @endif
@@ -55,7 +55,7 @@
             {{-- Proof file --}}
             <div class="p-4 border-b border-line">
                 <p class="text-[10px] font-bold uppercase tracking-wider text-navy mb-3">
-                    Payment Proof <span class="text-[#B91C1C]">*</span>
+                    {{ __('messages.payments.proof_label') }} <span class="text-[#B91C1C]">*</span>
                 </p>
                 <label class="block cursor-pointer">
                     <input type="file" wire:model="proofFile" accept="image/*" class="sr-only">
@@ -64,7 +64,7 @@
                         @if ($proofFile && !$errors->has('proofFile'))
                             <img src="{{ $proofFile->temporaryUrl() }}" alt="Preview"
                                  class="h-24 w-auto mx-auto rounded-lg object-cover mb-2">
-                            <p class="text-xs font-semibold text-[#15803D]">Photo selected — tap to change</p>
+                            <p class="text-xs font-semibold text-[#15803D]">{{ __('messages.payments.photo_selected') }}</p>
                         @else
                             <div class="w-10 h-10 bg-off rounded-full flex items-center justify-center mx-auto mb-2 border border-line">
                                 <svg class="w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -72,29 +72,29 @@
                                           d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
                                 </svg>
                             </div>
-                            <p class="text-sm font-semibold text-navy mb-0.5">Tap to upload photo</p>
-                            <p class="text-xs text-faint">JPG, PNG, WEBP · Max 5 MB</p>
+                            <p class="text-sm font-semibold text-navy mb-0.5">{{ __('messages.payments.tap_upload') }}</p>
+                            <p class="text-xs text-faint">{{ __('messages.payments.file_hint') }}</p>
                         @endif
                     </div>
                 </label>
-                <div wire:loading wire:target="proofFile" class="text-xs text-faint mt-2 text-center">Uploading...</div>
+                <div wire:loading wire:target="proofFile" class="text-xs text-faint mt-2 text-center">{{ __('messages.payments.uploading') }}</div>
                 @error('proofFile') <p class="text-xs text-[#B91C1C] mt-1">{{ $message }}</p> @enderror
             </div>
 
             {{-- Admin payment accounts --}}
             <div class="p-4">
                 <p class="text-[10px] font-bold uppercase tracking-wider text-navy mb-3">
-                    Transfer Payment To
+                    {{ __('messages.payments.transfer_to') }}
                 </p>
                 @if ($paymentAccounts->isEmpty())
                     <p class="text-xs text-faint text-center py-3">
-                        No payment accounts configured. Please contact admin.
+                        {{ __('messages.payments.no_accounts') }}
                     </p>
                 @else
                     <div class="space-y-2">
                         @foreach ($paymentAccounts as $acc)
                             <div class="flex items-center justify-between gap-3 bg-off border border-line rounded-xl px-4 py-3"
-                                 x-data="{ copied: false }">
+                                 x-data="{ copied: false, copyText: '{{ __('messages.payments.copy') }}', copiedText: '{{ __('messages.payments.copied') }}' }">
                                 <div class="min-w-0">
                                     <p class="text-[10px] font-bold uppercase tracking-wider text-faint mb-0.5">
                                         {{ $acc->bank_name }}
@@ -118,7 +118,7 @@
                                     <svg x-show="copied" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
                                     </svg>
-                                    <span x-text="copied ? 'Copied!' : 'Copy'"></span>
+                                    <span x-text="copied ? copiedText : copyText"></span>
                                 </button>
                             </div>
                         @endforeach
@@ -133,10 +133,10 @@
                 <input type="checkbox" wire:model="agreedToTnc" id="tnc-check"
                        class="mt-0.5 flex-shrink-0 w-5 h-5 rounded border-2 border-line cursor-pointer accent-navy">
                 <p class="text-sm text-ink leading-snug">
-                    I have made the payment and agree to the
+                    {{ __('messages.payments.tnc_agree_pre') }}
                     <button type="button" @click.prevent="showTnc = true"
                             class="font-semibold text-navy underline underline-offset-2 hover:opacity-70 transition-opacity cursor-pointer">
-                        Terms &amp; Conditions
+                        {{ __('messages.payments.tnc_title') }}
                     </button>.
                 </p>
             </label>
@@ -169,7 +169,7 @@
                     {{-- Header --}}
                     <div class="flex items-center justify-between px-5 py-4 border-b border-line flex-shrink-0">
                         <h3 class="text-base font-extrabold uppercase tracking-tight text-navy">
-                            Terms &amp; Conditions
+                            {{ __('messages.payments.tnc_title') }}
                         </h3>
                         <button type="button" @click="showTnc = false"
                                 class="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-off transition-colors text-muted">
@@ -182,28 +182,28 @@
                     {{-- Scrollable body --}}
                     <div class="overflow-y-auto px-5 py-5 space-y-4 text-sm text-ink leading-relaxed">
                         <div>
-                            <p class="font-bold text-navy mb-1">1. Payment Deadline</p>
-                            <p class="text-muted">Payment proof must be uploaded within <strong class="text-ink">24 hours</strong> after completing registration. Failure to do so may result in automatic cancellation of your enrollment.</p>
+                            <p class="font-bold text-navy mb-1">{{ __('messages.payments.tnc_1_title') }}</p>
+                            <p class="text-muted">{!! __('messages.payments.tnc_1_body') !!}</p>
                         </div>
                         <div>
-                            <p class="font-bold text-navy mb-1">2. Transfer Amount</p>
-                            <p class="text-muted">Transfer the <strong class="text-ink">exact amount</strong> stated in the transaction to one of the bank or e-wallet accounts listed. Include your child's name as the transfer description when possible.</p>
+                            <p class="font-bold text-navy mb-1">{{ __('messages.payments.tnc_2_title') }}</p>
+                            <p class="text-muted">{!! __('messages.payments.tnc_2_body') !!}</p>
                         </div>
                         <div>
-                            <p class="font-bold text-navy mb-1">3. Proof of Payment</p>
-                            <p class="text-muted">Upload a clear screenshot or photo of your transfer receipt. The image must show the transaction amount, date, and destination account. Blurry or incomplete proofs will be rejected.</p>
+                            <p class="font-bold text-navy mb-1">{{ __('messages.payments.tnc_3_title') }}</p>
+                            <p class="text-muted">{!! __('messages.payments.tnc_3_body') !!}</p>
                         </div>
                         <div>
-                            <p class="font-bold text-navy mb-1">4. Verification Process</p>
-                            <p class="text-muted">Admin will verify your payment within <strong class="text-ink">1×24 hours</strong> on business days. You will be notified once your payment is confirmed.</p>
+                            <p class="font-bold text-navy mb-1">{{ __('messages.payments.tnc_4_title') }}</p>
+                            <p class="text-muted">{!! __('messages.payments.tnc_4_body') !!}</p>
                         </div>
                         <div>
-                            <p class="font-bold text-navy mb-1">5. Refund Policy</p>
-                            <p class="text-muted">Payments are generally non-refundable. In exceptional cases, please contact the admin directly via WhatsApp to discuss further.</p>
+                            <p class="font-bold text-navy mb-1">{{ __('messages.payments.tnc_5_title') }}</p>
+                            <p class="text-muted">{!! __('messages.payments.tnc_5_body') !!}</p>
                         </div>
                         <div>
-                            <p class="font-bold text-navy mb-1">6. Schedule Changes</p>
-                            <p class="text-muted">Once payment is verified, schedule changes are subject to availability. Submit a leave request at least 24 hours before a session if you need to be absent.</p>
+                            <p class="font-bold text-navy mb-1">{{ __('messages.payments.tnc_6_title') }}</p>
+                            <p class="text-muted">{!! __('messages.payments.tnc_6_body') !!}</p>
                         </div>
                     </div>
 
@@ -211,7 +211,7 @@
                     <div class="px-5 py-4 border-t border-line flex-shrink-0">
                         <button type="button" @click="showTnc = false"
                                 class="w-full bg-navy text-off font-bold text-sm py-3 rounded-xl hover:opacity-90 transition-opacity">
-                            I Understand
+                            {{ __('messages.payments.i_understand') }}
                         </button>
                     </div>
                 </div>
@@ -223,15 +223,15 @@
             <button type="button" wire:click="uploadProof" wire:loading.attr="disabled" wire:target="uploadProof"
                     class="w-full bg-navy text-off font-bold text-sm py-3.5 rounded-xl
                            hover:bg-navy-2 transition-colors disabled:opacity-60">
-                <span wire:loading.remove wire:target="uploadProof">Submit Payment Proof</span>
-                <span wire:loading wire:target="uploadProof">Sending...</span>
+                <span wire:loading.remove wire:target="uploadProof">{{ __('messages.payments.submit_proof') }}</span>
+                <span wire:loading wire:target="uploadProof">{{ __('messages.payments.sending') }}</span>
             </button>
             <button type="button" wire:click="cancelUpload"
                     class="w-full bg-surface text-navy font-semibold text-sm py-3.5 rounded-xl
                            border border-line hover:bg-off transition-colors">
-                Cancel
+                {{ __('messages.common.cancel') }}
             </button>
-            <p class="text-center text-xs text-faint">Admin will verify within 24 hours</p>
+            <p class="text-center text-xs text-faint">{{ __('messages.payments.verify_notice') }}</p>
         </div>
 
     @else
@@ -246,20 +246,20 @@
         {{-- Pending summary card --}}
         @if ($pendingCount > 0)
         <div class="bg-navy rounded-2xl p-4 mb-4">
-            <p class="text-[10px] font-bold uppercase tracking-wider text-off/50 mb-1">Pending Payment</p>
+            <p class="text-[10px] font-bold uppercase tracking-wider text-off/50 mb-1">{{ __('messages.payments.pending_label') }}</p>
             <p class="text-3xl font-extrabold text-off mb-2 tracking-tight">Rp {{ number_format($pendingTotal, 0, ',', '.') }}</p>
             <div class="flex items-center gap-2">
                 <span class="bg-[#B45309] text-[#FEF3C7] text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wide">
-                    {{ $pendingCount }} Pending
+                    {{ __('messages.payments.pending_count', ['n' => $pendingCount]) }}
                 </span>
-                <span class="text-xs text-off/40">Upload payment proof to confirm</span>
+                <span class="text-xs text-off/40">{{ __('messages.payments.upload_to_confirm') }}</span>
             </div>
         </div>
         @endif
 
         {{-- Status filter pills --}}
         <div class="flex gap-2 mb-4 overflow-x-auto pb-1" style="scrollbar-width:none;">
-            @foreach (['' => 'All', 'pending' => 'Pending', 'paid' => 'Paid', 'rejected' => 'Rejected', 'expired' => 'Expired'] as $val => $label)
+            @foreach (['' => __('messages.payments.filter_all'), 'pending' => __('messages.status.pending'), 'paid' => __('messages.status.paid'), 'rejected' => __('messages.status.rejected'), 'expired' => __('messages.status.expired')] as $val => $label)
                 <button type="button" wire:click="$set('filterStatus', '{{ $val }}')"
                         class="flex-shrink-0 text-xs font-bold px-3 py-1.5 rounded-full border transition-all whitespace-nowrap
                                {{ $filterStatus === $val
@@ -298,7 +298,7 @@
                                     @endif
                                 </div>
                             </div>
-                            <x-badge :status="$trx->status" class="flex-shrink-0 mt-0.5">{{ ucfirst($trx->status) }}</x-badge>
+                            <x-badge :status="$trx->status" class="flex-shrink-0 mt-0.5">{{ __('messages.status.'.$trx->status) }}</x-badge>
                         </div>
 
                         {{-- Amount + transaction info --}}
@@ -316,14 +316,14 @@
                                     <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                     </svg>
-                                    Verified
+                                    {{ __('messages.payments.verified') }}
                                 </span>
                             @elseif ($awaitingReview && $trx->payment_proof)
                                 <a href="{{ Storage::disk('public')->url($trx->payment_proof) }}" target="_blank"
-                                   class="text-xs font-semibold text-navy underline flex-shrink-0">View Proof</a>
+                                   class="text-xs font-semibold text-navy underline flex-shrink-0">{{ __('messages.payments.view_proof') }}</a>
                             @elseif ($isRejected && $trx->payment_proof)
                                 <a href="{{ Storage::disk('public')->url($trx->payment_proof) }}" target="_blank"
-                                   class="text-xs font-semibold text-navy underline flex-shrink-0">View Proof</a>
+                                   class="text-xs font-semibold text-navy underline flex-shrink-0">{{ __('messages.payments.view_proof') }}</a>
                             @endif
                         </div>
 
@@ -338,42 +338,42 @@
                     {{-- Action strip --}}
                     @if ($needsUpload)
                         <div class="bg-[#FFFBEB] border-t border-[#FDE68A] px-4 py-2.5 flex items-center justify-between gap-3">
-                            <p class="text-xs font-medium text-[#92400E]">Upload payment proof to confirm</p>
+                            <p class="text-xs font-medium text-[#92400E]">{{ __('messages.payments.upload_to_confirm') }}</p>
                             <div class="flex items-center gap-2 flex-shrink-0">
                                 <button type="button" wire:click="confirmCancel({{ $trx->id }})"
                                         class="bg-[#FEE2E2] text-[#B91C1C] text-[11px] font-bold px-3 py-1.5 rounded-full
                                                hover:bg-[#FECACA] transition-colors">
-                                    Cancel ×
+                                    {{ __('messages.payments.cancel_action') }}
                                 </button>
                                 <button type="button" wire:click="openUpload({{ $trx->id }})"
                                         class="bg-navy text-off text-[11px] font-bold px-3.5 py-1.5 rounded-full
                                                hover:bg-navy-2 transition-colors">
-                                    Upload →
+                                    {{ __('messages.payments.upload_action') }}
                                 </button>
                             </div>
                         </div>
                     @elseif ($isRejected)
                         <div class="bg-[#FEF2F2] border-t border-[#FECACA] px-4 py-2.5 flex items-center justify-between gap-3">
-                            <p class="text-xs font-medium text-[#9B1C1C]">Proof rejected — please re-upload</p>
+                            <p class="text-xs font-medium text-[#9B1C1C]">{{ __('messages.payments.proof_rejected') }}</p>
                             <button type="button" wire:click="openUpload({{ $trx->id }})"
                                     class="flex-shrink-0 bg-[#B91C1C] text-white text-[11px] font-bold px-3.5 py-1.5 rounded-full
                                            hover:bg-[#991B1B] transition-colors">
-                                Re-upload →
+                                {{ __('messages.payments.reupload') }}
                             </button>
                         </div>
                     @elseif ($awaitingReview)
                         <div class="bg-[#FFFBEB] border-t border-[#FDE68A] px-4 py-2.5 flex items-center justify-between gap-3">
-                            <p class="text-xs text-[#92400E] font-medium">⏳ Waiting for admin verification</p>
+                            <p class="text-xs text-[#92400E] font-medium">⏳ {{ __('messages.payments.awaiting_verify') }}</p>
                             <button type="button" wire:click="confirmCancel({{ $trx->id }})"
                                     class="flex-shrink-0 bg-[#FEE2E2] text-[#B91C1C] text-[11px] font-bold px-3 py-1.5 rounded-full
                                            hover:bg-[#FECACA] transition-colors">
-                                Cancel ×
+                                {{ __('messages.payments.cancel_action') }}
                             </button>
                         </div>
                     @endif
                 </div>
             @empty
-                <x-empty-state title="No transactions yet" description="Enroll a player to generate your first transaction." />
+                <x-empty-state :title="__('messages.payments.empty_title')" :description="__('messages.payments.empty_desc')" />
             @endforelse
         </div>
 
@@ -411,10 +411,10 @@
                                   d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                         </svg>
                     </div>
-                    <h3 class="text-base font-extrabold text-navy mb-1.5">Cancel Transaction?</h3>
+                    <h3 class="text-base font-extrabold text-navy mb-1.5">{{ __('messages.payments.cancel_title') }}</h3>
                     <p class="text-sm text-gray-500 leading-relaxed">
-                        This will permanently delete the transaction and its linked enrollment.
-                        <span class="font-semibold text-gray-700">This cannot be undone.</span>
+                        {{ __('messages.payments.cancel_body') }}
+                        <span class="font-semibold text-gray-700">{{ __('messages.payments.cancel_warning') }}</span>
                     </p>
                 </div>
 
@@ -441,13 +441,13 @@
                     <button type="button" wire:click="dismissCancel"
                             class="py-3 rounded-xl border border-gray-200 bg-white text-navy text-sm font-bold
                                    hover:bg-gray-50 transition-colors">
-                        No, Keep It
+                        {{ __('messages.payments.keep_btn') }}
                     </button>
                     <button type="button" wire:click="cancelTransaction" wire:loading.attr="disabled"
                             class="py-3 rounded-xl bg-[#B91C1C] text-white text-sm font-bold
                                    hover:bg-[#991B1B] transition-colors disabled:opacity-60">
-                        <span wire:loading.remove wire:target="cancelTransaction">Yes, Cancel</span>
-                        <span wire:loading wire:target="cancelTransaction">Processing...</span>
+                        <span wire:loading.remove wire:target="cancelTransaction">{{ __('messages.payments.yes_cancel') }}</span>
+                        <span wire:loading wire:target="cancelTransaction">{{ __('messages.payments.processing') }}</span>
                     </button>
                 </div>
             </div>
