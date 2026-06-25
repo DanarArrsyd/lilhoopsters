@@ -106,6 +106,27 @@ return [
         'empty_title'      => 'Belum ada acara',
         'empty_desc'       => 'Belum ada acara yang dibuka untuk pendaftaran saat ini.',
     ],
+    'days' => [
+        'monday' => 'Senin', 'tuesday' => 'Selasa', 'wednesday' => 'Rabu',
+        'thursday' => 'Kamis', 'friday' => 'Jumat', 'saturday' => 'Sabtu', 'sunday' => 'Minggu',
+    ],
+    'attendance' => [
+        'no_programs_title' => 'Tidak ada program aktif',
+        'no_programs_desc'  => 'Pemain ini belum memiliki pendaftaran program yang disetujui.',
+        'sessions_count'    => ':n sesi',
+        'attended'          => ':a/:b hadir',
+        'session'           => 'Sesi :n',
+        'today'             => 'Hari ini',
+        'finished'          => 'Selesai',
+        'scheduled'         => 'Terjadwal',
+        'no_sessions_title' => 'Tidak ada sesi ditemukan',
+        'no_sessions_desc'  => 'Sesi akan muncul setelah periode pendaftaran dimulai.',
+        'badge' => [
+            'attend' => 'Hadir', 'sick' => 'Sakit', 'permit' => 'Izin',
+            'no_show' => 'Tidak Hadir', 'make_up' => 'Pengganti',
+            'today' => 'Hari Ini', 'no_record' => 'Belum Ada', 'upcoming' => 'Akan Datang',
+        ],
+    ],
     'makeup' => [
         'empty_title'     => 'Belum ada permintaan kelas pengganti',
         'empty_desc'      => 'Ajukan sesi pengganti dari izin yang disetujui.',

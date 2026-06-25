@@ -121,19 +121,19 @@ class AttendanceHistory extends Component
 
             if ($attendance) {
                 $statusMap = [
-                    'present' => ['label' => 'Attend',   'class' => 'bg-green-50 text-green-700'],
-                    'sick'    => ['label' => 'Sick',     'class' => 'bg-amber-50 text-amber-700'],
-                    'permit'  => ['label' => 'Permit',   'class' => 'bg-blue-50 text-blue-700'],
-                    'no_show' => ['label' => 'No Show',  'class' => 'bg-red-50 text-red-600'],
-                    'make_up' => ['label' => 'Make Up',  'class' => 'bg-violet-50 text-violet-700'],
+                    'present' => ['label' => __('messages.attendance.badge.attend'),   'class' => 'bg-green-50 text-green-700'],
+                    'sick'    => ['label' => __('messages.attendance.badge.sick'),     'class' => 'bg-amber-50 text-amber-700'],
+                    'permit'  => ['label' => __('messages.attendance.badge.permit'),   'class' => 'bg-blue-50 text-blue-700'],
+                    'no_show' => ['label' => __('messages.attendance.badge.no_show'),  'class' => 'bg-red-50 text-red-600'],
+                    'make_up' => ['label' => __('messages.attendance.badge.make_up'),  'class' => 'bg-violet-50 text-violet-700'],
                 ];
                 $badge = $statusMap[$attendance->status] ?? ['label' => ucfirst($attendance->status), 'class' => 'bg-off text-muted'];
             } elseif ($isToday) {
-                $badge = ['label' => 'Today', 'class' => 'bg-navy text-white'];
+                $badge = ['label' => __('messages.attendance.badge.today'),     'class' => 'bg-navy text-white'];
             } elseif ($isPast) {
-                $badge = ['label' => 'No Record', 'class' => 'bg-line text-faint'];
+                $badge = ['label' => __('messages.attendance.badge.no_record'), 'class' => 'bg-line text-faint'];
             } else {
-                $badge = ['label' => 'Upcoming', 'class' => 'bg-off text-muted'];
+                $badge = ['label' => __('messages.attendance.badge.upcoming'),  'class' => 'bg-off text-muted'];
             }
 
             $sessions->push([

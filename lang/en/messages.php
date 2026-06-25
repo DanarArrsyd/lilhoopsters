@@ -106,6 +106,27 @@ return [
         'empty_title'      => 'No events open',
         'empty_desc'       => 'There are no events open for registration right now.',
     ],
+    'days' => [
+        'monday' => 'Mondays', 'tuesday' => 'Tuesdays', 'wednesday' => 'Wednesdays',
+        'thursday' => 'Thursdays', 'friday' => 'Fridays', 'saturday' => 'Saturdays', 'sunday' => 'Sundays',
+    ],
+    'attendance' => [
+        'no_programs_title' => 'No active programs',
+        'no_programs_desc'  => 'This player has no approved program enrollments yet.',
+        'sessions_count'    => ':n sessions',
+        'attended'          => ':a/:b attended',
+        'session'           => 'Session :n',
+        'today'             => 'Today',
+        'finished'          => 'Finished',
+        'scheduled'         => 'Scheduled',
+        'no_sessions_title' => 'No sessions found',
+        'no_sessions_desc'  => 'Sessions will appear once the enrollment period begins.',
+        'badge' => [
+            'attend' => 'Attend', 'sick' => 'Sick', 'permit' => 'Permit',
+            'no_show' => 'No Show', 'make_up' => 'Make Up',
+            'today' => 'Today', 'no_record' => 'No Record', 'upcoming' => 'Upcoming',
+        ],
+    ],
     'makeup' => [
         'empty_title'     => 'No make-up class requests yet',
         'empty_desc'      => 'Request a replacement session from an approved leave.',
