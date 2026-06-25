@@ -38,7 +38,7 @@
             </div>
             <div class="w-full sm:w-56">
                 <x-select wire:model.live="filterLocation">
-                    <option value="">All Locations</option>
+                    <option value="">{{ __('messages.admin.schedules.all_locations') }}</option>
                     @foreach ($locations as $loc)
                         <option value="{{ $loc->id }}">{{ $loc->name }}</option>
                     @endforeach
@@ -204,7 +204,7 @@
             <div class="p-6 space-y-4">
                 {{-- Location select --}}
                 <x-select wire:model="location_id" label="Location" :error="$errors->first('location_id')">
-                    <option value="">Select location...</option>
+                    <option value="">{{ __('messages.admin.schedules.select_location') }}</option>
                     @foreach ($locations as $loc)
                         <option value="{{ $loc->id }}">{{ $loc->name }}</option>
                     @endforeach
@@ -212,7 +212,7 @@
 
                 {{-- Program select --}}
                 <x-select wire:model="program_id" label="Program" :error="$errors->first('program_id')">
-                    <option value="">Select program...</option>
+                    <option value="">{{ __('messages.admin.schedules.select_program') }}</option>
                     @foreach ($programs as $prog)
                         <option value="{{ $prog->id }}">{{ $prog->name }} ({{ $prog->min_age_months }}–{{ $prog->max_age_months }}mo)</option>
                     @endforeach
@@ -252,7 +252,7 @@
 
                 {{-- Day select --}}
                 <x-select wire:model="day_of_week" label="Day" :error="$errors->first('day_of_week')">
-                    <option value="">Select day...</option>
+                    <option value="">{{ __('messages.admin.schedules.select_day') }}</option>
                     @foreach ($days as $val => $label)
                         <option value="{{ $val }}">{{ $label }}</option>
                     @endforeach

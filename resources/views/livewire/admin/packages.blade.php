@@ -1,8 +1,8 @@
 <div>
     {{-- Header --}}
     <div class="mb-6">
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Packages</h2>
-        <p class="text-sm text-muted">Manage pricing packages per location.</p>
+        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.admin.packages.title') }}</h2>
+        <p class="text-sm text-muted">{{ __('messages.admin.packages.subtitle') }}</p>
     </div>
     <button wire:click="openCreate"
             class="fixed bottom-6 right-5 z-30 w-14 h-14 bg-navy text-off rounded-full shadow-lg flex items-center justify-center hover:bg-navy/90 active:scale-95 transition-all">
@@ -23,7 +23,7 @@
             </div>
             <div class="w-full sm:w-56">
                 <x-select wire:model.live="filterLocation">
-                    <option value="">All Locations</option>
+                    <option value="">{{ __('messages.admin.packages.all_locations') }}</option>
                     @foreach ($locations as $loc)
                         <option value="{{ $loc->id }}">{{ $loc->name }}</option>
                     @endforeach
@@ -42,10 +42,10 @@
 
     @php
         $typeMeta = [
-            'registration' => ['label' => 'Registration', 'class' => 'bg-[#1D4ED8]/10 text-[#1D4ED8]', 'dot' => 'bg-[#1D4ED8]'],
-            'regular'      => ['label' => 'Regular',      'class' => 'bg-navy/10 text-navy',           'dot' => 'bg-navy'],
-            'drop_in'      => ['label' => 'Drop-in',      'class' => 'bg-[#B45309]/10 text-[#B45309]', 'dot' => 'bg-[#B45309]'],
-            'private'      => ['label' => 'Private',      'class' => 'bg-[#7C3AED]/10 text-[#7C3AED]', 'dot' => 'bg-[#7C3AED]'],
+            'registration' => ['label' => __('messages.admin.packages.type_reg'),     'class' => 'bg-[#1D4ED8]/10 text-[#1D4ED8]', 'dot' => 'bg-[#1D4ED8]'],
+            'regular'      => ['label' => __('messages.admin.packages.type_regular'), 'class' => 'bg-navy/10 text-navy',           'dot' => 'bg-navy'],
+            'drop_in'      => ['label' => __('messages.admin.packages.type_drop_in'), 'class' => 'bg-[#B45309]/10 text-[#B45309]', 'dot' => 'bg-[#B45309]'],
+            'private'      => ['label' => __('messages.admin.packages.type_private'), 'class' => 'bg-[#7C3AED]/10 text-[#7C3AED]', 'dot' => 'bg-[#7C3AED]'],
         ];
     @endphp
 
@@ -106,7 +106,7 @@
                                                 @if ($package->is_popular)
                                                     <span class="inline-flex items-center gap-0.5 text-[10px] font-bold text-[#B45309] uppercase tracking-wide shrink-0">
                                                         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                                                        Popular
+                                                        {{ __('messages.admin.packages.popular_badge') }}
                                                     </span>
                                                 @endif
                                             </div>
@@ -134,7 +134,7 @@
                                 {{-- Status --}}
                                 <td class="py-3 px-4">
                                     <x-badge :status="$package->is_active ? 'active' : 'inactive'">
-                                        {{ $package->is_active ? 'Active' : 'Inactive' }}
+                                        {{ $package->is_active ? __('messages.status.active') : __('messages.status.inactive') }}
                                     </x-badge>
                                 </td>
                                 {{-- Actions --}}
@@ -142,23 +142,23 @@
                                     <div class="flex items-center gap-2 justify-end">
                                         <x-btn variant="edit" size="sm" wire:click="openEdit({{ $package->id }})" wire:loading.attr="disabled">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                                            Edit
+                                            {{ __('messages.common.edit') }}
                                         </x-btn>
                                         <x-btn variant="{{ $package->is_active ? 'warning' : 'success' }}" size="sm"
                                                wire:click="toggleActive({{ $package->id }})" wire:loading.attr="disabled">
                                             @if ($package->is_active)
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
-                                                Deactivate
+                                                {{ __('messages.common.deactivate') }}
                                             @else
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.636 5.636a9 9 0 1012.728 0M12 3v9"/></svg>
-                                                Activate
+                                                {{ __('messages.common.activate') }}
                                             @endif
                                         </x-btn>
                                         <x-btn variant="danger" size="sm"
                                                wire:click="confirmDelete({{ $package->id }})"
                                                wire:confirm="Delete this package?" wire:loading.attr="disabled">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                            Delete
+                                            {{ __('messages.common.delete') }}
                                         </x-btn>
                                     </div>
                                 </td>
@@ -171,8 +171,8 @@
     @empty
         <x-card padding="p-0">
             <x-empty-state
-                title="{{ $search || $filterLocation ? 'No packages match your filters' : 'No packages yet' }}"
-                description="{{ $search || $filterLocation ? 'Try a different search or location.' : 'Add your first pricing package.' }}" />
+                :title="$search || $filterLocation ? __('messages.admin.packages.empty_no_match') : __('messages.admin.packages.empty_title')"
+                :description="$search || $filterLocation ? __('messages.admin.packages.empty_nm_desc') : __('messages.admin.packages.empty_desc')" />
         </x-card>
     @endforelse
 
@@ -182,64 +182,63 @@
         <div class="absolute inset-0 bg-navy/40" wire:click="$set('showModal', false)"></div>
         <div class="relative bg-surface rounded-2xl border border-line shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
             <div class="sticky top-0 bg-surface flex items-center justify-between px-6 py-4 border-b border-line z-10">
-                <h3 class="text-lg font-extrabold uppercase tracking-tight text-navy">{{ $editingId ? 'Edit Package' : 'New Package' }}</h3>
+                <h3 class="text-lg font-extrabold uppercase tracking-tight text-navy">{{ $editingId ? __('messages.admin.packages.modal_edit') : __('messages.admin.packages.modal_new') }}</h3>
                 <button wire:click="$set('showModal', false)" class="text-muted hover:text-navy p-1 leading-none">✕</button>
             </div>
             <div class="p-6 space-y-4">
-                <x-select wire:model="location_id" label="Location" :error="$errors->first('location_id')">
-                    <option value="">Select location...</option>
+                <x-select wire:model="location_id" label="{{ __('messages.admin.packages.label_location') }}" :error="$errors->first('location_id')">
+                    <option value="">{{ __('messages.admin.packages.select_location') }}</option>
                     @foreach ($locations as $loc)
                         <option value="{{ $loc->id }}">{{ $loc->name }}</option>
                     @endforeach
                 </x-select>
 
-                <x-input wire:model="name" label="Package Name" placeholder="e.g. Regular Apr–Mei" required :error="$errors->first('name')" />
+                <x-input wire:model="name" label="{{ __('messages.admin.packages.label_name') }}" placeholder="e.g. Regular Apr–Mei" required :error="$errors->first('name')" />
 
-                <x-select wire:model.live="type" label="Type" :error="$errors->first('type')">
-                    <option value="registration">Registration</option>
-                    <option value="regular">Regular</option>
-                    <option value="drop_in">Drop-in</option>
-                    <option value="private">Private</option>
+                <x-select wire:model.live="type" label="{{ __('messages.admin.packages.label_type') }}" :error="$errors->first('type')">
+                    @foreach ($typeMeta as $val => $meta)
+                        <option value="{{ $val }}">{{ $meta['label'] }}</option>
+                    @endforeach
                 </x-select>
 
-                <x-input wire:model="price" type="number" label="Price (Rp)" placeholder="350000" required :error="$errors->first('price')" />
+                <x-input wire:model="price" type="number" label="{{ __('messages.admin.packages.label_price') }}" placeholder="350000" required :error="$errors->first('price')" />
 
                 @if ($type === 'regular')
-                    <x-input wire:model="validity_days" type="number" label="Validity (Days)" placeholder="e.g. 30"
+                    <x-input wire:model="validity_days" type="number" label="{{ __('messages.admin.packages.label_validity') }}" placeholder="e.g. 30"
                              required :error="$errors->first('validity_days')"
                              helper="How many days the package is valid from the parent's chosen start date." />
-                    <x-input wire:model="session_count" type="number" label="Session Count" placeholder="e.g. 8" :error="$errors->first('session_count')" />
+                    <x-input wire:model="session_count" type="number" label="{{ __('messages.admin.packages.label_sessions') }}" placeholder="e.g. 8" :error="$errors->first('session_count')" />
                 @elseif ($type === 'drop_in')
-                    <x-input wire:model="validity_days" type="number" label="Validity (days)" placeholder="30" :error="$errors->first('validity_days')" />
+                    <x-input wire:model="validity_days" type="number" label="{{ __('messages.admin.packages.label_validity') }}" placeholder="30" :error="$errors->first('validity_days')" />
                 @elseif ($type === 'private')
-                    <x-input wire:model="session_count" type="number" label="Session Count" placeholder="Leave blank for unlimited" :error="$errors->first('session_count')" />
+                    <x-input wire:model="session_count" type="number" label="{{ __('messages.admin.packages.label_sessions') }}" placeholder="Leave blank for unlimited" :error="$errors->first('session_count')" />
                 @endif
 
                 <div class="space-y-1.5">
-                    <label class="block text-xs font-semibold uppercase tracking-wide text-navy">Description</label>
+                    <label class="block text-xs font-semibold uppercase tracking-wide text-navy">{{ __('messages.admin.packages.label_desc') }}</label>
                     <textarea wire:model="description" rows="2" aria-label="Package description"
                               class="block w-full rounded-xl border border-line bg-surface px-3.5 py-3 text-sm text-ink placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-navy/15 focus:border-navy resize-none"
-                              placeholder="Optional description..."></textarea>
+                              placeholder="{{ __('messages.admin.packages.desc_ph') }}"></textarea>
                 </div>
 
                 <div class="flex gap-6">
                     <label class="flex items-center gap-2 text-sm text-ink cursor-pointer">
-                        <input type="checkbox" wire:model="is_active" class="rounded accent-navy"> Active
+                        <input type="checkbox" wire:model="is_active" class="rounded accent-navy"> {{ __('messages.admin.packages.label_active') }}
                     </label>
                     <label class="flex items-center gap-2 text-sm text-ink cursor-pointer">
-                        <input type="checkbox" wire:model="is_popular" class="rounded accent-navy"> Mark as Popular
+                        <input type="checkbox" wire:model="is_popular" class="rounded accent-navy"> {{ __('messages.admin.packages.label_popular') }}
                     </label>
                 </div>
             </div>
             <div class="flex gap-3 px-6 pb-6">
                 <x-btn variant="secondary" class="flex-1" wire:click="$set('showModal', false)">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                    Cancel
+                    {{ __('messages.common.cancel') }}
                 </x-btn>
                 <x-btn class="flex-1" wire:click="save" wire:loading.attr="disabled">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                    <span wire:loading.remove wire:target="save">{{ $editingId ? 'Update' : 'Save' }}</span>
-                    <span wire:loading wire:target="save">Saving...</span>
+                    <span wire:loading.remove wire:target="save">{{ $editingId ? __('messages.common.update') : __('messages.common.save') }}</span>
+                    <span wire:loading wire:target="save">{{ __('messages.common.saving') }}</span>
                 </x-btn>
             </div>
         </div>

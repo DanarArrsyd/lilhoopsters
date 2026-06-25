@@ -1,8 +1,8 @@
 <div>
     {{-- Header --}}
     <div class="mb-6">
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Programs</h2>
-        <p class="text-sm text-muted">Manage academy programs and age groups.</p>
+        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.admin.programs.title') }}</h2>
+        <p class="text-sm text-muted">{{ __('messages.admin.programs.subtitle') }}</p>
     </div>
     <button wire:click="openCreate"
             class="fixed bottom-6 right-5 z-30 w-14 h-14 bg-navy text-off rounded-full shadow-lg flex items-center justify-center hover:bg-navy/90 active:scale-95 transition-all">
@@ -24,10 +24,10 @@
             <table class="w-full text-sm min-w-[640px]">
                 <thead>
                     <tr class="border-b border-line">
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Program</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Age Range</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Description</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Status</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.programs.col_program') }}</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.programs.col_age_range') }}</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.programs.col_desc') }}</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.programs.col_status') }}</th>
                         <th class="py-3 px-4"></th>
                     </tr>
                 </thead>
@@ -45,7 +45,7 @@
                             </td>
                             <td class="py-3 px-4">
                                 <x-badge :status="$program->is_active ? 'active' : 'inactive'">
-                                    {{ $program->is_active ? 'Active' : 'Inactive' }}
+                                    {{ $program->is_active ? __('messages.status.active') : __('messages.status.inactive') }}
                                 </x-badge>
                             </td>
                             <td class="py-3 px-4">
@@ -53,7 +53,7 @@
                                     <x-btn variant="edit" size="sm" wire:click="openEdit({{ $program->id }})"
                                            wire:loading.attr="disabled">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                                        Edit
+                                        {{ __('messages.common.edit') }}
                                     </x-btn>
                                     <x-btn variant="{{ $program->is_active ? 'warning' : 'success' }}" size="sm"
                                            wire:click="toggleActive({{ $program->id }})"
@@ -61,10 +61,10 @@
                                            wire:target="toggleActive({{ $program->id }})">
                                         @if ($program->is_active)
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
-                                            Deactivate
+                                            {{ __('messages.common.deactivate') }}
                                         @else
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.636 5.636a9 9 0 1012.728 0M12 3v9"/></svg>
-                                            Activate
+                                            {{ __('messages.common.activate') }}
                                         @endif
                                     </x-btn>
                                     <x-btn variant="danger" size="sm"
@@ -73,7 +73,7 @@
                                            wire:loading.attr="disabled"
                                            wire:target="confirmDelete({{ $program->id }})">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                        Delete
+                                        {{ __('messages.common.delete') }}
                                     </x-btn>
                                 </div>
                             </td>
@@ -81,7 +81,7 @@
                     @empty
                         <tr>
                             <td colspan="5" class="py-2">
-                                <x-empty-state title="No programs yet" description="Add your first academy program." />
+                                <x-empty-state :title="__('messages.admin.programs.empty_title')" :description="__('messages.admin.programs.empty_desc')" />
                             </td>
                         </tr>
                     @endforelse
@@ -101,20 +101,20 @@
             <div class="absolute inset-0 bg-navy/40" wire:click="$set('showModal', false)"></div>
             <div class="relative bg-surface rounded-2xl border border-line shadow-xl w-full max-w-md">
                 <div class="flex items-center justify-between px-6 py-4 border-b border-line">
-                    <h3 class="text-lg font-extrabold uppercase tracking-tight text-navy">{{ $editingId ? 'Edit Program' : 'New Program' }}</h3>
+                    <h3 class="text-lg font-extrabold uppercase tracking-tight text-navy">{{ $editingId ? __('messages.admin.programs.modal_edit') : __('messages.admin.programs.modal_new') }}</h3>
                     <button wire:click="$set('showModal', false)" class="text-muted hover:text-navy p-1 leading-none">✕</button>
                 </div>
                 <div class="p-6 space-y-4">
-                    <x-input wire:model="name" label="Program Name" placeholder="e.g. Junior, Rookie, MVP"
+                    <x-input wire:model="name" label="{{ __('messages.admin.programs.label_name') }}" placeholder="e.g. Junior, Rookie, MVP"
                              required :error="$errors->first('name')" />
                     <div class="grid grid-cols-2 gap-4">
-                        <x-input wire:model="minAgeYears" type="number" label="Min Age (years)"
+                        <x-input wire:model="minAgeYears" type="number" label="{{ __('messages.admin.programs.label_min_age') }}"
                                  placeholder="1" required :error="$errors->first('minAgeYears')" />
-                        <x-input wire:model="maxAgeYears" type="number" label="Max Age (years)"
+                        <x-input wire:model="maxAgeYears" type="number" label="{{ __('messages.admin.programs.label_max_age') }}"
                                  placeholder="7" required :error="$errors->first('maxAgeYears')" />
                     </div>
                     <div class="space-y-1.5">
-                        <label class="block text-xs font-semibold uppercase tracking-wide text-navy">Description</label>
+                        <label class="block text-xs font-semibold uppercase tracking-wide text-navy">{{ __('messages.admin.programs.label_desc') }}</label>
                         <textarea wire:model="description" rows="3" aria-label="Program description"
                                   class="block w-full rounded-xl border border-line bg-surface px-3.5 py-3 text-sm text-ink placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-navy/15 focus:border-navy resize-none"
                                   placeholder="Optional program description..."></textarea>
@@ -122,18 +122,18 @@
                     </div>
                     <label class="flex items-center gap-2 text-sm text-ink cursor-pointer">
                         <input type="checkbox" wire:model="is_active" class="rounded accent-navy">
-                        Active
+                        {{ __('messages.admin.programs.label_active') }}
                     </label>
                 </div>
                 <div class="flex gap-3 px-6 pb-6">
                     <x-btn variant="secondary" class="flex-1" wire:click="$set('showModal', false)">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                        Cancel
+                        {{ __('messages.common.cancel') }}
                     </x-btn>
                     <x-btn class="flex-1" wire:click="save" wire:loading.attr="disabled">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                        <span wire:loading.remove wire:target="save">{{ $editingId ? 'Update' : 'Save' }}</span>
-                        <span wire:loading wire:target="save">Saving...</span>
+                        <span wire:loading.remove wire:target="save">{{ $editingId ? __('messages.common.update') : __('messages.common.save') }}</span>
+                        <span wire:loading wire:target="save">{{ __('messages.common.saving') }}</span>
                     </x-btn>
                 </div>
             </div>

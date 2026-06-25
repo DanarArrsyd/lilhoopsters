@@ -1,7 +1,7 @@
 <div>
     <div class="mb-6">
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Attendances</h2>
-        <p class="text-sm text-muted">View and override student attendance records.</p>
+        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.admin.attendances.title') }}</h2>
+        <p class="text-sm text-muted">{{ __('messages.admin.attendances.subtitle') }}</p>
     </div>
 
     @if (session('success'))
@@ -11,12 +11,12 @@
     {{-- Status tabs --}}
     <div class="flex gap-2 flex-wrap mb-4">
         @foreach ([
-            ''         => 'All',
-            'present'  => 'Present',
-            'no_show'  => 'No Show',
-            'sick'     => 'Sick',
-            'permit'   => 'Permit',
-            'make_up'  => 'Make-Up',
+            ''         => __('messages.common.all'),
+            'present'  => __('messages.attendance.badge.attend'),
+            'no_show'  => __('messages.attendance.badge.no_show'),
+            'sick'     => __('messages.attendance.badge.sick'),
+            'permit'   => __('messages.attendance.badge.permit'),
+            'make_up'  => __('messages.admin.attendances.filter_makeup'),
         ] as $val => $label)
             <button wire:click="$set('filterStatus', '{{ $val }}')"
                     @class([
@@ -32,7 +32,7 @@
         <x-input wire:model.live.debounce.300ms="search" placeholder="Search by child name..." />
         <x-input type="date" wire:model.live="filterDate" />
         <x-select wire:model.live="filterSchedule">
-            <option value="">All Schedules</option>
+            <option value="">{{ __('messages.admin.attendances.all_schedules') }}</option>
             @foreach ($schedules as $s)
                 <option value="{{ $s->id }}">{{ $s->program->name }} – {{ ucfirst($s->day_of_week) }}</option>
             @endforeach
@@ -44,12 +44,12 @@
             <table class="w-full text-sm min-w-[640px]">
                 <thead>
                     <tr class="border-b border-line">
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Child</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Schedule</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Date</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Status</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Source</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Coach</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.attendances.col_child') }}</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.attendances.col_schedule') }}</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.attendances.col_date') }}</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.attendances.col_status') }}</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.attendances.col_source') }}</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.attendances.col_coach') }}</th>
                         <th class="py-3 px-4"></th>
                     </tr>
                 </thead>
@@ -73,13 +73,13 @@
                             <td class="py-3 px-4 text-muted text-xs">{{ $a->coach?->user?->name ?? '—' }}</td>
                             <td class="py-3 px-4 text-right">
                                 <x-btn variant="edit" size="sm" wire:click="openOverride({{ $a->id }})" wire:loading.attr="disabled">
-                                    Override
+                                    {{ __('messages.common.override') }}
                                 </x-btn>
                             </td>
                         </tr>
                     @empty
                         <tr><td colspan="7" class="py-2">
-                            <x-empty-state title="No attendance records found" description="Records appear here once sessions are taken." />
+                            <x-empty-state :title="__('messages.admin.attendances.empty_title')" :description="__('messages.admin.attendances.empty_desc')" />
                         </td></tr>
                     @endforelse
                 </tbody>
@@ -96,30 +96,30 @@
         <div class="absolute inset-0 bg-navy/40" wire:click="closeOverride"></div>
         <div class="relative bg-surface rounded-2xl border border-line shadow-xl w-full max-w-md">
             <div class="flex items-center justify-between px-6 py-4 border-b border-line">
-                <h3 class="text-lg font-extrabold uppercase tracking-tight text-navy">Override Attendance</h3>
+                <h3 class="text-lg font-extrabold uppercase tracking-tight text-navy">{{ __('messages.admin.attendances.modal_title') }}</h3>
                 <button wire:click="closeOverride" class="text-muted hover:text-navy p-1 leading-none">&#x2715;</button>
             </div>
             <div class="p-6 space-y-4">
                 <x-select wire:model="overrideStatus" label="Status" :error="$errors->first('overrideStatus')">
-                    <option value="present">Present</option>
-                    <option value="no_show">No Show</option>
-                    <option value="sick">Sick</option>
-                    <option value="permit">Permit</option>
-                    <option value="make_up">Make-Up</option>
+                    <option value="present">{{ __('messages.admin.attendances.opt_present') }}</option>
+                    <option value="no_show">{{ __('messages.admin.attendances.opt_no_show') }}</option>
+                    <option value="sick">{{ __('messages.admin.attendances.opt_sick') }}</option>
+                    <option value="permit">{{ __('messages.admin.attendances.opt_permit') }}</option>
+                    <option value="make_up">{{ __('messages.admin.attendances.opt_makeup') }}</option>
                 </x-select>
                 <div class="space-y-1.5">
-                    <label class="block text-xs font-semibold uppercase tracking-wide text-navy">Notes</label>
+                    <label class="block text-xs font-semibold uppercase tracking-wide text-navy">{{ __('messages.admin.attendances.notes_label') }}</label>
                     <textarea wire:model="overrideNotes" rows="3" aria-label="Override notes"
                               class="block w-full rounded-xl border border-line bg-surface px-3.5 py-3 text-sm text-ink placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-navy/15 focus:border-navy resize-none"
-                              placeholder="Optional note..."></textarea>
+                              placeholder="{{ __('messages.admin.attendances.notes_ph') }}"></textarea>
                     @error('overrideNotes') <p class="text-xs text-[#B91C1C]">{{ $message }}</p> @enderror
                 </div>
             </div>
             <div class="flex gap-3 px-6 pb-6">
-                <x-btn variant="secondary" class="flex-1" wire:click="closeOverride">Cancel</x-btn>
+                <x-btn variant="secondary" class="flex-1" wire:click="closeOverride">{{ __('messages.common.cancel') }}</x-btn>
                 <x-btn class="flex-1" wire:click="saveOverride" wire:loading.attr="disabled">
-                    <span wire:loading.remove wire:target="saveOverride">Save Override</span>
-                    <span wire:loading wire:target="saveOverride">Saving...</span>
+                    <span wire:loading.remove wire:target="saveOverride">{{ __('messages.admin.attendances.save_override') }}</span>
+                    <span wire:loading wire:target="saveOverride">{{ __('messages.common.saving') }}</span>
                 </x-btn>
             </div>
         </div>

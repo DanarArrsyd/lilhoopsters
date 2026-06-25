@@ -125,3 +125,18 @@ it('fully localises the My Players and News pages to Indonesian', function () {
         ->assertSee('Berita')           // page title
         ->assertSee('Belum ada berita'); // empty state
 });
+
+it('fully localises the admin portal to Indonesian', function () {
+    $admin = User::factory()->withRole('admin')->approved()->create(['locale' => 'id']);
+
+    $this->actingAs($admin)->get(route('admin.dashboard'))
+        ->assertSee('Dasbor')      // page title
+        ->assertSee('Minggu Ini'); // dashboard section heading
+
+    $this->actingAs($admin)->get(route('admin.reports'))
+        ->assertSee('Bulan Ini'); // preset pill
+
+    $this->actingAs($admin)->get(route('admin.owner'))
+        ->assertSee('Retensi & Perpanjangan')  // renewal section heading
+        ->assertSee('Pembayaran Tertunggak');   // AR section heading
+});

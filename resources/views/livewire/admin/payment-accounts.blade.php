@@ -1,14 +1,14 @@
 <div class="mt-6">
     <x-card padding="p-0">
         <div class="px-6 py-4 border-b border-line flex items-center justify-between gap-3">
-            <p class="text-xs font-bold uppercase tracking-wide text-navy">Payment Accounts</p>
+            <p class="text-xs font-bold uppercase tracking-wide text-navy">{{ __('messages.admin.payment_accounts.title') }}</p>
             @if (!$showForm)
                 <button type="button" wire:click="openCreate"
                         class="flex items-center gap-1.5 text-xs font-bold text-navy bg-off border border-line px-3 py-1.5 rounded-lg hover:bg-navy hover:text-off transition-colors">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
                     </svg>
-                    Add Account
+                    {{ __('messages.admin.payment_accounts.add_account') }}
                 </button>
             @endif
         </div>
@@ -23,18 +23,18 @@
         @if ($showForm)
             <div class="p-6 border-b border-line space-y-4">
                 <p class="text-xs font-semibold text-navy uppercase tracking-wide">
-                    {{ $editingId ? 'Edit Account' : 'New Account' }}
+                    {{ $editingId ? __('messages.admin.payment_accounts.edit_account') : __('messages.admin.payment_accounts.new_account') }}
                 </p>
 
                 <div class="grid grid-cols-2 gap-4">
                     {{-- Type --}}
                     <div class="space-y-1.5 col-span-2 sm:col-span-1">
-                        <label class="block text-xs font-semibold uppercase tracking-wide text-navy">Type <span class="text-[#B91C1C]">*</span></label>
+                        <label class="block text-xs font-semibold uppercase tracking-wide text-navy">{{ __('messages.admin.payment_accounts.label_type') }} <span class="text-[#B91C1C]">*</span></label>
                         <select wire:model="type"
                                 class="block w-full rounded-xl border border-line bg-surface px-3.5 py-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-navy/15 focus:border-navy appearance-none bg-no-repeat"
                                 style="background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E\");background-position:right 0.75rem center;background-size:1rem;">
-                            <option value="bank">Bank Transfer</option>
-                            <option value="ewallet">E-Wallet</option>
+                            <option value="bank">{{ __('messages.admin.payment_accounts.type_bank') }}</option>
+                            <option value="ewallet">{{ __('messages.admin.payment_accounts.type_ewallet') }}</option>
                         </select>
                         @error('type') <p class="text-xs text-[#B91C1C]">{{ $message }}</p> @enderror
                     </div>
@@ -42,7 +42,7 @@
                     {{-- Bank / Wallet Name --}}
                     <div class="space-y-1.5 col-span-2 sm:col-span-1">
                         <label class="block text-xs font-semibold uppercase tracking-wide text-navy">
-                            {{ $type === 'ewallet' ? 'Wallet Name' : 'Bank Name' }}
+                            {{ $type === 'ewallet' ? __('messages.admin.payment_accounts.label_wallet_name') : __('messages.admin.payment_accounts.label_bank_name') }}
                             <span class="text-[#B91C1C]">*</span>
                         </label>
                         <x-input wire:model="bankName"
@@ -53,7 +53,7 @@
                     {{-- Account Number --}}
                     <div class="space-y-1.5 col-span-2 sm:col-span-1">
                         <label class="block text-xs font-semibold uppercase tracking-wide text-navy">
-                            {{ $type === 'ewallet' ? 'Phone / Account Number' : 'Account Number' }}
+                            {{ $type === 'ewallet' ? __('messages.admin.payment_accounts.label_phone_number') : __('messages.admin.payment_accounts.label_acct_number') }}
                             <span class="text-[#B91C1C]">*</span>
                         </label>
                         <x-input wire:model="accountNumber" placeholder="e.g. 0812 3456 7890" />
@@ -62,7 +62,7 @@
 
                     {{-- Account Holder --}}
                     <div class="space-y-1.5 col-span-2 sm:col-span-1">
-                        <label class="block text-xs font-semibold uppercase tracking-wide text-navy">Account Holder <span class="text-[#B91C1C]">*</span></label>
+                        <label class="block text-xs font-semibold uppercase tracking-wide text-navy">{{ __('messages.admin.payment_accounts.label_acct_holder') }} <span class="text-[#B91C1C]">*</span></label>
                         <x-input wire:model="accountHolder" placeholder="Full name on account" />
                         @error('accountHolder') <p class="text-xs text-[#B91C1C]">{{ $message }}</p> @enderror
                     </div>
@@ -75,18 +75,18 @@
                             <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200
                                          {{ $isActive ? 'translate-x-4' : 'translate-x-0' }}"></span>
                         </button>
-                        <span class="text-sm font-medium text-ink">Active (visible to parents)</span>
+                        <span class="text-sm font-medium text-ink">{{ __('messages.admin.payment_accounts.label_active') }}</span>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-2.5 pt-2">
                     <x-btn wire:click="save" wire:loading.attr="disabled">
-                        <span wire:loading.remove wire:target="save">{{ $editingId ? 'Update' : 'Add Account' }}</span>
-                        <span wire:loading wire:target="save">Saving...</span>
+                        <span wire:loading.remove wire:target="save">{{ $editingId ? __('messages.common.update') : __('messages.admin.payment_accounts.add_account') }}</span>
+                        <span wire:loading wire:target="save">{{ __('messages.common.saving') }}</span>
                     </x-btn>
                     <button type="button" wire:click="cancelForm"
                             class="px-4 py-2 text-sm font-semibold text-navy border border-line rounded-xl hover:bg-off transition-colors">
-                        Cancel
+                        {{ __('messages.common.cancel') }}
                     </button>
                 </div>
             </div>
@@ -95,8 +95,8 @@
         {{-- Account list --}}
         @if ($accounts->isEmpty() && !$showForm)
             <div class="px-6 py-8 text-center">
-                <p class="text-sm text-faint">No payment accounts added yet.</p>
-                <p class="text-xs text-faint mt-1">Parents won't see any transfer destinations until you add one.</p>
+                <p class="text-sm text-faint">{{ __('messages.admin.payment_accounts.empty_title') }}</p>
+                <p class="text-xs text-faint mt-1">{{ __('messages.admin.payment_accounts.empty_desc') }}</p>
             </div>
         @else
             <div class="divide-y divide-line">
@@ -124,7 +124,7 @@
                             <p class="text-xs text-muted">{{ $acc->account_number }} · {{ $acc->account_holder }}</p>
                             <span class="inline-block text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded
                                          {{ $acc->type === 'ewallet' ? 'bg-purple-100 text-purple-700' : 'bg-blue-50 text-blue-700' }}">
-                                {{ $acc->type === 'ewallet' ? 'E-Wallet' : 'Bank' }}
+                                {{ $acc->type === 'ewallet' ? __('messages.admin.payment_accounts.type_ewallet') : __('messages.admin.payment_accounts.type_bank') }}
                             </span>
                         </div>
 
@@ -132,11 +132,11 @@
                         <div class="flex items-center gap-2 flex-shrink-0">
                             @if (!$acc->is_active)
                                 <span class="text-[10px] font-bold text-faint bg-off border border-line px-2 py-0.5 rounded-full">
-                                    Hidden
+                                    {{ __('messages.admin.payment_accounts.hidden_badge') }}
                                 </span>
                             @endif
                             <button type="button" wire:click="openEdit({{ $acc->id }})"
-                                    title="Edit"
+                                    title="{{ __('messages.common.edit') }}"
                                     class="w-7 h-7 flex items-center justify-center rounded-lg text-navy hover:bg-off transition-colors">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -145,7 +145,7 @@
                             </button>
                             <button type="button" wire:click="delete({{ $acc->id }})"
                                     wire:confirm="Remove this payment account?"
-                                    title="Delete"
+                                    title="{{ __('messages.common.delete') }}"
                                     class="w-7 h-7 flex items-center justify-center rounded-lg text-[#B91C1C] hover:bg-[#FEF2F2] transition-colors">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

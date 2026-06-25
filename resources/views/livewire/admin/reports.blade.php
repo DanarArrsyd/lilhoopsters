@@ -7,7 +7,11 @@
 
         {{-- Preset pill group --}}
         <div class="flex items-center bg-off rounded-lg p-1 gap-0.5">
-            @foreach (['month' => 'This Month', '30d' => '30 Days', 'year' => 'This Year'] as $key => $label)
+            @foreach ([
+                'month' => __('messages.admin.reports.preset_month'),
+                '30d'   => __('messages.admin.reports.preset_30d'),
+                'year'  => __('messages.admin.reports.preset_year'),
+            ] as $key => $label)
                 <button wire:click="setPreset('{{ $key }}')"
                         class="px-3 py-1 text-xs font-semibold rounded-md transition-all duration-150
                                {{ $preset === $key
@@ -22,7 +26,7 @@
 
         {{-- Date range --}}
         <div class="flex items-center gap-2">
-            <span class="text-xs text-muted hidden sm:inline">From</span>
+            <span class="text-xs text-muted hidden sm:inline">{{ __('messages.admin.reports.from_label') }}</span>
             <input type="date" wire:model.live="dateFrom"
                    class="text-xs border rounded-lg px-2.5 py-1.5 text-ink bg-off focus:outline-none
                           focus:ring-2 focus:ring-navy/20 focus:border-navy/40
@@ -39,7 +43,7 @@
         {{-- Location --}}
         <div class="min-w-36">
             <x-select wire:model.live="filterLocation">
-                <option value="">All Locations</option>
+                <option value="">{{ __('messages.admin.reports.all_locations') }}</option>
                 @foreach ($locations as $loc)
                     <option value="{{ $loc->id }}">{{ $loc->name }}</option>
                 @endforeach
@@ -61,7 +65,7 @@
                 <circle class="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                 <path fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
             </svg>
-            Loading…
+            {{ __('messages.admin.reports.loading') }}
         </div>
 
         {{-- Export CSV --}}
@@ -76,7 +80,7 @@
                 <circle class="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                 <path fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
             </svg>
-            Export CSV
+            {{ __('messages.admin.reports.export_csv') }}
         </button>
     </div>
 
@@ -92,9 +96,9 @@
         $kpiCards = [
             [
                 'key'     => 'total_revenue',
-                'label'   => 'Total Revenue',
+                'label'   => __('messages.admin.reports.kpi_total_revenue'),
                 'value'   => 'Rp ' . number_format($kpis['total_revenue'], 0, ',', '.'),
-                'sub'     => 'paid transactions',
+                'sub'     => __('messages.admin.reports.sub_paid_txn'),
                 'ib'      => 'bg-[#15803D]/10',
                 'it'      => 'text-[#15803D]',
                 'bar'     => 'bg-[#15803D]',
@@ -103,9 +107,9 @@
             ],
             [
                 'key'     => 'paid_count',
-                'label'   => 'Paid Transactions',
+                'label'   => __('messages.admin.reports.kpi_paid_count'),
                 'value'   => number_format($kpis['paid_count']),
-                'sub'     => 'completed transactions',
+                'sub'     => __('messages.admin.reports.sub_completed'),
                 'ib'      => 'bg-navy/10',
                 'it'      => 'text-navy',
                 'bar'     => 'bg-navy',
@@ -114,9 +118,9 @@
             ],
             [
                 'key'     => 'avg_transaction',
-                'label'   => 'Average Transaction',
+                'label'   => __('messages.admin.reports.kpi_avg_transaction'),
                 'value'   => 'Rp ' . number_format($kpis['avg_transaction'], 0, ',', '.'),
-                'sub'     => 'average value',
+                'sub'     => __('messages.admin.reports.sub_avg_value'),
                 'ib'      => 'bg-[#1D4ED8]/10',
                 'it'      => 'text-[#1D4ED8]',
                 'bar'     => 'bg-[#1D4ED8]',
@@ -125,9 +129,9 @@
             ],
             [
                 'key'     => 'conversion_rate',
-                'label'   => 'Conversion Rate',
+                'label'   => __('messages.admin.reports.kpi_conv_rate'),
                 'value'   => $kpis['conversion_rate'] . '%',
-                'sub'     => 'paid ÷ all initiated',
+                'sub'     => __('messages.admin.reports.sub_paid_div_all'),
                 'ib'      => 'bg-[#B45309]/10',
                 'it'      => 'text-[#B45309]',
                 'bar'     => 'bg-[#B45309]',
@@ -169,7 +173,7 @@
                                 @endif
                                 {{ $d['pct'] }}%
                             </span>
-                            <span class="text-[10px] text-faint">vs previous period</span>
+                            <span class="text-[10px] text-faint">{{ __('messages.admin.reports.vs_prev_period') }}</span>
                         @else
                             <p class="text-[11px] text-muted">{{ $card['sub'] }}</p>
                         @endif
@@ -186,23 +190,23 @@
     <div class="bg-surface border border-line rounded-xl mb-5 overflow-hidden">
         <div class="px-5 py-3.5 border-b border-line flex flex-wrap items-start justify-between gap-3">
             <div>
-                <h3 class="text-sm font-extrabold text-navy uppercase tracking-wide">Revenue Over Time</h3>
+                <h3 class="text-sm font-extrabold text-navy uppercase tracking-wide">{{ __('messages.admin.reports.revenue_over_time') }}</h3>
                 <p class="text-xs text-muted mt-0.5">
-                    Based on paid_at · {{ $bucketMode === 'daily' ? 'Daily' : 'Monthly' }}
+                    Based on paid_at · {{ $bucketMode === 'daily' ? __('messages.admin.reports.bucket_daily') : __('messages.admin.reports.bucket_monthly') }}
                 </p>
             </div>
             <div class="flex items-center gap-4 text-xs text-muted">
                 <span class="flex items-center gap-1.5">
                     <span class="inline-block w-4 h-3 rounded bg-navy"></span>
-                    Above average
+                    {{ __('messages.admin.reports.legend_above') }}
                 </span>
                 <span class="flex items-center gap-1.5">
                     <span class="inline-block w-4 h-3 rounded bg-[#94a3b8]"></span>
-                    Below average
+                    {{ __('messages.admin.reports.legend_below') }}
                 </span>
                 <span class="flex items-center gap-1.5">
                     <span class="inline-block w-4 border-t-2 border-dashed border-[#B45309]"></span>
-                    Rata-rata
+                    {{ __('messages.admin.reports.legend_avg') }}
                 </span>
             </div>
         </div>
@@ -215,8 +219,8 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="text-sm font-bold text-ink">No data yet</p>
-                    <p class="text-xs text-muted mt-0.5">No paid transactions in this period.</p>
+                    <p class="text-sm font-bold text-ink">{{ __('messages.admin.reports.no_data_title') }}</p>
+                    <p class="text-xs text-muted mt-0.5">{{ __('messages.admin.reports.no_data_desc') }}</p>
                 </div>
             </div>
         @else
@@ -235,10 +239,10 @@
     ══════════════════════════════════════════════ --}}
     @php
         $typeMeta = [
-            'registration' => ['label' => 'Registration', 'class' => 'bg-[#1D4ED8]/10 text-[#1D4ED8]', 'bar' => 'bg-[#1D4ED8]'],
-            'regular'      => ['label' => 'Regular',      'class' => 'bg-navy/10 text-navy',           'bar' => 'bg-navy'],
-            'drop_in'      => ['label' => 'Drop-in',      'class' => 'bg-[#B45309]/10 text-[#B45309]', 'bar' => 'bg-[#B45309]'],
-            'private'      => ['label' => 'Private',      'class' => 'bg-[#7C3AED]/10 text-[#7C3AED]', 'bar' => 'bg-[#7C3AED]'],
+            'registration' => ['label' => __('messages.admin.packages.type_reg'),    'class' => 'bg-[#1D4ED8]/10 text-[#1D4ED8]', 'bar' => 'bg-[#1D4ED8]'],
+            'regular'      => ['label' => __('messages.admin.packages.type_regular'),'class' => 'bg-navy/10 text-navy',           'bar' => 'bg-navy'],
+            'drop_in'      => ['label' => __('messages.admin.packages.type_drop_in'),'class' => 'bg-[#B45309]/10 text-[#B45309]', 'bar' => 'bg-[#B45309]'],
+            'private'      => ['label' => __('messages.admin.packages.type_private'),'class' => 'bg-[#7C3AED]/10 text-[#7C3AED]', 'bar' => 'bg-[#7C3AED]'],
         ];
         $maxTypeRev     = $byType->max('revenue')     ?: 1;
         $maxLocationRev = $byLocation->max('revenue') ?: 1;
@@ -251,7 +255,7 @@
         {{-- By package type --}}
         <div class="bg-surface border border-line rounded-xl overflow-hidden">
             <div class="px-4 py-3 border-b border-line">
-                <h3 class="text-sm font-extrabold text-navy uppercase tracking-wide">By Package Type</h3>
+                <h3 class="text-sm font-extrabold text-navy uppercase tracking-wide">{{ __('messages.admin.reports.by_type') }}</h3>
             </div>
             <div class="p-4 space-y-4">
                 @forelse ($byType as $type => $data)
@@ -280,7 +284,7 @@
                         </div>
                     </div>
                 @empty
-                    <p class="text-xs text-muted py-6 text-center">No data in this period.</p>
+                    <p class="text-xs text-muted py-6 text-center">{{ __('messages.admin.reports.no_data_period') }}</p>
                 @endforelse
             </div>
         </div>
@@ -288,7 +292,7 @@
         {{-- By location --}}
         <div class="bg-surface border border-line rounded-xl overflow-hidden">
             <div class="px-4 py-3 border-b border-line">
-                <h3 class="text-sm font-extrabold text-navy uppercase tracking-wide">By Location</h3>
+                <h3 class="text-sm font-extrabold text-navy uppercase tracking-wide">{{ __('messages.admin.reports.by_location') }}</h3>
             </div>
             <div class="p-4 space-y-4">
                 @forelse ($byLocation as $locName => $data)
@@ -313,7 +317,7 @@
                         </div>
                     </div>
                 @empty
-                    <p class="text-xs text-muted py-6 text-center">No data in this period.</p>
+                    <p class="text-xs text-muted py-6 text-center">{{ __('messages.admin.reports.no_data_period') }}</p>
                 @endforelse
             </div>
         </div>
@@ -324,8 +328,8 @@
     ══════════════════════════════════════════════ --}}
     <div class="bg-surface border border-line rounded-xl mb-5 overflow-hidden">
         <div class="px-5 py-3 border-b border-line">
-            <h3 class="text-sm font-extrabold text-navy uppercase tracking-wide">Top Packages</h3>
-            <p class="text-xs text-muted mt-0.5">Top 10 packages by revenue.</p>
+            <h3 class="text-sm font-extrabold text-navy uppercase tracking-wide">{{ __('messages.admin.reports.top_packages') }}</h3>
+            <p class="text-xs text-muted mt-0.5">{{ __('messages.admin.reports.top_packages_sub') }}</p>
         </div>
 
         @if ($topPackages->isEmpty())
@@ -336,8 +340,8 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="text-sm font-bold text-ink">No packages sold yet</p>
-                    <p class="text-xs text-muted">No paid transactions in this period.</p>
+                    <p class="text-sm font-bold text-ink">{{ __('messages.admin.reports.no_packages_title') }}</p>
+                    <p class="text-xs text-muted">{{ __('messages.admin.reports.no_packages_desc') }}</p>
                 </div>
             </div>
         @else
@@ -345,12 +349,12 @@
                 <table class="w-full text-xs">
                     <thead>
                         <tr class="border-b border-line bg-off/50">
-                            <th class="px-5 py-2.5 text-left font-semibold text-muted uppercase tracking-wide text-[10px] w-8">#</th>
-                            <th class="px-5 py-2.5 text-left font-semibold text-muted uppercase tracking-wide text-[10px]">Package</th>
-                            <th class="px-5 py-2.5 text-left font-semibold text-muted uppercase tracking-wide text-[10px]">Tipe</th>
-                            <th class="px-5 py-2.5 text-left font-semibold text-muted uppercase tracking-wide text-[10px] hidden md:table-cell">Location</th>
-                            <th class="px-5 py-2.5 text-right font-semibold text-muted uppercase tracking-wide text-[10px]">Unit</th>
-                            <th class="px-5 py-2.5 text-right font-semibold text-muted uppercase tracking-wide text-[10px]">Revenue</th>
+                            <th class="px-5 py-2.5 text-left font-semibold text-muted uppercase tracking-wide text-[10px] w-8">{{ __('messages.admin.reports.col_rank') }}</th>
+                            <th class="px-5 py-2.5 text-left font-semibold text-muted uppercase tracking-wide text-[10px]">{{ __('messages.admin.reports.col_package') }}</th>
+                            <th class="px-5 py-2.5 text-left font-semibold text-muted uppercase tracking-wide text-[10px]">{{ __('messages.admin.reports.col_type') }}</th>
+                            <th class="px-5 py-2.5 text-left font-semibold text-muted uppercase tracking-wide text-[10px] hidden md:table-cell">{{ __('messages.admin.reports.col_location') }}</th>
+                            <th class="px-5 py-2.5 text-right font-semibold text-muted uppercase tracking-wide text-[10px]">{{ __('messages.admin.reports.col_unit') }}</th>
+                            <th class="px-5 py-2.5 text-right font-semibold text-muted uppercase tracking-wide text-[10px]">{{ __('messages.admin.reports.col_revenue') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-line">
@@ -382,24 +386,24 @@
     ══════════════════════════════════════════════ --}}
     @php
         $funnelMeta = [
-            'paid'     => ['label' => 'Paid',     'bg' => 'bg-green-500',  'text' => 'text-green-700',  'light' => 'bg-green-50',  'border' => 'border-green-200'],
-            'pending'  => ['label' => 'Pending',  'bg' => 'bg-amber-400',  'text' => 'text-amber-700',  'light' => 'bg-amber-50',  'border' => 'border-amber-200'],
-            'rejected' => ['label' => 'Rejected', 'bg' => 'bg-red-500',    'text' => 'text-red-700',    'light' => 'bg-red-50',    'border' => 'border-red-200'],
-            'expired'  => ['label' => 'Expired',  'bg' => 'bg-slate-400',  'text' => 'text-slate-600',  'light' => 'bg-slate-50',  'border' => 'border-slate-200'],
+            'paid'     => ['label' => __('messages.status.paid'),      'bg' => 'bg-green-500',  'text' => 'text-green-700',  'light' => 'bg-green-50',  'border' => 'border-green-200'],
+            'pending'  => ['label' => __('messages.status.pending'),   'bg' => 'bg-amber-400',  'text' => 'text-amber-700',  'light' => 'bg-amber-50',  'border' => 'border-amber-200'],
+            'rejected' => ['label' => __('messages.status.rejected'),  'bg' => 'bg-red-500',    'text' => 'text-red-700',    'light' => 'bg-red-50',    'border' => 'border-red-200'],
+            'expired'  => ['label' => __('messages.status.expired'),   'bg' => 'bg-slate-400',  'text' => 'text-slate-600',  'light' => 'bg-slate-50',  'border' => 'border-slate-200'],
         ];
     @endphp
 
     <div class="bg-surface border border-line rounded-xl mb-5 overflow-hidden">
         <div class="px-5 py-3 border-b border-line">
-            <h3 class="text-sm font-extrabold text-navy uppercase tracking-wide">Payment Funnel</h3>
-            <p class="text-xs text-muted mt-0.5">Based on transaction initiation date (created_at).</p>
+            <h3 class="text-sm font-extrabold text-navy uppercase tracking-wide">{{ __('messages.admin.reports.payment_funnel') }}</h3>
+            <p class="text-xs text-muted mt-0.5">{{ __('messages.admin.reports.funnel_sub') }}</p>
         </div>
 
         <div class="p-5">
             @if ($funnelTotal === 0)
                 <div class="py-6 text-center">
-                    <p class="text-sm font-bold text-ink">No transactions yet</p>
-                    <p class="text-xs text-muted mt-1">No transactions in this period.</p>
+                    <p class="text-sm font-bold text-ink">{{ __('messages.admin.reports.no_txn_title') }}</p>
+                    <p class="text-xs text-muted mt-1">{{ __('messages.admin.reports.no_txn_desc') }}</p>
                 </div>
             @else
                 {{-- Proportional bar --}}
@@ -431,7 +435,7 @@
                                 <span class="{{ $meta['text'] }} text-[11px] font-bold uppercase tracking-wide">{{ $meta['label'] }}</span>
                             </div>
                             <p class="{{ $meta['text'] }} text-3xl font-extrabold leading-none tabular-nums">{{ $count }}</p>
-                            <p class="{{ $meta['text'] }} text-xs mt-2 font-medium">{{ $pct }}% of total</p>
+                            <p class="{{ $meta['text'] }} text-xs mt-2 font-medium">{{ $pct }}{{ __('messages.admin.reports.pct_of_total') }}</p>
                         </div>
                     @endforeach
                 </div>

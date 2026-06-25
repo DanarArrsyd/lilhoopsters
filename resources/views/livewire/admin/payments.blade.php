@@ -1,7 +1,7 @@
 <div>
     <div class="mb-6">
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Payments</h2>
-        <p class="text-sm text-muted">Review and verify incoming payments.</p>
+        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.admin.payments.title') }}</h2>
+        <p class="text-sm text-muted">{{ __('messages.admin.payments.subtitle') }}</p>
     </div>
 
     @if (session('success'))
@@ -11,11 +11,11 @@
     {{-- Status tabs --}}
     <div class="flex gap-2 flex-wrap mb-4">
         @foreach ([
-            ''         => 'All',
-            'pending'  => 'Pending',
-            'paid'     => 'Paid',
-            'rejected' => 'Rejected',
-            'expired'  => 'Expired',
+            ''         => __('messages.common.all'),
+            'pending'  => __('messages.status.pending'),
+            'paid'     => __('messages.status.paid'),
+            'rejected' => __('messages.status.rejected'),
+            'expired'  => __('messages.status.expired'),
         ] as $val => $label)
             <button wire:click="$set('filterStatus', '{{ $val }}')"
                     @class([
@@ -36,12 +36,12 @@
             <table class="w-full text-sm min-w-[640px]">
                 <thead>
                     <tr class="border-b border-line">
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Transaction</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Parent / Player</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Package</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Amount</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Proof</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Status</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.payments.col_transaction') }}</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.payments.col_parent_player') }}</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.payments.col_package') }}</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.payments.col_amount') }}</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.payments.col_proof') }}</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.payments.col_status') }}</th>
                         <th class="py-3 px-4"></th>
                     </tr>
                 </thead>
@@ -66,26 +66,26 @@
                             <td class="py-3 px-4">
                                 @if ($trx->payment_proof)
                                     <a href="{{ Storage::disk('public')->url($trx->payment_proof) }}" target="_blank"
-                                       class="text-navy hover:underline text-xs font-semibold">View Proof</a>
+                                       class="text-navy hover:underline text-xs font-semibold">{{ __('messages.admin.payments.view_proof') }}</a>
                                 @else
                                     <span class="text-faint text-xs">—</span>
                                 @endif
                             </td>
                             <td class="py-3 px-4">
-                                <x-badge :status="$trx->status">{{ ucfirst($trx->status) }}</x-badge>
+                                <x-badge :status="$trx->status">{{ __('messages.status.'.$trx->status) }}</x-badge>
                             </td>
                             <td class="py-3 px-4 text-right">
                                 @if ($trx->status === 'pending')
                                     <div class="flex items-center gap-2 justify-end">
-                                        <x-btn variant="success" size="sm" wire:click="verify({{ $trx->id }})" wire:loading.attr="disabled">Verify</x-btn>
-                                        <x-btn variant="danger" size="sm" wire:click="reject({{ $trx->id }})" wire:loading.attr="disabled">Reject</x-btn>
+                                        <x-btn variant="success" size="sm" wire:click="verify({{ $trx->id }})" wire:loading.attr="disabled">{{ __('messages.common.verify') }}</x-btn>
+                                        <x-btn variant="danger" size="sm" wire:click="reject({{ $trx->id }})" wire:loading.attr="disabled">{{ __('messages.common.reject') }}</x-btn>
                                     </div>
                                 @endif
                             </td>
                         </tr>
                     @empty
                         <tr><td colspan="7" class="py-2">
-                            <x-empty-state title="No payments found" description="No transactions match your filters." />
+                            <x-empty-state :title="__('messages.admin.payments.empty_title')" :description="__('messages.admin.payments.empty_desc')" />
                         </td></tr>
                     @endforelse
                 </tbody>
@@ -102,20 +102,20 @@
         <div class="absolute inset-0 bg-navy/40"></div>
         <div class="relative bg-surface rounded-2xl border border-line shadow-xl w-full max-w-sm">
             <div class="flex items-center justify-between px-6 py-4 border-b border-line">
-                <h3 class="text-lg font-extrabold uppercase tracking-tight text-navy">Reject Payment</h3>
+                <h3 class="text-lg font-extrabold uppercase tracking-tight text-navy">{{ __('messages.admin.payments.modal_reject_title') }}</h3>
                 <button wire:click="cancelReject" class="text-muted hover:text-navy p-1 leading-none">&#x2715;</button>
             </div>
             <div class="p-6 space-y-4">
-                <p class="text-sm text-muted">Optionally add a note for the parent:</p>
+                <p class="text-sm text-muted">{{ __('messages.admin.payments.reject_note_label') }}</p>
                 <textarea wire:model="adminNote" rows="3" aria-label="Rejection note"
                           class="block w-full rounded-xl border border-line bg-surface px-3.5 py-3 text-sm text-ink placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-navy/15 focus:border-navy resize-none"
                           placeholder="e.g. Payment proof unclear, please re-upload..."></textarea>
             </div>
             <div class="flex gap-3 px-6 pb-6">
-                <x-btn variant="secondary" class="flex-1" wire:click="cancelReject">Cancel</x-btn>
+                <x-btn variant="secondary" class="flex-1" wire:click="cancelReject">{{ __('messages.common.cancel') }}</x-btn>
                 <x-btn variant="danger" class="flex-1" wire:click="confirmReject" wire:loading.attr="disabled">
-                    <span wire:loading.remove wire:target="confirmReject">Confirm Reject</span>
-                    <span wire:loading wire:target="confirmReject">Rejecting...</span>
+                    <span wire:loading.remove wire:target="confirmReject">{{ __('messages.admin.payments.confirm_reject') }}</span>
+                    <span wire:loading wire:target="confirmReject">{{ __('messages.admin.payments.rejecting') }}</span>
                 </x-btn>
             </div>
         </div>

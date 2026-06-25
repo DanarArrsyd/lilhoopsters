@@ -35,12 +35,12 @@
         </div>
 
         <div class="border-t border-line mt-4 pt-3 flex flex-wrap gap-x-8 gap-y-3">
-            <span class="text-[11px] uppercase tracking-wide text-faint font-semibold self-center">Last 30 days</span>
+            <span class="text-[11px] uppercase tracking-wide text-faint font-semibold self-center">{{ __('messages.admin.owner.last_30_days') }}</span>
             @php
                 $trendMeta = [
-                    'joined'  => 'Members joined',
-                    'churn'   => 'Churn',
-                    'revenue' => 'Revenue',
+                    'joined'  => __('messages.admin.owner.trend_joined'),
+                    'churn'   => __('messages.admin.owner.trend_churn'),
+                    'revenue' => __('messages.admin.owner.trend_revenue'),
                 ];
             @endphp
             @foreach ($trendMeta as $key => $label)
@@ -76,8 +76,8 @@
     @if (count($insights['actions']))
         <section>
             <div class="flex items-center gap-2 mb-3">
-                <h2 class="text-sm font-extrabold text-navy uppercase tracking-wide">Needs Your Attention</h2>
-                <span class="text-[11px] text-faint">ranked by impact</span>
+                <h2 class="text-sm font-extrabold text-navy uppercase tracking-wide">{{ __('messages.admin.owner.needs_attention') }}</h2>
+                <span class="text-[11px] text-faint">{{ __('messages.admin.owner.ranked_by_impact') }}</span>
             </div>
             <div class="space-y-2">
                 @php
@@ -106,16 +106,16 @@
     ══════════════════════════════════════════════ --}}
     <section>
         <div class="flex items-center gap-2 mb-3">
-            <h2 class="text-sm font-extrabold text-navy uppercase tracking-wide">Retention & Renewal</h2>
-            <span class="text-[11px] text-faint">current snapshot</span>
+            <h2 class="text-sm font-extrabold text-navy uppercase tracking-wide">{{ __('messages.admin.owner.retention_renewal') }}</h2>
+            <span class="text-[11px] text-faint">{{ __('messages.admin.owner.current_snapshot') }}</span>
         </div>
 
         @php
             $renewalCards = [
-                ['label' => 'Active Members',     'value' => number_format($renewal['active_members']), 'sub' => 'active enrollment', 'bar' => 'bg-[#15803D]'],
-                ['label' => 'Expiring Soon',     'value' => number_format($renewal['expiring_count']), 'sub' => '≤14 days / ≤2 sessions',   'bar' => 'bg-[#B45309]'],
-                ['label' => 'Churn (30 days)',  'value' => number_format($renewal['churned_count']),  'sub' => 'lapsed, no renew',    'bar' => 'bg-[#B91C1C]'],
-                ['label' => 'Renewal Rate',     'value' => $renewal['renewal_rate'] === null ? '—' : $renewal['renewal_rate'] . '%', 'sub' => 'renewed ÷ lapsed 30 days', 'bar' => 'bg-navy'],
+                ['label' => __('messages.admin.owner.active_members_label'), 'value' => number_format($renewal['active_members']), 'sub' => __('messages.admin.owner.sub_active_enroll'),    'bar' => 'bg-[#15803D]'],
+                ['label' => __('messages.admin.owner.expiring_soon_label'),  'value' => number_format($renewal['expiring_count']), 'sub' => __('messages.admin.owner.sub_expiring_soon'),   'bar' => 'bg-[#B45309]'],
+                ['label' => __('messages.admin.owner.churn_label'),          'value' => number_format($renewal['churned_count']),  'sub' => __('messages.admin.owner.sub_lapsed_no_renew'), 'bar' => 'bg-[#B91C1C]'],
+                ['label' => __('messages.admin.owner.renewal_rate_label'),   'value' => $renewal['renewal_rate'] === null ? '—' : $renewal['renewal_rate'] . '%', 'sub' => __('messages.admin.owner.sub_renewed_div_lapsed'), 'bar' => 'bg-navy'],
             ];
         @endphp
 
@@ -135,30 +135,30 @@
         {{-- Expiring list — actionable --}}
         <div class="bg-surface border border-line rounded-xl overflow-hidden">
             <div class="px-5 py-3 border-b border-line flex items-center justify-between gap-3">
-                <h3 class="text-xs font-extrabold text-navy uppercase tracking-wide">Needs Follow-up — Expiring Soon</h3>
+                <h3 class="text-xs font-extrabold text-navy uppercase tracking-wide">{{ __('messages.admin.owner.expiring_followup') }}</h3>
                 @if ($renewal['expiring_list']->isNotEmpty())
                     <button wire:click="remindAllExpiring" wire:loading.attr="disabled" wire:target="remindAllExpiring"
                             class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-off bg-navy hover:bg-navy/90 disabled:opacity-50 rounded-lg px-2.5 py-1.5 transition-colors shrink-0">
                         <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>
                         </svg>
-                        Send All
+                        {{ __('messages.admin.owner.send_all') }}
                     </button>
                 @endif
             </div>
             @if ($renewal['expiring_list']->isEmpty())
-                <p class="px-5 py-8 text-center text-sm text-muted">No members expiring soon. Great.</p>
+                <p class="px-5 py-8 text-center text-sm text-muted">{{ __('messages.admin.owner.no_expiring') }}</p>
             @else
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>
                             <tr class="text-[11px] uppercase tracking-wide text-faint border-b border-line">
-                                <th class="text-left font-semibold px-5 py-2.5">Child</th>
-                                <th class="text-left font-semibold px-3 py-2.5">Parent</th>
-                                <th class="text-left font-semibold px-3 py-2.5 hidden md:table-cell">Package</th>
-                                <th class="text-right font-semibold px-3 py-2.5">Sessions Left</th>
-                                <th class="text-right font-semibold px-3 py-2.5">Expires</th>
-                                <th class="text-right font-semibold px-5 py-2.5">Action</th>
+                                <th class="text-left font-semibold px-5 py-2.5">{{ __('messages.admin.owner.col_child') }}</th>
+                                <th class="text-left font-semibold px-3 py-2.5">{{ __('messages.admin.owner.col_parent') }}</th>
+                                <th class="text-left font-semibold px-3 py-2.5 hidden md:table-cell">{{ __('messages.admin.owner.col_package') }}</th>
+                                <th class="text-right font-semibold px-3 py-2.5">{{ __('messages.admin.owner.col_sessions_left') }}</th>
+                                <th class="text-right font-semibold px-3 py-2.5">{{ __('messages.admin.owner.col_expires') }}</th>
+                                <th class="text-right font-semibold px-5 py-2.5">{{ __('messages.admin.owner.col_action') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-line">
@@ -182,7 +182,14 @@
                                             <span class="text-ink">{{ $row['expires']->format('d M Y') }}</span>
                                             @php $d = $row['days']; @endphp
                                             <span class="block text-[11px] font-semibold {{ $d !== null && $d < 0 ? 'text-[#B91C1C]' : ($d !== null && $d <= 7 ? 'text-[#B45309]' : 'text-faint') }}">
-                                                {{ $d === null ? '' : ($d < 0 ? abs($d) . ' days ago' : ($d === 0 ? 'today' : $d . ' days left')) }}
+                                                @if ($d === null)
+                                                @elseif ($d < 0)
+                                                    {{ __('messages.admin.owner.days_ago', ['count' => abs($d)]) }}
+                                                @elseif ($d === 0)
+                                                    {{ __('messages.admin.owner.today') }}
+                                                @else
+                                                    {{ __('messages.admin.owner.days_left', ['count' => $d]) }}
+                                                @endif
                                             </span>
                                         @else
                                             <span class="text-faint">—</span>
@@ -195,7 +202,7 @@
                                             <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>
                                             </svg>
-                                            Reminder
+                                            {{ __('messages.admin.owner.reminder_btn') }}
                                         </button>
                                     </td>
                                 </tr>
@@ -212,15 +219,15 @@
     ══════════════════════════════════════════════ --}}
     <section>
         <div class="flex items-center gap-2 mb-3">
-            <h2 class="text-sm font-extrabold text-navy uppercase tracking-wide">Outstanding Payments</h2>
-            <span class="text-[11px] text-faint">pending status</span>
+            <h2 class="text-sm font-extrabold text-navy uppercase tracking-wide">{{ __('messages.admin.owner.outstanding_payments') }}</h2>
+            <span class="text-[11px] text-faint">{{ __('messages.admin.owner.pending_status') }}</span>
         </div>
 
         @php
             $arCards = [
-                ['label' => 'Total Outstanding', 'value' => 'Rp ' . number_format($ar['outstanding'], 0, ',', '.'), 'sub' => 'open receivables', 'bar' => 'bg-[#B45309]'],
-                ['label' => 'Pending Transactions', 'value' => number_format($ar['count']),                          'sub' => 'unpaid',    'bar' => 'bg-navy'],
-                ['label' => 'Overdue', 'value' => number_format($ar['overdue']),                        'sub' => 'expired_at passed',  'bar' => 'bg-[#B91C1C]'],
+                ['label' => __('messages.admin.owner.total_outstanding'),    'value' => 'Rp ' . number_format($ar['outstanding'], 0, ',', '.'), 'sub' => __('messages.admin.owner.sub_open_recv'),  'bar' => 'bg-[#B45309]'],
+                ['label' => __('messages.admin.owner.pending_transactions'), 'value' => number_format($ar['count']),                           'sub' => __('messages.admin.owner.sub_unpaid'),      'bar' => 'bg-navy'],
+                ['label' => __('messages.admin.owner.overdue_label'),        'value' => number_format($ar['overdue']),                         'sub' => __('messages.admin.owner.sub_expired_at'),  'bar' => 'bg-[#B91C1C]'],
             ];
         @endphp
 
@@ -239,38 +246,38 @@
 
         {{-- Aging strip --}}
         <div class="bg-surface border border-line rounded-xl px-5 py-3 mb-3 flex flex-wrap items-center gap-x-6 gap-y-2">
-            <span class="text-[11px] uppercase tracking-wide text-faint font-semibold">Invoice Age</span>
-            <span class="flex items-center gap-1.5 text-sm"><span class="w-2.5 h-2.5 rounded-full bg-[#15803D]"></span><span class="text-muted">≤3 days</span><span class="font-bold text-ink">{{ $ar['aging']['fresh'] }}</span></span>
-            <span class="flex items-center gap-1.5 text-sm"><span class="w-2.5 h-2.5 rounded-full bg-[#B45309]"></span><span class="text-muted">4–7 days</span><span class="font-bold text-ink">{{ $ar['aging']['week'] }}</span></span>
-            <span class="flex items-center gap-1.5 text-sm"><span class="w-2.5 h-2.5 rounded-full bg-[#B91C1C]"></span><span class="text-muted">&gt;7 days</span><span class="font-bold text-ink">{{ $ar['aging']['stale'] }}</span></span>
+            <span class="text-[11px] uppercase tracking-wide text-faint font-semibold">{{ __('messages.admin.owner.invoice_age') }}</span>
+            <span class="flex items-center gap-1.5 text-sm"><span class="w-2.5 h-2.5 rounded-full bg-[#15803D]"></span><span class="text-muted">{{ __('messages.admin.owner.age_fresh') }}</span><span class="font-bold text-ink">{{ $ar['aging']['fresh'] }}</span></span>
+            <span class="flex items-center gap-1.5 text-sm"><span class="w-2.5 h-2.5 rounded-full bg-[#B45309]"></span><span class="text-muted">{{ __('messages.admin.owner.age_week') }}</span><span class="font-bold text-ink">{{ $ar['aging']['week'] }}</span></span>
+            <span class="flex items-center gap-1.5 text-sm"><span class="w-2.5 h-2.5 rounded-full bg-[#B91C1C]"></span><span class="text-muted">{{ __('messages.admin.owner.age_stale') }}</span><span class="font-bold text-ink">{{ $ar['aging']['stale'] }}</span></span>
         </div>
 
         <div class="bg-surface border border-line rounded-xl overflow-hidden">
             @if ($ar['list']->isNotEmpty())
                 <div class="px-5 py-3 border-b border-line flex items-center justify-between gap-3">
-                    <h3 class="text-xs font-extrabold text-navy uppercase tracking-wide">Invoice List</h3>
+                    <h3 class="text-xs font-extrabold text-navy uppercase tracking-wide">{{ __('messages.admin.owner.invoice_list') }}</h3>
                     <button wire:click="remindAllOutstanding" wire:loading.attr="disabled" wire:target="remindAllOutstanding"
                             class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-off bg-navy hover:bg-navy/90 disabled:opacity-50 rounded-lg px-2.5 py-1.5 transition-colors shrink-0">
                         <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>
                         </svg>
-                        Send All
+                        {{ __('messages.admin.owner.send_all') }}
                     </button>
                 </div>
             @endif
             @if ($ar['list']->isEmpty())
-                <p class="px-5 py-8 text-center text-sm text-muted">No outstanding invoices. Cash flow clean.</p>
+                <p class="px-5 py-8 text-center text-sm text-muted">{{ __('messages.admin.owner.no_outstanding') }}</p>
             @else
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>
                             <tr class="text-[11px] uppercase tracking-wide text-faint border-b border-line">
-                                <th class="text-left font-semibold px-5 py-2.5">Code</th>
-                                <th class="text-left font-semibold px-3 py-2.5">Child</th>
-                                <th class="text-left font-semibold px-3 py-2.5 hidden md:table-cell">Package</th>
-                                <th class="text-right font-semibold px-3 py-2.5">Age</th>
-                                <th class="text-right font-semibold px-3 py-2.5">Jumlah</th>
-                                <th class="text-right font-semibold px-5 py-2.5">Action</th>
+                                <th class="text-left font-semibold px-5 py-2.5">{{ __('messages.admin.owner.col_code') }}</th>
+                                <th class="text-left font-semibold px-3 py-2.5">{{ __('messages.admin.owner.col_child') }}</th>
+                                <th class="text-left font-semibold px-3 py-2.5 hidden md:table-cell">{{ __('messages.admin.owner.col_package') }}</th>
+                                <th class="text-right font-semibold px-3 py-2.5">{{ __('messages.admin.owner.col_age') }}</th>
+                                <th class="text-right font-semibold px-3 py-2.5">{{ __('messages.admin.owner.col_amount') }}</th>
+                                <th class="text-right font-semibold px-5 py-2.5">{{ __('messages.admin.owner.col_action') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-line">
@@ -284,7 +291,7 @@
                                     <td class="px-3 py-2.5 text-muted hidden md:table-cell">{{ $row['package'] }}</td>
                                     <td class="px-3 py-2.5 text-right">
                                         <span class="font-semibold {{ $row['overdue'] ? 'text-[#B91C1C]' : ($row['age'] > 7 ? 'text-[#B45309]' : 'text-muted') }}">
-                                            {{ $row['age'] }}h{{ $row['overdue'] ? ' · jatuh tempo' : '' }}
+                                            {{ $row['age'] }}{{ __('messages.admin.owner.hrs_suffix') }}{{ $row['overdue'] ? ' ' . __('messages.admin.owner.overdue_suffix') : '' }}
                                         </span>
                                     </td>
                                     <td class="px-3 py-2.5 text-right font-bold text-navy">Rp {{ number_format($row['amount'], 0, ',', '.') }}</td>
@@ -295,7 +302,7 @@
                                             <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>
                                             </svg>
-                                            Reminder
+                                            {{ __('messages.admin.owner.reminder_btn') }}
                                         </button>
                                     </td>
                                 </tr>
@@ -313,8 +320,8 @@
     <section>
         <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
             <div class="flex items-center gap-2">
-                <h2 class="text-sm font-extrabold text-navy uppercase tracking-wide">Coach Performance</h2>
-                <span class="text-[11px] text-faint">payroll basis — sessions & hours</span>
+                <h2 class="text-sm font-extrabold text-navy uppercase tracking-wide">{{ __('messages.admin.owner.coach_performance') }}</h2>
+                <span class="text-[11px] text-faint">{{ __('messages.admin.owner.payroll_basis') }}</span>
             </div>
             <input type="month" wire:model.live="payrollMonth"
                    class="text-xs border border-line rounded-lg px-2.5 py-1.5 text-ink bg-off
@@ -323,16 +330,16 @@
 
         <div class="bg-surface border border-line rounded-xl overflow-hidden">
             @if ($payroll->isEmpty())
-                <p class="px-5 py-8 text-center text-sm text-muted">No coach sessions this month.</p>
+                <p class="px-5 py-8 text-center text-sm text-muted">{{ __('messages.admin.owner.no_coach_sessions') }}</p>
             @else
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>
                             <tr class="text-[11px] uppercase tracking-wide text-faint border-b border-line">
-                                <th class="text-left font-semibold px-5 py-2.5">Coach</th>
-                                <th class="text-right font-semibold px-3 py-2.5">Sessions</th>
-                                <th class="text-right font-semibold px-3 py-2.5">Active Days</th>
-                                <th class="text-right font-semibold px-5 py-2.5">Total Hours</th>
+                                <th class="text-left font-semibold px-5 py-2.5">{{ __('messages.admin.owner.col_coach') }}</th>
+                                <th class="text-right font-semibold px-3 py-2.5">{{ __('messages.admin.owner.col_sessions') }}</th>
+                                <th class="text-right font-semibold px-3 py-2.5">{{ __('messages.admin.owner.col_active_days') }}</th>
+                                <th class="text-right font-semibold px-5 py-2.5">{{ __('messages.admin.owner.col_total_hours') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-line">
@@ -341,7 +348,7 @@
                                     <td class="px-5 py-2.5 font-semibold text-ink">{{ $row['coach'] }}</td>
                                     <td class="px-3 py-2.5 text-right font-bold text-navy">{{ $row['sessions'] }}</td>
                                     <td class="px-3 py-2.5 text-right text-muted">{{ $row['days'] }}</td>
-                                    <td class="px-5 py-2.5 text-right font-semibold text-ink">{{ $row['hours'] }} hrs</td>
+                                    <td class="px-5 py-2.5 text-right font-semibold text-ink">{{ $row['hours'] }} {{ __('messages.admin.owner.hrs_suffix') }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -356,32 +363,32 @@
     ══════════════════════════════════════════════ --}}
     <section>
         <div class="flex items-center gap-2 mb-3">
-            <h2 class="text-sm font-extrabold text-navy uppercase tracking-wide">Class Utilization</h2>
-            <span class="text-[11px] text-faint">booked ÷ capacity</span>
+            <h2 class="text-sm font-extrabold text-navy uppercase tracking-wide">{{ __('messages.admin.owner.class_utilization') }}</h2>
+            <span class="text-[11px] text-faint">{{ __('messages.admin.owner.booked_div_cap') }}</span>
         </div>
 
         <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
             <div class="bg-surface border border-line rounded-xl px-4 pt-4 pb-3 flex flex-col gap-3">
-                <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">Total Utilization</p>
+                <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">{{ __('messages.admin.owner.total_util_label') }}</p>
                 <div>
                     <p class="text-xl font-extrabold text-navy leading-none tracking-tight">{{ $capacity['overall'] }}%</p>
-                    <p class="text-[11px] text-muted mt-1.5">{{ $capacity['total_book'] }} of {{ $capacity['total_cap'] }} slots</p>
+                    <p class="text-[11px] text-muted mt-1.5">{{ __('messages.admin.owner.sub_slots', ['booked' => $capacity['total_book'], 'cap' => $capacity['total_cap']]) }}</p>
                 </div>
                 <div class="h-0.5 w-10 bg-[#1D4ED8] rounded-full"></div>
             </div>
             <div class="bg-surface border border-line rounded-xl px-4 pt-4 pb-3 flex flex-col gap-3">
-                <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">Underfilled Classes</p>
+                <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">{{ __('messages.admin.owner.underfilled_label') }}</p>
                 <div>
                     <p class="text-xl font-extrabold text-navy leading-none tracking-tight">{{ $capacity['underfilled'] }}</p>
-                    <p class="text-[11px] text-muted mt-1.5">filled &lt;50%</p>
+                    <p class="text-[11px] text-muted mt-1.5">{{ __('messages.admin.owner.sub_filled') }}</p>
                 </div>
                 <div class="h-0.5 w-10 bg-[#B45309] rounded-full"></div>
             </div>
             <div class="bg-surface border border-line rounded-xl px-4 pt-4 pb-3 flex flex-col gap-3">
-                <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">Active Schedules</p>
+                <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">{{ __('messages.admin.owner.active_sched_label') }}</p>
                 <div>
                     <p class="text-xl font-extrabold text-navy leading-none tracking-tight">{{ $capacity['schedules']->count() }}</p>
-                    <p class="text-[11px] text-muted mt-1.5">weekly sessions</p>
+                    <p class="text-[11px] text-muted mt-1.5">{{ __('messages.admin.owner.sub_weekly') }}</p>
                 </div>
                 <div class="h-0.5 w-10 bg-navy rounded-full"></div>
             </div>
@@ -389,7 +396,7 @@
 
         <div class="bg-surface border border-line rounded-xl overflow-hidden">
             @if ($capacity['schedules']->isEmpty())
-                <p class="px-5 py-8 text-center text-sm text-muted">No active schedules.</p>
+                <p class="px-5 py-8 text-center text-sm text-muted">{{ __('messages.admin.owner.no_active_schedules') }}</p>
             @else
                 <div class="divide-y divide-line">
                     @foreach ($capacity['schedules'] as $s)
@@ -424,26 +431,26 @@
     <section>
         <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
             <div class="flex items-center gap-2">
-                <h2 class="text-sm font-extrabold text-navy uppercase tracking-wide">Lead Funnel</h2>
-                <span class="text-[11px] text-faint">prospect → conversion</span>
+                <h2 class="text-sm font-extrabold text-navy uppercase tracking-wide">{{ __('messages.admin.owner.lead_funnel') }}</h2>
+                <span class="text-[11px] text-faint">{{ __('messages.admin.owner.prospect_conversion') }}</span>
             </div>
-            <a href="{{ route('admin.leads') }}" class="text-[11px] font-semibold text-navy hover:underline">Manage Leads →</a>
+            <a href="{{ route('admin.leads') }}" class="text-[11px] font-semibold text-navy hover:underline">{{ __('messages.admin.owner.manage_leads') }}</a>
         </div>
 
         @php
             $leadCards = [
-                ['label' => 'Total Leads',     'value' => number_format($leads['total']),     'sub' => 'sepanjang waktu',  'bar' => 'bg-navy'],
-                ['label' => 'Active Pipeline', 'value' => number_format($leads['open']),      'sub' => 'still open',      'bar' => 'bg-[#1D4ED8]'],
-                ['label' => 'Converted',       'value' => number_format($leads['converted']), 'sub' => 'became members',      'bar' => 'bg-[#15803D]'],
-                ['label' => 'Conversion Rate','value' => $leads['conversion'] === null ? '—' : $leads['conversion'] . '%', 'sub' => 'converted ÷ closed', 'bar' => 'bg-[#B45309]'],
+                ['label' => __('messages.admin.owner.total_leads_label'),     'value' => number_format($leads['total']),     'sub' => __('messages.admin.owner.sub_all_time'),       'bar' => 'bg-navy'],
+                ['label' => __('messages.admin.owner.active_pipeline_label'), 'value' => number_format($leads['open']),      'sub' => __('messages.admin.owner.sub_still_open'),     'bar' => 'bg-[#1D4ED8]'],
+                ['label' => __('messages.admin.owner.converted_label'),       'value' => number_format($leads['converted']), 'sub' => __('messages.admin.owner.sub_became_members'), 'bar' => 'bg-[#15803D]'],
+                ['label' => __('messages.admin.owner.conv_rate_label'),       'value' => $leads['conversion'] === null ? '—' : $leads['conversion'] . '%', 'sub' => __('messages.admin.owner.sub_conv_div_closed'), 'bar' => 'bg-[#B45309]'],
             ];
             $leadStatusMeta = [
-                'new'             => ['label' => 'New',              'bar' => 'bg-[#1D4ED8]'],
-                'contacted'       => ['label' => 'Contacted',         'bar' => 'bg-[#B45309]'],
-                'trial_scheduled' => ['label' => 'Trial Scheduled', 'bar' => 'bg-[#7C3AED]'],
-                'trial_done'      => ['label' => 'Trial Done',     'bar' => 'bg-navy'],
-                'converted'       => ['label' => 'Converted',          'bar' => 'bg-[#15803D]'],
-                'lost'            => ['label' => 'Lost',            'bar' => 'bg-[#B91C1C]'],
+                'new'             => ['label' => __('messages.admin.owner.lead_new'),              'bar' => 'bg-[#1D4ED8]'],
+                'contacted'       => ['label' => __('messages.admin.owner.lead_contacted'),        'bar' => 'bg-[#B45309]'],
+                'trial_scheduled' => ['label' => __('messages.admin.owner.lead_trial_scheduled'), 'bar' => 'bg-[#7C3AED]'],
+                'trial_done'      => ['label' => __('messages.admin.owner.lead_trial_done'),      'bar' => 'bg-navy'],
+                'converted'       => ['label' => __('messages.admin.owner.lead_converted'),       'bar' => 'bg-[#15803D]'],
+                'lost'            => ['label' => __('messages.admin.owner.lead_lost'),            'bar' => 'bg-[#B91C1C]'],
             ];
             $leadMax = max(1, max($leads['by_status']));
         @endphp
@@ -463,7 +470,7 @@
 
         <div class="bg-surface border border-line rounded-xl overflow-hidden">
             @if ($leads['total'] === 0)
-                <p class="px-5 py-8 text-center text-sm text-muted">No leads yet. Add prospects in the Leads menu.</p>
+                <p class="px-5 py-8 text-center text-sm text-muted">{{ __('messages.admin.owner.no_leads') }}</p>
             @else
                 <div class="divide-y divide-line">
                     @foreach ($leadStatusMeta as $key => $meta)
@@ -487,34 +494,34 @@
     <section>
         <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
             <div class="flex items-center gap-2">
-                <h2 class="text-sm font-extrabold text-navy uppercase tracking-wide">Events</h2>
-                <span class="text-[11px] text-faint">revenue & participation</span>
+                <h2 class="text-sm font-extrabold text-navy uppercase tracking-wide">{{ __('messages.admin.owner.events_section') }}</h2>
+                <span class="text-[11px] text-faint">{{ __('messages.admin.owner.events_subtitle') }}</span>
             </div>
-            <a href="{{ route('admin.events') }}" class="text-[11px] font-semibold text-navy hover:underline">Manage Events →</a>
+            <a href="{{ route('admin.events') }}" class="text-[11px] font-semibold text-navy hover:underline">{{ __('messages.admin.owner.manage_events') }}</a>
         </div>
 
         <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
             <div class="bg-surface border border-line rounded-xl px-4 pt-4 pb-3 flex flex-col gap-3">
-                <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">Event Revenue</p>
+                <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">{{ __('messages.admin.owner.event_revenue_label') }}</p>
                 <div>
                     <p class="text-xl font-extrabold text-navy leading-none tracking-tight">Rp {{ number_format($events['total_revenue'], 0, ',', '.') }}</p>
-                    <p class="text-[11px] text-muted mt-1.5">collected (paid)</p>
+                    <p class="text-[11px] text-muted mt-1.5">{{ __('messages.admin.owner.sub_collected') }}</p>
                 </div>
                 <div class="h-0.5 w-10 bg-[#15803D] rounded-full"></div>
             </div>
             <div class="bg-surface border border-line rounded-xl px-4 pt-4 pb-3 flex flex-col gap-3">
-                <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">Awaiting Payment</p>
+                <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">{{ __('messages.admin.owner.awaiting_payment_label') }}</p>
                 <div>
                     <p class="text-xl font-extrabold text-navy leading-none tracking-tight">Rp {{ number_format($events['total_pending'], 0, ',', '.') }}</p>
-                    <p class="text-[11px] text-muted mt-1.5">pending registrations</p>
+                    <p class="text-[11px] text-muted mt-1.5">{{ __('messages.admin.owner.sub_pending_reg') }}</p>
                 </div>
                 <div class="h-0.5 w-10 bg-[#B45309] rounded-full"></div>
             </div>
             <div class="bg-surface border border-line rounded-xl px-4 pt-4 pb-3 flex flex-col gap-3">
-                <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">Confirmed Participants</p>
+                <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">{{ __('messages.admin.owner.confirmed_part_label') }}</p>
                 <div>
                     <p class="text-xl font-extrabold text-navy leading-none tracking-tight">{{ number_format($events['total_people']) }}</p>
-                    <p class="text-[11px] text-muted mt-1.5">across events</p>
+                    <p class="text-[11px] text-muted mt-1.5">{{ __('messages.admin.owner.sub_across_events') }}</p>
                 </div>
                 <div class="h-0.5 w-10 bg-navy rounded-full"></div>
             </div>
@@ -522,17 +529,17 @@
 
         <div class="bg-surface border border-line rounded-xl overflow-hidden">
             @if ($events['rows']->isEmpty())
-                <p class="px-5 py-8 text-center text-sm text-muted">No registerable events yet.</p>
+                <p class="px-5 py-8 text-center text-sm text-muted">{{ __('messages.admin.owner.no_events') }}</p>
             @else
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>
                             <tr class="text-[11px] uppercase tracking-wide text-faint border-b border-line">
-                                <th class="text-left font-semibold px-5 py-2.5">Event</th>
-                                <th class="text-right font-semibold px-3 py-2.5">Confirmed</th>
-                                <th class="text-right font-semibold px-3 py-2.5 hidden sm:table-cell">Pending</th>
-                                <th class="text-right font-semibold px-3 py-2.5">Attendance</th>
-                                <th class="text-right font-semibold px-5 py-2.5">Revenue</th>
+                                <th class="text-left font-semibold px-5 py-2.5">{{ __('messages.admin.owner.col_event') }}</th>
+                                <th class="text-right font-semibold px-3 py-2.5">{{ __('messages.admin.owner.col_confirmed') }}</th>
+                                <th class="text-right font-semibold px-3 py-2.5 hidden sm:table-cell">{{ __('messages.admin.owner.col_pending') }}</th>
+                                <th class="text-right font-semibold px-3 py-2.5">{{ __('messages.admin.owner.col_attendance') }}</th>
+                                <th class="text-right font-semibold px-5 py-2.5">{{ __('messages.admin.owner.col_revenue') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-line">
@@ -540,7 +547,7 @@
                                 <tr class="hover:bg-off/60">
                                     <td class="px-5 py-2.5">
                                         <span class="font-semibold text-ink">{{ $row['name'] }}</span>
-                                        <span class="block text-[11px] text-faint">{{ $row['period'] }}{{ $row['is_paid'] ? '' : ' · Free' }}</span>
+                                        <span class="block text-[11px] text-faint">{{ $row['period'] }}{{ $row['is_paid'] ? '' : ' ' . __('messages.admin.owner.free_suffix') }}</span>
                                     </td>
                                     <td class="px-3 py-2.5 text-right font-bold text-navy">{{ $row['confirmed'] }}</td>
                                     <td class="px-3 py-2.5 text-right text-muted hidden sm:table-cell">{{ $row['pending'] }}</td>
