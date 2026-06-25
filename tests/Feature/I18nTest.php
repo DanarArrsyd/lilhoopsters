@@ -86,6 +86,14 @@ it('fully localises the parent Events page to Indonesian', function () {
         ->assertSee('Belum ada acara');   // empty state (no open events)
 });
 
+it('fully localises the payments page to Indonesian', function () {
+    $this->parent->update(['locale' => 'id']);
+
+    $this->actingAs($this->parent)->get(route('parent.payments'))
+        ->assertSee('Pembayaran')               // page title
+        ->assertSee('Belum ada transaksi');     // empty state
+});
+
 it('fully localises the attendance page to Indonesian', function () {
     $this->parent->update(['locale' => 'id']);
 
