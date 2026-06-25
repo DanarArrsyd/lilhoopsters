@@ -1,8 +1,8 @@
 <div>
     {{-- Header --}}
     <div class="mb-6">
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Take Attendance</h2>
-        <p class="text-sm text-muted">Mark attendance for your sessions.</p>
+        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.coach.take_attendance.title') }}</h2>
+        <p class="text-sm text-muted">{{ __('messages.coach.take_attendance.subtitle') }}</p>
     </div>
 
     {{-- Flash --}}
@@ -14,7 +14,7 @@
     <x-card class="mb-4" padding="p-4">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <x-select wire:model.live="scheduleId" label="Schedule">
-                <option value="">— Select a schedule —</option>
+                <option value="">{{ __('messages.coach.take_attendance.select_schedule') }}</option>
                 @foreach ($schedules as $s)
                     <option value="{{ $s->id }}">
                         {{ ucfirst($s->day_of_week) }} · {{ \Carbon\Carbon::parse($s->start_time)->format('H:i') }}
@@ -30,12 +30,12 @@
     {{-- Roster --}}
     @if ($scheduleId)
         @if (empty($roster))
-            <x-empty-state title="No enrolled students for this schedule" description="Students appear once approved." />
+            <x-empty-state :title="__('messages.coach.take_attendance.empty_title')" :description="__('messages.coach.take_attendance.empty_desc')" />
         @else
             <x-card padding="p-0">
                 <div class="px-4 py-3 border-b border-line">
                     <h3 class="text-sm font-bold uppercase tracking-wide text-navy">
-                        Roster ({{ count($roster) }} students)
+                        {{ __('messages.coach.take_attendance.roster_header', ['n' => count($roster)]) }}
                     </h3>
                 </div>
 
@@ -51,10 +51,10 @@
 
                             <div class="flex items-center gap-2 flex-wrap justify-end">
                                 @foreach ([
-                                    'present' => ['label' => 'Present', 'active' => 'bg-[#15803D] text-white border-[#15803D]'],
-                                    'no_show' => ['label' => 'No Show', 'active' => 'bg-[#B91C1C] text-white border-[#B91C1C]'],
-                                    'sick'    => ['label' => 'Sick',    'active' => 'bg-[#1D4ED8] text-white border-[#1D4ED8]'],
-                                    'permit'  => ['label' => 'Permit',  'active' => 'bg-[#B45309] text-white border-[#B45309]'],
+                                    'present' => ['label' => __('messages.coach.take_attendance.present'), 'active' => 'bg-[#15803D] text-white border-[#15803D]'],
+                                    'no_show' => ['label' => __('messages.coach.take_attendance.no_show'), 'active' => 'bg-[#B91C1C] text-white border-[#B91C1C]'],
+                                    'sick'    => ['label' => __('messages.coach.take_attendance.sick'),    'active' => 'bg-[#1D4ED8] text-white border-[#1D4ED8]'],
+                                    'permit'  => ['label' => __('messages.coach.take_attendance.permit'),  'active' => 'bg-[#B45309] text-white border-[#B45309]'],
                                 ] as $val => $cfg)
                                     <button type="button"
                                         wire:click="setStatus({{ $row['child_id'] }}, '{{ $val }}')"
@@ -73,8 +73,8 @@
                 <div class="px-4 py-4 border-t border-line">
                     <x-btn variant="success" wire:click="saveAttendance" wire:loading.attr="disabled">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                        <span wire:loading.remove wire:target="saveAttendance">Save Attendance</span>
-                        <span wire:loading wire:target="saveAttendance">Saving...</span>
+                        <span wire:loading.remove wire:target="saveAttendance">{{ __('messages.coach.take_attendance.save') }}</span>
+                        <span wire:loading wire:target="saveAttendance">{{ __('messages.common.saving') }}</span>
                     </x-btn>
                 </div>
             </x-card>

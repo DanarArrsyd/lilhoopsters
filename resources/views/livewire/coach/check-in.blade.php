@@ -14,9 +14,9 @@
 }">
     {{-- Header --}}
     <div class="mb-5">
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Check In</h2>
+        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.coach.checkin.title') }}</h2>
         <p class="text-sm text-muted">
-            {{ now()->format('l, d F Y') }} · You can check in to multiple sessions today.
+            {{ now()->format('l, d F Y') }} · {{ __('messages.coach.checkin.subtitle') }}
         </p>
     </div>
 
@@ -36,13 +36,13 @@
     @if ($allSchedules->isEmpty())
         {{-- No sessions today --}}
         <div class="bg-surface border border-line rounded-2xl p-6 text-center mb-4">
-            <p class="text-sm font-semibold text-ink mb-0.5">No sessions today</p>
-            <p class="text-xs text-faint">There are no active schedules for {{ now()->format('l') }}.</p>
+            <p class="text-sm font-semibold text-ink mb-0.5">{{ __('messages.coach.checkin.no_sessions') }}</p>
+            <p class="text-xs text-faint">{{ __('messages.coach.checkin.no_schedules', ['day' => now()->format('l')]) }}</p>
         </div>
 
         {{-- Upcoming --}}
         @if ($upcomingDate && $upcomingSchedules->isNotEmpty())
-            <p class="text-[10px] font-bold uppercase tracking-widest text-faint mb-2.5">Next Session</p>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-faint mb-2.5">{{ __('messages.coach.checkin.next_session') }}</p>
             <div class="bg-surface border border-line rounded-2xl overflow-hidden">
                 <div class="px-4 py-2.5 border-b border-line bg-off">
                     <p class="text-xs font-semibold text-navy">
@@ -59,7 +59,7 @@
                             </div>
                             <span class="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full shrink-0
                                 {{ $sched->type === 'private' ? 'bg-purple-100 text-purple-700' : 'bg-blue-50 text-blue-600' }}">
-                                {{ $sched->type }}
+                                {{ $sched->type === 'private' ? __('messages.coach.dashboard.private_badge') : __('messages.coach.dashboard.regular_badge') }}
                             </span>
                         </div>
                     @endforeach
@@ -94,7 +94,7 @@
                                         {{ $sched->program->name }}
                                     </p>
                                     @if ($isPrivate)
-                                        <span class="text-[9px] font-bold uppercase tracking-wide bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full shrink-0">Private</span>
+                                        <span class="text-[9px] font-bold uppercase tracking-wide bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full shrink-0">{{ __('messages.coach.dashboard.private_badge') }}</span>
                                     @endif
                                 </div>
                                 <p class="text-xs text-faint">
@@ -108,7 +108,7 @@
                                         @foreach ($sessionCoaches as $cs)
                                             <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full
                                                 {{ $cs->role === 'primary' ? 'bg-navy text-white' : 'bg-blue-100 text-blue-700' }}">
-                                                {{ $cs->coach->user->name }}{{ $cs->role === 'primary' ? ' · Primary' : ' · Asst.' }}
+                                                {{ $cs->coach->user->name }}{{ $cs->role === 'primary' ? ' · ' . __('messages.coach.checkin.primary_role') : ' · ' . __('messages.coach.checkin.asst_role') }}
                                             </span>
                                         @endforeach
                                     </div>
@@ -120,14 +120,14 @@
                                 <div class="flex items-center gap-2 shrink-0">
                                     <span class="text-[10px] font-bold text-[#15803D] flex items-center gap-1">
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
-                                        In
+                                        {{ __('messages.coach.checkin.checked_in') }}
                                     </span>
                                     @if ($mySession)
                                         <button type="button"
                                                 wire:click="checkOut({{ $mySession->id }})"
                                                 wire:confirm="Check out from {{ $sched->program->name }}?"
                                                 class="text-[10px] font-bold text-[#9B1C1C] bg-white border border-[#FECACA] px-2.5 py-1 rounded-full hover:bg-[#FEF2F2] transition-colors">
-                                            Out
+                                            {{ __('messages.coach.checkin.check_out') }}
                                         </button>
                                     @endif
                                 </div>
@@ -137,7 +137,7 @@
                                         wire:loading.attr="disabled"
                                         class="shrink-0 text-xs font-bold px-3 py-1.5 rounded-full transition-colors disabled:opacity-60
                                                {{ $hasPrimary ? 'bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100' : 'bg-navy text-off hover:bg-navy/90' }}">
-                                    {{ $hasPrimary ? 'Join' : 'Check In' }}
+                                    {{ $hasPrimary ? __('messages.coach.checkin.join') : __('messages.coach.checkin.btn') }}
                                 </button>
                             @endif
                         </div>
@@ -148,7 +148,7 @@
 
         @if ($activeSessions->isNotEmpty())
             <p class="text-[10px] font-bold uppercase tracking-widest text-faint mt-4 mb-1.5">
-                {{ $activeSessions->count() }} session{{ $activeSessions->count() > 1 ? 's' : '' }} active today
+                {{ trans_choice('messages.coach.checkin.active_count', $activeSessions->count(), ['n' => $activeSessions->count()]) }}
             </p>
         @endif
     @endif

@@ -5,8 +5,8 @@
 
     {{-- Header --}}
     <div class="mb-6">
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">QR Scanner</h2>
-        <p class="text-sm text-muted">Scan student QR codes to record attendance.</p>
+        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.coach.qr_scanner.title') }}</h2>
+        <p class="text-sm text-muted">{{ __('messages.coach.qr_scanner.subtitle') }}</p>
     </div>
 
     {{-- Setup card --}}
@@ -18,7 +18,7 @@
 
                 <x-select wire:model.live="scheduleId" label="Schedule" :error="$errors->first('scheduleId')">
                     <option value="">
-                        {{ $scanDate ? 'Select schedule...' : 'Pick a date first' }}
+                        {{ $scanDate ? __('messages.coach.qr_scanner.select_schedule') : __('messages.coach.qr_scanner.pick_date') }}
                     </option>
                     @foreach ($schedules as $schedule)
                         <option value="{{ $schedule->id }}">
@@ -35,12 +35,12 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
                     </svg>
-                    Activate Scanner
+                    {{ __('messages.coach.qr_scanner.activate') }}
                 </x-btn>
             @else
                 <x-btn variant="secondary" wire:click="deactivateScanner" x-on:click="stopScanner()">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                    Stop Scanner
+                    {{ __('messages.coach.qr_scanner.stop') }}
                 </x-btn>
             @endif
         </div>
@@ -53,12 +53,12 @@
             {{-- Camera viewfinder (only when scanner active) --}}
             @if ($scannerActive)
             <x-card padding="p-5">
-                <p class="text-xs font-bold uppercase tracking-wide text-navy mb-3">Camera</p>
+                <p class="text-xs font-bold uppercase tracking-wide text-navy mb-3">{{ __('messages.coach.qr_scanner.camera') }}</p>
 
                 {{-- wire:ignore keeps Livewire from touching the camera DOM on re-render --}}
                 <div id="qr-reader" wire:ignore class="w-full rounded-xl overflow-hidden border border-line"></div>
 
-                <p class="text-xs text-faint mt-2 text-center">Point the camera at a student's QR code</p>
+                <p class="text-xs text-faint mt-2 text-center">{{ __('messages.coach.qr_scanner.point_camera') }}</p>
 
                 {{-- Scan result notification — outside wire:ignore so it updates normally --}}
                 @if ($lastScanMessage)
@@ -85,15 +85,15 @@
             <x-card padding="p-5">
                 <div class="flex items-center justify-between mb-3">
                     <p class="text-xs font-bold uppercase tracking-wide text-navy">
-                        Attendance Roster
+                        {{ __('messages.coach.qr_scanner.roster') }}
                     </p>
                     <span class="text-xs font-semibold text-[#15803D] bg-[#F0FDF4] border border-[#BBF7D0] px-2 py-0.5 rounded-full">
-                        {{ $presentCount }} / {{ $roster->count() }} present
+                        {{ __('messages.coach.qr_scanner.present_count', ['a' => $presentCount, 'b' => $roster->count()]) }}
                     </span>
                 </div>
 
                 @if ($roster->isEmpty())
-                    <p class="text-sm text-faint">No enrolled students found for this schedule.</p>
+                    <p class="text-sm text-faint">{{ __('messages.coach.qr_scanner.no_students') }}</p>
                 @else
                     <div class="space-y-1.5 max-h-[420px] overflow-y-auto pr-1">
                         @foreach ($roster as $row)
@@ -111,7 +111,7 @@
                                     <span class="text-sm font-semibold text-[#15803D] flex-1 truncate">{{ $child->name }}</span>
                                     <span class="text-[10px] font-bold text-[#15803D] flex items-center gap-1 shrink-0">
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
-                                        Present
+                                        {{ __('messages.coach.qr_scanner.present') }}
                                     </span>
                                     <button type="button"
                                             wire:click="undoPresent({{ $child->id }})"
@@ -134,7 +134,7 @@
                                     <span class="text-sm text-ink flex-1 truncate">{{ $child->name }}</span>
                                     <span class="text-[10px] font-semibold text-faint shrink-0 flex items-center gap-1">
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                                        Tap to mark
+                                        {{ __('messages.coach.qr_scanner.tap_to_mark') }}
                                     </span>
                                 </button>
 
@@ -185,21 +185,20 @@
                           d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
                 </svg>
             </div>
-            <h3 class="text-base font-extrabold text-navy mb-2">Check In Required</h3>
+            <h3 class="text-base font-extrabold text-navy mb-2">{{ __('messages.coach.qr_scanner.checkin_required_title') }}</h3>
             <p class="text-sm text-gray-500 leading-relaxed">
-                You must <span class="font-semibold text-navy">check in to a session</span> before activating the QR scanner.
-                Please go to the Check-In page first.
+                {!! __('messages.coach.qr_scanner.checkin_required_body') !!}
             </p>
         </div>
 
         <div class="px-6 pb-6 grid grid-cols-2 gap-2.5">
             <button type="button" @click="showCheckinWarning = false"
                     class="py-3 rounded-xl border border-gray-200 bg-white text-navy text-sm font-bold hover:bg-gray-50 transition-colors">
-                Cancel
+                {{ __('messages.common.cancel') }}
             </button>
             <a href="{{ route('coach.checkin') }}"
                class="py-3 rounded-xl bg-navy text-off text-sm font-bold text-center hover:bg-navy/90 transition-colors">
-                Go to Check-In
+                {{ __('messages.coach.qr_scanner.go_to_checkin') }}
             </a>
         </div>
     </div>

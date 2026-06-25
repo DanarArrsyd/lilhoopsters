@@ -102,6 +102,18 @@ it('fully localises the attendance page to Indonesian', function () {
         ->assertSee('Tidak ada program aktif'); // empty state
 });
 
+it('fully localises the coach portal to Indonesian', function () {
+    $coach = User::factory()->withRole('coach')->approved()->create(['locale' => 'id']);
+
+    $this->actingAs($coach)->get(route('coach.dashboard'))
+        ->assertSee('Dasbor')
+        ->assertSee('Minggu Ini');
+
+    $this->actingAs($coach)->get(route('coach.profile'))
+        ->assertSee('Pengaturan Profil')
+        ->assertSee('Informasi Pribadi');
+});
+
 it('fully localises the My Players and News pages to Indonesian', function () {
     $this->parent->update(['locale' => 'id']);
 
