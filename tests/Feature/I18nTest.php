@@ -94,6 +94,7 @@ it('fully localises the payments page to Indonesian', function () {
         ->assertSee('Belum ada transaksi');     // empty state
 });
 
+
 it('fully localises the attendance page to Indonesian', function () {
     $this->parent->update(['locale' => 'id']);
 
