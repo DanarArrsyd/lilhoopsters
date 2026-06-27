@@ -14,7 +14,7 @@
             <div class="h-16 flex items-center gap-3 px-4 border-b border-line">
                 <img src="{{ asset('basket_logo.jpeg') }}" alt="Lil' Hoopsters" class="w-9 h-9 rounded-xl object-cover shrink-0">
                 <div>
-                    <p class="text-navy font-extrabold text-sm uppercase tracking-tight leading-tight">Lil' Hoopsters</p>
+                    <p class="text-navy font-extrabold text-base uppercase tracking-tight leading-tight sidebar-brand">Lil' Hoopsters</p>
                     <p class="text-faint text-[10px] uppercase tracking-wide">{{ __('messages.admin.panel') }}</p>
                 </div>
             </div>

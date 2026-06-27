@@ -5,7 +5,9 @@
 [x-cloak] { display: none !important; }
 
 @theme {
-    --font-sans: Arial, Helvetica, sans-serif;
+    --font-sans:    'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-heading: 'Barlow Semi Condensed', system-ui, sans-serif;
+    --font-mono:    'DM Mono', ui-monospace, monospace;
 
     /* Tighter radius scale (Tailwind defaults are too round) */
     --radius-sm:  0.125rem;  /*  2px — unchanged */
@@ -44,6 +46,21 @@
 
     * {
         -webkit-font-smoothing: antialiased;
+    }
+
+    /* Page titles: h1/h2 with uppercase+tracking → Barlow Semi Condensed */
+    h1, h2 {
+        font-family: var(--font-heading);
+    }
+
+    /* Sidebar brand name */
+    .sidebar-brand {
+        font-family: var(--font-heading);
+    }
+
+    /* Numeric data: KPI values, stat counts */
+    .font-numeric {
+        font-family: var(--font-mono);
     }
 }
 
