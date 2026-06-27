@@ -489,6 +489,90 @@
     </section>
 
     {{-- ══════════════════════════════════════════════
+         G. LEADERBOARD — top coaches + top members
+    ══════════════════════════════════════════════ --}}
+    <section>
+        <div class="flex items-center gap-2 mb-3">
+            <h2 class="text-sm font-extrabold text-navy uppercase tracking-wide">Leaderboard</h2>
+            <span class="text-[11px] text-faint">Last 30 days</span>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            {{-- Top Coaches --}}
+            <div class="bg-surface border border-line rounded-xl overflow-hidden">
+                <div class="px-5 py-3 border-b border-line flex items-center gap-2">
+                    <svg class="w-4 h-4 text-navy shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                    </svg>
+                    <span class="text-xs font-extrabold text-navy uppercase tracking-wide">Top Coaches</span>
+                    <span class="text-[11px] text-faint">by sessions led</span>
+                </div>
+                @if ($leaderboard['topCoaches']->isEmpty())
+                    <p class="px-5 py-8 text-center text-sm text-muted">No coach sessions recorded this period.</p>
+                @else
+                    <div class="divide-y divide-line">
+                        @foreach ($leaderboard['topCoaches'] as $i => $row)
+                            <div class="px-5 py-3 flex items-center gap-3">
+                                <span @class([
+                                    'w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-extrabold shrink-0',
+                                    'bg-[#F59E0B] text-white' => $i === 0,
+                                    'bg-[#9CA3AF] text-white' => $i === 1,
+                                    'bg-[#B45309] text-white' => $i === 2,
+                                    'bg-off text-faint'       => $i > 2,
+                                ])>{{ $i + 1 }}</span>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-semibold text-ink truncate">{{ $row['name'] }}</p>
+                                    <div class="mt-1 h-1.5 bg-off rounded-full overflow-hidden">
+                                        <div class="h-full bg-navy rounded-full transition-all"
+                                             style="width: {{ round($row['count'] / $leaderboard['coachMax'] * 100) }}%"></div>
+                                    </div>
+                                </div>
+                                <span class="text-sm font-extrabold text-navy shrink-0">{{ $row['count'] }}</span>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+
+            {{-- Top Members --}}
+            <div class="bg-surface border border-line rounded-xl overflow-hidden">
+                <div class="px-5 py-3 border-b border-line flex items-center gap-2">
+                    <svg class="w-4 h-4 text-navy shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <span class="text-xs font-extrabold text-navy uppercase tracking-wide">Top Members</span>
+                    <span class="text-[11px] text-faint">by attendances</span>
+                </div>
+                @if ($leaderboard['topMembers']->isEmpty())
+                    <p class="px-5 py-8 text-center text-sm text-muted">No attendance recorded this period.</p>
+                @else
+                    <div class="divide-y divide-line">
+                        @foreach ($leaderboard['topMembers'] as $i => $row)
+                            <div class="px-5 py-3 flex items-center gap-3">
+                                <span @class([
+                                    'w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-extrabold shrink-0',
+                                    'bg-[#F59E0B] text-white' => $i === 0,
+                                    'bg-[#9CA3AF] text-white' => $i === 1,
+                                    'bg-[#B45309] text-white' => $i === 2,
+                                    'bg-off text-faint'       => $i > 2,
+                                ])>{{ $i + 1 }}</span>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-semibold text-ink truncate">{{ $row['name'] }}</p>
+                                    <div class="mt-1 h-1.5 bg-off rounded-full overflow-hidden">
+                                        <div class="h-full bg-[#15803D] rounded-full transition-all"
+                                             style="width: {{ round($row['count'] / $leaderboard['memberMax'] * 100) }}%"></div>
+                                    </div>
+                                </div>
+                                <span class="text-sm font-extrabold text-[#15803D] shrink-0">{{ $row['count'] }}</span>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        </div>
+    </section>
+
+    {{-- ══════════════════════════════════════════════
          F. EVENTS — revenue, participation, attendance
     ══════════════════════════════════════════════ --}}
     <section>

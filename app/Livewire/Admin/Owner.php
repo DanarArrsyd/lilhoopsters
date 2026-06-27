@@ -2,6 +2,9 @@
 
 namespace App\Livewire\Admin;
 
+use App\Models\Attendance;
+use App\Models\Child;
+use App\Models\Coach;
 use App\Models\CoachSession;
 use App\Models\Enrollment;
 use App\Models\Event;
@@ -476,6 +479,47 @@ class Owner extends Component
         ];
     }
 
+    // ─── G. Leaderboard ──────────────────────────────────────────────
+
+    private function leaderboardData(): array
+    {
+        $since = now()->subDays(30)->toDateString();
+
+        // Top coaches: most sessions led in last 30 days
+        $topCoaches = CoachSession::selectRaw('coach_id, COUNT(*) as sessions')
+            ->where('session_date', '>=', $since)
+            ->groupBy('coach_id')
+            ->orderByDesc('sessions')
+            ->limit(5)
+            ->with('coach.user')
+            ->get()
+            ->map(fn($row) => [
+                'name'    => $row->coach?->user?->name ?? 'Unknown',
+                'count'   => $row->sessions,
+                'sub'     => $row->sessions . ' ' . ($row->sessions === 1 ? 'session' : 'sessions'),
+            ]);
+
+        // Top members: most present attendance in last 30 days
+        $topMembers = Attendance::selectRaw('child_id, COUNT(*) as sessions')
+            ->where('status', 'present')
+            ->where('attended_at', '>=', $since)
+            ->groupBy('child_id')
+            ->orderByDesc('sessions')
+            ->limit(5)
+            ->with('child')
+            ->get()
+            ->map(fn($row) => [
+                'name'  => $row->child?->name ?? 'Unknown',
+                'count' => $row->sessions,
+                'sub'   => $row->sessions . ' ' . ($row->sessions === 1 ? 'attendance' : 'attendances'),
+            ]);
+
+        $coachMax  = $topCoaches->max('count') ?: 1;
+        $memberMax = $topMembers->max('count') ?: 1;
+
+        return compact('topCoaches', 'topMembers', 'coachMax', 'memberMax');
+    }
+
     public function render()
     {
         $renewal  = $this->renewalData();
@@ -484,13 +528,14 @@ class Owner extends Component
         $leads    = $this->leadData();
 
         return view('livewire.admin.owner', [
-            'renewal'  => $renewal,
-            'ar'       => $ar,
-            'payroll'  => $this->payrollData(),
-            'capacity' => $capacity,
-            'leads'    => $leads,
-            'events'   => $this->eventsData(),
-            'insights' => $this->insightsData($renewal, $ar, $capacity, $leads),
+            'renewal'     => $renewal,
+            'ar'          => $ar,
+            'payroll'     => $this->payrollData(),
+            'capacity'    => $capacity,
+            'leads'       => $leads,
+            'events'      => $this->eventsData(),
+            'insights'    => $this->insightsData($renewal, $ar, $capacity, $leads),
+            'leaderboard' => $this->leaderboardData(),
         ]);
     }
 }
