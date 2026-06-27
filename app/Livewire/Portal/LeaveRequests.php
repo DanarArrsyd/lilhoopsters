@@ -10,10 +10,10 @@ use Livewire\Component;
 
 class LeaveRequests extends Component
 {
-
     public string $filterChildId = '';
 
     public bool   $showForm        = false;
+    public int    $step            = 1;
     public ?int   $selectedChildId = null;
     public ?int   $enrollmentId    = null;
     public string $leaveDate       = '';
@@ -32,17 +32,42 @@ class LeaveRequests extends Component
 
     public function openCreate(): void
     {
+        $this->step            = 1;
         $this->selectedChildId = null;
         $this->enrollmentId    = null;
         $this->leaveDate       = '';
         $this->type            = '';
         $this->reason          = '';
+        $this->resetErrorBag();
         $this->showForm        = true;
     }
 
     public function cancel(): void
     {
         $this->showForm = false;
+    }
+
+    public function nextStep(): void
+    {
+        if ($this->step === 1) {
+            $this->validate(['selectedChildId' => 'required|integer']);
+            $this->step = 2;
+            return;
+        }
+
+        if ($this->step === 2) {
+            $this->validate([
+                'enrollmentId' => 'required|integer',
+                'leaveDate'    => 'required|date|after_or_equal:' . now()->subDays(7)->toDateString() . '|before_or_equal:today',
+                'type'         => 'required|in:sick,permit',
+            ]);
+            $this->step = 3;
+        }
+    }
+
+    public function prevStep(): void
+    {
+        if ($this->step > 1) $this->step--;
     }
 
     public function submit(): void
@@ -67,6 +92,7 @@ class LeaveRequests extends Component
             ->exists();
 
         if ($exists) {
+            $this->step = 2;
             $this->addError('leaveDate', 'A leave request for this date already exists.');
             return;
         }
@@ -126,8 +152,14 @@ class LeaveRequests extends Component
             ->orderBy('leave_date', 'desc')
             ->get();
 
+        // Selected enrollment for step 3 summary
+        $selectedEnrollment = $this->enrollmentId
+            ? $enrollmentsByChild->firstWhere('id', $this->enrollmentId)
+            : null;
+
         return view('livewire.portal.leave-requests', compact(
-            'enrollmentsByChild', 'hasProgramEnrollments', 'leaveRequests', 'children'
+            'enrollmentsByChild', 'hasProgramEnrollments', 'leaveRequests',
+            'children', 'selectedEnrollment'
         ));
     }
 }

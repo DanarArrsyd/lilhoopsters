@@ -112,91 +112,282 @@
 
     @endif
 
-    {{-- Form modal --}}
+    {{-- 3-Step Wizard Modal --}}
     @if ($showForm)
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-navy/40" wire:click="cancel"></div>
-        <div class="relative bg-surface rounded-2xl border border-line shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <div class="sticky top-0 bg-surface flex items-center justify-between px-6 py-4 border-b border-line z-10">
-                <h3 class="text-lg font-extrabold uppercase tracking-tight text-navy">{{ __('messages.leaves.form_title') }}</h3>
-                <button wire:click="cancel" class="text-muted hover:text-navy p-1 leading-none">&#x2715;</button>
+    <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4">
+        <div class="absolute inset-0 bg-navy/50" wire:click="cancel"></div>
+        <div class="relative bg-surface w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+
+            {{-- Progress bar --}}
+            <div class="h-1 bg-line">
+                <div class="h-full bg-navy transition-all duration-500 ease-out"
+                     style="width: {{ round($step / 3 * 100) }}%"></div>
             </div>
-            <div class="p-6 space-y-4">
-                {{-- 1. Player --}}
-                <x-select wire:model.live="selectedChildId" :label="__('messages.leaves.player')" required
-                          :error="$errors->first('selectedChildId')">
-                    <option value="">{{ __('messages.leaves.select_player') }}</option>
-                    @foreach ($children as $child)
-                        <option value="{{ $child->id }}">{{ $child->name }}</option>
-                    @endforeach
-                </x-select>
 
-                {{-- 2. Enrollment / Package --}}
-                <x-select wire:model="enrollmentId" :label="__('messages.leaves.enrollment')" required
-                          :error="$errors->first('enrollmentId')"
-                          :disabled="!$selectedChildId">
-                    <option value="">{{ $selectedChildId ? __('messages.leaves.select_enrollment') : __('messages.leaves.select_player_first') }}</option>
-                    @foreach ($enrollmentsByChild as $en)
-                        <option value="{{ $en->id }}">
-                            {{ $en->schedule->program->name }}
-                            ({{ ucfirst($en->schedule->day_of_week) }}, {{ $en->schedule->location->name }})
-                        </option>
+            {{-- Header --}}
+            <div class="flex items-center justify-between px-5 py-4 border-b border-line">
+                <div class="flex items-center gap-3">
+                    {{-- Step dots --}}
+                    @foreach ([1,2,3] as $s)
+                        <div @class([
+                            'flex items-center gap-1.5',
+                            '' => !$loop->last,
+                        ])>
+                            <div @class([
+                                'w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold transition-all',
+                                'bg-navy text-white'        => $step === $s,
+                                'bg-[#15803D] text-white'   => $step > $s,
+                                'bg-line text-faint'        => $step < $s,
+                            ])>
+                                @if ($step > $s)
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                @else
+                                    {{ $s }}
+                                @endif
+                            </div>
+                            @if (!$loop->last)
+                                <div class="w-6 h-px {{ $step > $s ? 'bg-[#15803D]/40' : 'bg-line' }}"></div>
+                            @endif
+                        </div>
                     @endforeach
-                </x-select>
-
-                {{-- 3. Leave Date --}}
-                <div class="space-y-1">
-                    <x-input type="date" wire:model="leaveDate" :label="__('messages.leaves.leave_date')"
-                             min="{{ now()->subDays(7)->toDateString() }}"
-                             max="{{ now()->toDateString() }}"
-                             required :error="$errors->first('leaveDate')" />
-                    <p class="text-[11px] text-faint">{{ __('messages.leaves.date_hint') }}</p>
+                    <span class="text-xs text-muted ml-1">
+                        {{ ['Who?', 'When & Why?', 'Confirm'][$step - 1] }}
+                    </span>
                 </div>
+                <button wire:click="cancel" class="w-7 h-7 flex items-center justify-center rounded-full text-muted hover:text-navy hover:bg-off transition-colors text-lg leading-none">&#x2715;</button>
+            </div>
 
-                {{-- 4. Type --}}
-                <div class="space-y-1.5">
-                    <label class="block text-xs font-semibold uppercase tracking-wide text-navy">
-                        {{ __('messages.leaves.type') }} <span class="text-[#B91C1C]">*</span>
-                    </label>
-                    <div class="flex gap-4">
-                        <label class="flex items-center gap-2 cursor-pointer text-sm text-ink">
-                            <input type="radio" wire:model="type" value="sick" class="accent-navy"> {{ __('messages.leaves.type_sick') }}
-                        </label>
-                        <label class="flex items-center gap-2 cursor-pointer text-sm text-ink">
-                            <input type="radio" wire:model="type" value="permit" class="accent-navy"> {{ __('messages.leaves.type_permit') }}
-                        </label>
+            {{-- Step content --}}
+            <div class="flex-1 overflow-y-auto">
+
+                {{-- ── STEP 1: Pick child ── --}}
+                @if ($step === 1)
+                <div class="p-5">
+                    <p class="text-sm font-semibold text-ink mb-4">Select the player for this leave request:</p>
+                    <div class="space-y-2">
+                        @foreach ($children as $child)
+                            <button type="button"
+                                    wire:click="$set('selectedChildId', {{ $child->id }})"
+                                    @class([
+                                        'w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all text-left',
+                                        'border-navy bg-navy/5'    => $selectedChildId == $child->id,
+                                        'border-line hover:border-navy/30 hover:bg-off' => $selectedChildId != $child->id,
+                                    ])>
+                                <div class="w-10 h-10 rounded-full bg-navy flex items-center justify-center text-off font-bold text-sm shrink-0">
+                                    {{ strtoupper(substr($child->name, 0, 1)) }}
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-semibold text-ink text-sm">{{ $child->name }}</p>
+                                    <p class="text-xs text-muted">{{ $child->birth_date?->format('d M Y') ?? '' }}</p>
+                                </div>
+                                @if ($selectedChildId == $child->id)
+                                    <svg class="w-5 h-5 text-navy shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                @endif
+                            </button>
+                        @endforeach
                     </div>
-                    @error('type') <p class="text-xs text-[#B91C1C]">{{ $message }}</p> @enderror
+                    @error('selectedChildId')
+                        <p class="text-xs text-[#B91C1C] mt-2">{{ $message }}</p>
+                    @enderror
                 </div>
 
-                {{-- 5. Reason --}}
-                <div class="space-y-1.5">
-                    <label class="block text-xs font-semibold uppercase tracking-wide text-navy">{{ __('messages.leaves.reason') }}</label>
-                    <textarea wire:model="reason" rows="3"
-                              class="block w-full rounded-xl border border-line bg-surface px-3.5 py-3 text-sm text-ink placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-navy/15 focus:border-navy resize-none"
-                              placeholder="{{ __('messages.leaves.reason_ph') }}"></textarea>
+                {{-- ── STEP 2: Schedule + date + type ── --}}
+                @elseif ($step === 2)
+                <div class="p-5 space-y-5">
+
+                    {{-- Schedule cards --}}
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wide text-navy mb-2">Class / Schedule</p>
+                        @if ($enrollmentsByChild->isEmpty())
+                            <p class="text-sm text-muted py-4 text-center">No active enrollments for this player.</p>
+                        @else
+                            <div class="space-y-2">
+                                @foreach ($enrollmentsByChild as $en)
+                                    <button type="button"
+                                            wire:click="$set('enrollmentId', {{ $en->id }})"
+                                            @class([
+                                                'w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all text-left',
+                                                'border-navy bg-navy/5'    => $enrollmentId == $en->id,
+                                                'border-line hover:border-navy/30 hover:bg-off' => $enrollmentId != $en->id,
+                                            ])>
+                                        <div class="w-9 h-9 rounded-lg bg-navy/10 flex items-center justify-center shrink-0">
+                                            <svg class="w-4 h-4 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="font-semibold text-ink text-sm">{{ $en->schedule->program->name }}</p>
+                                            <p class="text-xs text-muted">{{ ucfirst($en->schedule->day_of_week) }} · {{ $en->schedule->location->name }}</p>
+                                        </div>
+                                        @if ($enrollmentId == $en->id)
+                                            <svg class="w-5 h-5 text-navy shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                        @endif
+                                    </button>
+                                @endforeach
+                            </div>
+                        @endif
+                        @error('enrollmentId') <p class="text-xs text-[#B91C1C] mt-1">{{ $message }}</p> @enderror
+                    </div>
+
+                    {{-- Date --}}
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wide text-navy mb-2">Leave Date</p>
+                        <x-input type="date" wire:model="leaveDate"
+                                 min="{{ now()->subDays(7)->toDateString() }}"
+                                 max="{{ now()->toDateString() }}"
+                                 :error="$errors->first('leaveDate')" />
+                        <p class="text-[11px] text-faint mt-1">{{ __('messages.leaves.date_hint') }}</p>
+                    </div>
+
+                    {{-- Type toggle --}}
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wide text-navy mb-2">Leave Type <span class="text-[#B91C1C]">*</span></p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" wire:click="$set('type','sick')"
+                                    @class([
+                                        'flex flex-col items-center gap-1.5 py-3.5 px-3 rounded-xl border-2 transition-all',
+                                        'border-amber-500 bg-amber-50'       => $type === 'sick',
+                                        'border-line hover:border-amber-300' => $type !== 'sick',
+                                    ])>
+                                <svg class="w-6 h-6 {{ $type === 'sick' ? 'text-amber-600' : 'text-muted' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                </svg>
+                                <span class="text-sm font-semibold {{ $type === 'sick' ? 'text-amber-700' : 'text-muted' }}">{{ __('messages.leaves.type_sick') }}</span>
+                            </button>
+                            <button type="button" wire:click="$set('type','permit')"
+                                    @class([
+                                        'flex flex-col items-center gap-1.5 py-3.5 px-3 rounded-xl border-2 transition-all',
+                                        'border-navy bg-navy/5'                => $type === 'permit',
+                                        'border-line hover:border-navy/30'     => $type !== 'permit',
+                                    ])>
+                                <svg class="w-6 h-6 {{ $type === 'permit' ? 'text-navy' : 'text-muted' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                <span class="text-sm font-semibold {{ $type === 'permit' ? 'text-navy' : 'text-muted' }}">{{ __('messages.leaves.type_permit') }}</span>
+                            </button>
+                        </div>
+                        @error('type') <p class="text-xs text-[#B91C1C] mt-1">{{ $message }}</p> @enderror
+                    </div>
                 </div>
 
-                <div class="p-3 bg-navy/8 rounded-xl border border-navy/20">
-                    <p class="text-xs text-navy font-semibold">{{ __('messages.leaves.auto_title') }}</p>
-                    <p class="text-xs text-navy/70 mt-0.5">{{ __('messages.leaves.auto_desc') }}</p>
+                {{-- ── STEP 3: Confirm ── --}}
+                @else
+                <div class="p-5 space-y-4">
+
+                    {{-- Summary card --}}
+                    <div class="bg-navy rounded-xl p-4 text-off">
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-off/50 mb-3">Summary</p>
+                        <div class="space-y-2.5">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-off/10 flex items-center justify-center text-xs font-bold shrink-0">
+                                    {{ strtoupper(substr($children->firstWhere('id', $selectedChildId)?->name ?? '?', 0, 1)) }}
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-off/50 uppercase tracking-wide">Player</p>
+                                    <p class="text-sm font-semibold">{{ $children->firstWhere('id', $selectedChildId)?->name ?? '—' }}</p>
+                                </div>
+                            </div>
+                            @if ($selectedEnrollment)
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-off/10 flex items-center justify-center shrink-0">
+                                    <svg class="w-4 h-4 text-off/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-off/50 uppercase tracking-wide">Class</p>
+                                    <p class="text-sm font-semibold">{{ $selectedEnrollment->schedule->program->name }}</p>
+                                    <p class="text-xs text-off/60">{{ ucfirst($selectedEnrollment->schedule->day_of_week) }} · {{ $selectedEnrollment->schedule->location->name }}</p>
+                                </div>
+                            </div>
+                            @endif
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-off/10 flex items-center justify-center shrink-0">
+                                    <svg class="w-4 h-4 text-off/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-off/50 uppercase tracking-wide">Date</p>
+                                    <p class="text-sm font-semibold">{{ $leaveDate ? \Carbon\Carbon::parse($leaveDate)->format('l, d M Y') : '—' }}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full {{ $type === 'sick' ? 'bg-amber-400/20' : 'bg-off/10' }} flex items-center justify-center shrink-0">
+                                    <svg class="w-4 h-4 {{ $type === 'sick' ? 'text-amber-300' : 'text-off/70' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-off/50 uppercase tracking-wide">Type</p>
+                                    <p class="text-sm font-semibold capitalize">{{ $type ?: '—' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Reason (optional) --}}
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wide text-navy mb-1.5">
+                            {{ __('messages.leaves.reason') }}
+                            <span class="text-faint font-normal normal-case tracking-normal">(optional)</span>
+                        </label>
+                        <textarea wire:model="reason" rows="3"
+                                  class="block w-full rounded-xl border border-line bg-surface px-3.5 py-3 text-sm text-ink placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-navy/15 focus:border-navy resize-none"
+                                  placeholder="{{ __('messages.leaves.reason_ph') }}"></textarea>
+                    </div>
+
+                    {{-- Auto-approve notice --}}
+                    <div class="flex items-start gap-2.5 p-3 bg-navy/5 rounded-xl border border-navy/15">
+                        <svg class="w-4 h-4 text-navy shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <div>
+                            <p class="text-xs font-semibold text-navy">{{ __('messages.leaves.auto_title') }}</p>
+                            <p class="text-xs text-muted mt-0.5">{{ __('messages.leaves.auto_desc') }}</p>
+                        </div>
+                    </div>
                 </div>
+                @endif
             </div>
-            <div class="flex gap-3 px-6 pb-6">
-                <x-btn variant="secondary" class="flex-1" wire:click="cancel">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                    {{ __('messages.common.cancel') }}
-                </x-btn>
-                <x-btn class="flex-1" wire:click="submit" wire:loading.attr="disabled">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
-                    </svg>
-                    <span wire:loading.remove wire:target="submit">{{ __('messages.common.submit') }}</span>
-                    <span wire:loading wire:target="submit">{{ __('messages.common.submitting') }}</span>
-                </x-btn>
+
+            {{-- Footer nav --}}
+            <div class="flex gap-2 px-5 py-4 border-t border-line bg-surface">
+                @if ($step > 1)
+                    <x-btn variant="secondary" wire:click="prevStep" class="flex-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                        Back
+                    </x-btn>
+                @else
+                    <x-btn variant="secondary" wire:click="cancel" class="flex-1">Cancel</x-btn>
+                @endif
+
+                @if ($step < 3)
+                    <x-btn wire:click="nextStep" class="flex-1">
+                        Next
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </x-btn>
+                @else
+                    <x-btn wire:click="submit" wire:loading.attr="disabled" class="flex-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span wire:loading.remove wire:target="submit">{{ __('messages.common.submit') }}</span>
+                        <span wire:loading wire:target="submit">{{ __('messages.common.submitting') }}</span>
+                    </x-btn>
+                @endif
             </div>
+
         </div>
     </div>
     @endif
