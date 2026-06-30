@@ -63,6 +63,6 @@ it('groups schedules by day', function () {
 
     Livewire::actingAs($this->coachUser)
         ->test(Schedules::class)
-        ->assertSee('monday')
-        ->assertSee('wednesday');
+        ->assertSee(__('messages.coach.days.monday'))
+        ->assertSee(__('messages.coach.days.wednesday'));
 });
