@@ -27,6 +27,7 @@ class Leads extends Component
     public string $status      = 'new';
     public string $trial_date  = '';
     public string $notes       = '';
+    public int    $step        = 1;
 
     protected function rules(): array
     {
@@ -45,6 +46,19 @@ class Leads extends Component
 
     public function updatingSearch(): void       { $this->resetPage(); }
     public function updatingStatusFilter(): void { $this->resetPage(); }
+
+    public function nextStep(): void
+    {
+        if ($this->step === 1) {
+            $this->validateOnly(['parent_name']);
+            $this->step = 2;
+        }
+    }
+
+    public function prevStep(): void
+    {
+        if ($this->step > 1) $this->step--;
+    }
 
     public function openCreate(): void
     {
@@ -65,6 +79,7 @@ class Leads extends Component
         $this->status      = $lead->status;
         $this->trial_date  = $lead->trial_date?->toDateString() ?? '';
         $this->notes       = $lead->notes ?? '';
+        $this->step        = 1;
         $this->showModal   = true;
     }
 
@@ -115,6 +130,7 @@ class Leads extends Component
 
     public function resetForm(): void
     {
+        $this->step        = 1;
         $this->editingId   = null;
         $this->parent_name = '';
         $this->child_name  = '';

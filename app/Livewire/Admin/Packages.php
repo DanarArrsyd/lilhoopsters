@@ -11,22 +11,23 @@ class Packages extends Component
 {
     use WithPagination;
 
-    public string $search         = '';
-    public ?int $filterLocation   = null;
-    public bool $showModal        = false;
-    public ?int $editingId        = null;
+    public string $search        = '';
+    public ?int   $filterLocation = null;
+    public bool   $showModal     = false;
+    public int    $step          = 1;
+    public ?int   $editingId     = null;
 
-    public ?int $location_id      = null;
-    public string $name           = '';
-    public string $type           = 'registration';
-    public int $price             = 0;
-    public ?int $session_count    = null;
-    public ?int $validity_days    = null;
-    public string $period_start   = '';
-    public string $period_end     = '';
-    public string $description    = '';
-    public bool $is_active        = true;
-    public bool $is_popular       = false;
+    public ?int   $location_id   = null;
+    public string $name          = '';
+    public string $type          = 'registration';
+    public int    $price         = 0;
+    public ?int   $session_count = null;
+    public ?int   $validity_days = null;
+    public string $period_start  = '';
+    public string $period_end    = '';
+    public string $description   = '';
+    public bool   $is_active     = true;
+    public bool   $is_popular    = false;
 
     protected function rules(): array
     {
@@ -41,7 +42,7 @@ class Packages extends Component
         ];
     }
 
-    public function updatingSearch(): void        { $this->resetPage(); }
+    public function updatingSearch(): void         { $this->resetPage(); }
     public function updatingFilterLocation(): void { $this->resetPage(); }
 
     public function openCreate(): void
@@ -65,7 +66,24 @@ class Packages extends Component
         $this->description   = $pkg->description ?? '';
         $this->is_active     = $pkg->is_active;
         $this->is_popular    = $pkg->is_popular;
+        $this->step          = 1;
         $this->showModal     = true;
+    }
+
+    public function nextStep(): void
+    {
+        $this->validate([
+            'location_id' => 'required|integer|exists:locations,id',
+            'name'        => 'required|string|max:255',
+            'type'        => 'required|in:registration,regular,drop_in,private',
+            'price'       => 'required|integer|min:1',
+        ]);
+        $this->step = 2;
+    }
+
+    public function back(): void
+    {
+        if ($this->step > 1) $this->step--;
     }
 
     public function save(): void
@@ -79,7 +97,6 @@ class Packages extends Component
             'price'         => $this->price,
             'session_count' => $this->session_count,
             'validity_days' => $this->validity_days,
-            // Regular packages use validity_days; period_start/end are not used
             'period_start'  => $this->type === 'regular' ? null : ($this->period_start ?: null),
             'period_end'    => $this->type === 'regular' ? null : ($this->period_end ?: null),
             'description'   => $this->description ?: null,
@@ -114,6 +131,7 @@ class Packages extends Component
     public function resetForm(): void
     {
         $this->editingId     = null;
+        $this->step          = 1;
         $this->location_id   = null;
         $this->name          = '';
         $this->type          = 'registration';
@@ -137,7 +155,6 @@ class Packages extends Component
             ->when($this->search, fn($q) => $q->where('name', 'like', "%{$this->search}%"))
             ->get();
 
-        // Group by location, ordered by type then price within each location.
         $groups = $packages
             ->groupBy('location_id')
             ->map(fn($items) => $items

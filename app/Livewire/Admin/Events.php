@@ -17,6 +17,7 @@ class Events extends Component
 
     public string $search    = '';
     public bool $showModal   = false;
+    public int  $step        = 1;
     public ?int $editingId   = null;
 
     public string $name           = '';
@@ -71,7 +72,23 @@ class Events extends Component
         $this->is_registerable = $event->is_registerable;
         $this->price           = $event->price;
         $this->capacity        = $event->capacity;
+        $this->step            = 1;
         $this->showModal       = true;
+    }
+
+    public function nextStep(): void
+    {
+        $this->validate([
+            'name'       => 'required|string|max:255',
+            'start_date' => 'required|date',
+            'end_date'   => 'required|date|after_or_equal:start_date',
+        ]);
+        $this->step = 2;
+    }
+
+    public function back(): void
+    {
+        if ($this->step > 1) $this->step--;
     }
 
     public function save(): void
@@ -136,6 +153,7 @@ class Events extends Component
     public function resetForm(): void
     {
         $this->editingId   = null;
+        $this->step        = 1;
         $this->name        = '';
         $this->description = '';
         $this->start_date  = '';

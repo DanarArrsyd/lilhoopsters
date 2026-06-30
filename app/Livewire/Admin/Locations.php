@@ -10,15 +10,16 @@ class Locations extends Component
 {
     use WithPagination;
 
-    public string $search   = '';
-    public bool $showModal  = false;
-    public ?int $editingId  = null;
+    public string $search    = '';
+    public bool   $showModal = false;
+    public int    $step      = 1;
+    public ?int   $editingId = null;
 
-    public string $name     = '';
-    public string $address  = '';
-    public string $city     = 'Jakarta';
-    public string $maps_url = '';
-    public bool $is_active  = true;
+    public string $name      = '';
+    public string $address   = '';
+    public string $city      = 'Jakarta';
+    public string $maps_url  = '';
+    public bool   $is_active = true;
 
     protected function rules(): array
     {
@@ -50,7 +51,22 @@ class Locations extends Component
         $this->city      = $loc->city;
         $this->maps_url  = $loc->maps_url ?? '';
         $this->is_active = $loc->is_active;
+        $this->step      = 1;
         $this->showModal = true;
+    }
+
+    public function nextStep(): void
+    {
+        $this->validate([
+            'name' => 'required|string|max:255',
+            'city' => 'required|string|max:100',
+        ]);
+        $this->step = 2;
+    }
+
+    public function back(): void
+    {
+        if ($this->step > 1) $this->step--;
     }
 
     public function save(): void
@@ -92,6 +108,7 @@ class Locations extends Component
     public function resetForm(): void
     {
         $this->editingId = null;
+        $this->step      = 1;
         $this->name      = '';
         $this->address   = '';
         $this->city      = 'Jakarta';

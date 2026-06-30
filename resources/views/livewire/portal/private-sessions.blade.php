@@ -88,7 +88,7 @@
                         1 => $selectedChild ? \Illuminate\Support\Str::limit($selectedChild->name, 10) : 'Player',
                         2 => $selectedLocation ? \Illuminate\Support\Str::limit($selectedLocation->name, 10) : 'Location',
                         3 => $selectedCoach ? \Illuminate\Support\Str::limit($selectedCoach->user?->name ?? 'Coach', 10) : 'Coach',
-                        4 => $selectedPackage ? \Illuminate\Support\Str::limit($selectedPackage->name, 10) : 'Package',
+                        4 => $selectedPackage ? \Illuminate\Support\Str::limit($selectedPackage->name, 10) : ($selectedDay ? ucfirst($selectedDay) : 'Schedule'),
                         5 => 'Confirm',
                     ];
                 @endphp
@@ -255,42 +255,93 @@
                         </div>
                     @endif
 
-                {{-- ════════ STEP 4: Package + Time slot ════════ --}}
-                @elseif ($step === 4)
+                {{-- ════════ STEP 4a: Pick a day ════════ --}}
+                @elseif ($step === 4 && !$selectedDay)
 
                     <h1 class="text-xl sm:text-2xl font-extrabold text-navy leading-tight mb-1">
-                        Pick a time slot and package.
+                        Pick a day.
                     </h1>
                     <p class="text-xs text-gray-400 mb-5">
                         {{ $selectedCoach?->user?->name ?? 'Coach' }} · {{ $selectedLocation?->name }}
                     </p>
 
-                    {{-- Select time slot --}}
+                    @if ($availableDays->isEmpty())
+                        <div class="py-10 text-center border-2 border-dashed border-gray-100 rounded-2xl">
+                            <p class="text-sm font-semibold text-gray-500 mb-1">No slots available</p>
+                            <p class="text-xs text-gray-400">This coach has no private slots at this location.</p>
+                        </div>
+                    @else
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            @foreach ($availableDays as $day)
+                                @php
+                                    $daySlots  = $scheduleSlots->filter(fn($s) => $s['schedule']->day_of_week === $day);
+                                    $availCnt  = $daySlots->where('available', true)->count();
+                                    $totalCnt  = $daySlots->count();
+                                @endphp
+                                <button wire:click="selectDay('{{ $day }}')" wire:loading.attr="disabled"
+                                        class="group block text-left w-full">
+                                    <div class="bg-white border-2 border-gray-100 rounded-xl p-4 flex items-center gap-3 transition-all duration-200 hover:border-navy/40 hover:shadow-sm">
+                                        <div class="w-10 h-10 rounded-xl bg-navy/8 text-navy flex items-center justify-center shrink-0 group-hover:bg-navy group-hover:text-white transition-colors duration-200">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="font-bold text-gray-900 text-sm">{{ ucfirst($day) }}</p>
+                                            <p class="text-[11px] text-gray-400 mt-0.5">
+                                                {{ $totalCnt }} slot{{ $totalCnt !== 1 ? 's' : '' }}
+                                                @if ($availCnt > 0)
+                                                    · <span class="text-green-600 font-semibold">{{ $availCnt }} open</span>
+                                                @else
+                                                    · <span class="text-red-400 font-semibold">Full</span>
+                                                @endif
+                                            </p>
+                                        </div>
+                                        <svg class="w-3.5 h-3.5 text-gray-300 group-hover:text-navy group-hover:translate-x-0.5 transition-all duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                    </div>
+                                </button>
+                            @endforeach
+                        </div>
+                    @endif
+
+                {{-- ════════ STEP 4b: Pick a time slot + package ════════ --}}
+                @elseif ($step === 4 && $selectedDay)
+
+                    <h1 class="text-xl sm:text-2xl font-extrabold text-navy leading-tight mb-1">
+                        Pick a time slot.
+                    </h1>
+                    <p class="text-xs text-gray-400 mb-5">
+                        {{ ucfirst($selectedDay) }} · {{ $selectedCoach?->user?->name ?? 'Coach' }} · {{ $selectedLocation?->name }}
+                    </p>
+
+                    {{-- Time slots for selected day --}}
                     <div class="mb-6">
-                        <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2.5">Time slot</p>
-                        @if ($scheduleSlots->isEmpty())
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2.5">Available times</p>
+                        @if ($timeSlotsForDay->isEmpty())
                             <div class="py-7 text-center border-2 border-dashed border-gray-100 rounded-xl">
-                                <p class="text-sm text-gray-400">This coach has no private slots at this location.</p>
+                                <p class="text-sm text-gray-400">No slots on {{ ucfirst($selectedDay) }}.</p>
                             </div>
                         @else
                             <div class="space-y-2.5">
-                                @foreach ($scheduleSlots as $slot)
+                                @foreach ($timeSlotsForDay as $slot)
                                     @php $s = $slot['schedule']; $sel = $selectedScheduleId === $s->id; @endphp
                                     <button
                                         @if ($slot['available']) wire:click="selectSchedule({{ $s->id }})" wire:loading.attr="disabled" @endif
                                         class="group block text-left w-full {{ !$slot['available'] ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer' }}">
                                         <div @class([
                                             'bg-white border-2 rounded-xl p-4 transition-all duration-200',
-                                            'border-navy bg-navy/[0.03] shadow-sm'              => $slot['available'] && $sel,
+                                            'border-navy bg-navy/[0.03] shadow-sm'                 => $slot['available'] && $sel,
                                             'border-gray-100 hover:border-navy/40 hover:shadow-sm' => $slot['available'] && !$sel,
-                                            'border-gray-100'                                    => !$slot['available'],
+                                            'border-gray-100'                                      => !$slot['available'],
                                         ])>
                                             <div class="flex items-start justify-between gap-2 mb-2">
                                                 <div class="min-w-0">
                                                     <p class="font-bold text-gray-900 text-sm truncate">
-                                                        {{ ucfirst($s->day_of_week) }} · {{ substr($s->start_time, 0, 5) }}–{{ substr($s->end_time, 0, 5) }}
+                                                        {{ substr($s->start_time, 0, 5) }}–{{ substr($s->end_time, 0, 5) }}
                                                     </p>
-                                                    <p class="text-[11px] text-gray-400 mt-0.5">{{ $s->program->name }}</p>
                                                 </div>
                                                 @if (!$slot['available'])
                                                     <span class="shrink-0 text-[9px] bg-red-50 text-red-500 px-2 py-1 rounded-lg font-bold uppercase">Full</span>
