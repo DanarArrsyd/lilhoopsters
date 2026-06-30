@@ -54,7 +54,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                 </svg>
             </button>
-            <h1 class="flex-1 text-sm font-bold uppercase tracking-wide text-navy">Enroll Player</h1>
+            <h1 class="flex-1 text-sm font-bold uppercase tracking-wide text-navy">Regular Sessions</h1>
             <span class="text-[11px] text-gray-400 font-medium tabular-nums">{{ $step }} / {{ $totalSteps }}</span>
         </header>
 

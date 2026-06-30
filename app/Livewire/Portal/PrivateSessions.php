@@ -18,12 +18,13 @@ class PrivateSessions extends Component
 {
     public int $step = 1; // 1=player, 2=location, 3=coach, 4=package+slot, 5=confirm
 
-    public ?int $selectedChildId     = null;
-    public ?int $selectedLocationId  = null;
-    public ?int $selectedCoachId     = null;
-    public ?int $selectedScheduleId  = null;
-    public ?int $selectedPackageId   = null;
-    public string $previewTrxCode    = '';
+    public ?int    $selectedChildId    = null;
+    public ?int    $selectedLocationId = null;
+    public ?int    $selectedCoachId    = null;
+    public ?string $selectedDay        = null;
+    public ?int    $selectedScheduleId = null;
+    public ?int    $selectedPackageId  = null;
+    public string  $previewTrxCode     = '';
 
     public function selectChild(int $childId): void
     {
@@ -47,24 +48,38 @@ class PrivateSessions extends Component
     public function selectCoach(int $coachId): void
     {
         $this->selectedCoachId    = $coachId;
+        $this->selectedDay        = null;
         $this->selectedScheduleId = null;
         $this->selectedPackageId  = null;
         $this->step = 4;
     }
 
+    public function selectDay(string $day): void
+    {
+        $this->selectedDay        = $day;
+        $this->selectedScheduleId = null;
+    }
+
     public function selectSchedule(int $scheduleId): void
     {
-        // Step 4: the time slot is picked alongside the package, so this only
-        // records the choice without advancing the wizard.
         $this->selectedScheduleId = $scheduleId;
     }
 
     public function back(): void
     {
         if ($this->step <= 1) return;
+
+        // Step 4b → 4a: clear chosen day without decrementing step
+        if ($this->step === 4 && $this->selectedDay !== null) {
+            $this->selectedDay        = null;
+            $this->selectedScheduleId = null;
+            return;
+        }
+
         $this->step--;
 
         if ($this->step < 4) {
+            $this->selectedDay        = null;
             $this->selectedScheduleId = null;
             $this->selectedPackageId  = null;
         }
@@ -177,6 +192,8 @@ class PrivateSessions extends Component
 
         $coaches          = collect();
         $scheduleSlots    = collect();
+        $availableDays    = collect();
+        $timeSlotsForDay  = collect();
         $packages         = collect();
         $selectedLocation = null;
         $selectedCoach    = null;
@@ -203,7 +220,7 @@ class PrivateSessions extends Component
                 ->where('is_active', true)
                 ->where('location_id', $this->selectedLocationId)
                 ->where('coach_id', $this->selectedCoachId)
-                ->with(['coach.user', 'program'])
+                ->with(['coach.user'])
                 ->orderByRaw("FIELD(day_of_week,'monday','tuesday','wednesday','thursday','friday','saturday','sunday')")
                 ->orderBy('start_time')
                 ->get()
@@ -221,6 +238,21 @@ class PrivateSessions extends Component
                     ];
                 });
 
+            // Unique days in day-of-week order for the day picker (step 4a)
+            $dayOrder      = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+            $availableDays = $scheduleSlots
+                ->pluck('schedule.day_of_week')
+                ->unique()
+                ->sortBy(fn($d) => array_search($d, $dayOrder))
+                ->values();
+
+            // Slots filtered by the chosen day (step 4b)
+            if ($this->selectedDay) {
+                $timeSlotsForDay = $scheduleSlots
+                    ->filter(fn($slot) => $slot['schedule']->day_of_week === $this->selectedDay)
+                    ->values();
+            }
+
             $packages = Package::where('type', 'private')
                 ->where('location_id', $this->selectedLocationId)
                 ->where('is_active', true)
@@ -232,14 +264,15 @@ class PrivateSessions extends Component
             ? $children->firstWhere('id', $this->selectedChildId)
             : null;
         $selectedSchedule = $this->selectedScheduleId
-            ? Schedule::with(['coach.user', 'program', 'location'])->find($this->selectedScheduleId)
+            ? Schedule::with(['coach.user', 'location'])->find($this->selectedScheduleId)
             : null;
         $selectedPackage  = $this->selectedPackageId
             ? $packages->firstWhere('id', $this->selectedPackageId)
             : null;
 
         return view('livewire.portal.private-sessions', compact(
-            'children', 'locations', 'coaches', 'scheduleSlots', 'packages',
+            'children', 'locations', 'coaches', 'scheduleSlots',
+            'availableDays', 'timeSlotsForDay', 'packages',
             'selectedChild', 'selectedLocation', 'selectedCoach',
             'selectedSchedule', 'selectedPackage',
         ))->layout('components.app', ['title' => 'Private Sessions']);

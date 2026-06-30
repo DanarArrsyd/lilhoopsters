@@ -1,12 +1,12 @@
 <div>
     {{-- Header --}}
     <div class="mb-6">
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">My Schedules</h2>
-        <p class="text-sm text-muted">All sessions assigned to you.</p>
+        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.coach.schedules.title') }}</h2>
+        <p class="text-sm text-muted">{{ __('messages.coach.schedules.subtitle') }}</p>
     </div>
 
     @if ($schedules->isEmpty())
-        <x-empty-state title="No schedules assigned yet" description="Your sessions will appear here once you are assigned." />
+        <x-empty-state :title="__('messages.coach.schedules.empty_title')" :description="__('messages.coach.schedules.empty_desc')" />
     @else
         @php $today = strtolower(now()->format('l')); @endphp
         @foreach ($days as $day)
@@ -14,9 +14,9 @@
             @if ($daySessions->isNotEmpty())
                 <div class="mb-6">
                     <div class="flex items-center gap-2 mb-3">
-                        <h3 class="text-xs font-bold uppercase tracking-wide text-navy capitalize">{{ $day }}</h3>
+                        <h3 class="text-xs font-bold uppercase tracking-wide text-navy">{{ __('messages.coach.days.'.$day) }}</h3>
                         @if ($day === $today)
-                            <x-badge status="active">Today</x-badge>
+                            <x-badge status="active">{{ __('messages.coach.schedules.today_badge') }}</x-badge>
                         @endif
                     </div>
                     <div class="space-y-3">
@@ -41,7 +41,7 @@
                                             – {{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }}
                                         </p>
                                         <p class="text-xs text-faint">
-                                            {{ $schedule->approvedEnrollmentsCount() }} / {{ $schedule->max_capacity }} students
+                                            {{ __('messages.coach.schedules.students', ['n' => $schedule->approvedEnrollmentsCount(), 'max' => $schedule->max_capacity]) }}
                                         </p>
                                     </div>
                                 </div>

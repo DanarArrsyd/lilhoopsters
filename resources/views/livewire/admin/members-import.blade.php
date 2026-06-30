@@ -3,8 +3,8 @@
     {{-- Header --}}
     <div class="flex items-start justify-between gap-4">
         <div>
-            <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Import Members</h2>
-            <p class="text-sm text-muted">Bulk-import existing parents and players from an Excel file.</p>
+            <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.admin.import.title') }}</h2>
+            <p class="text-sm text-muted">{{ __('messages.admin.import.subtitle') }}</p>
         </div>
         <a href="{{ route('admin.members.template') }}"
            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-navy/8 text-navy font-bold text-sm hover:bg-navy/15 transition-colors">
@@ -12,32 +12,29 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
             </svg>
-            Download Template
+            {{ __('messages.admin.import.download_template') }}
         </a>
     </div>
 
     {{-- How it works --}}
     <x-card padding="p-5">
-        <p class="text-xs font-bold uppercase tracking-wide text-muted mb-3">How it works</p>
+        <p class="text-xs font-bold uppercase tracking-wide text-muted mb-3">{{ __('messages.admin.import.how_it_works') }}</p>
         <ol class="space-y-1.5 text-sm text-ink list-decimal list-inside">
-            <li>Download the Excel template above.</li>
-            <li>Fill in each row with one child per line. Parents with multiple children get one row per child.</li>
-            <li>For existing members who are still active, also fill the <strong>Location, Program, Day, Package, Remaining Sessions</strong> and <strong>Expiry Date</strong> columns — leave them blank for brand-new members.</li>
-            <li>Delete the two grey example rows, then save the file.</li>
-            <li>Upload the filled file here and click <strong>Import</strong>.</li>
+            <li>{{ __('messages.admin.import.step_1') }}</li>
+            <li>{{ __('messages.admin.import.step_2') }}</li>
+            <li>{!! __('messages.admin.import.step_3', ['cols' => '<strong>'.__('messages.admin.import.step_3_cols').'</strong>']) !!}</li>
+            <li>{{ __('messages.admin.import.step_4') }}</li>
+            <li>{{ __('messages.admin.import.step_5_pre') }} <strong>{{ __('messages.admin.import.import_btn') }}</strong>{{ __('messages.admin.import.step_5_post') }}</li>
         </ol>
         <div class="mt-3 p-3 rounded-xl bg-amber-50 border border-amber-100 text-xs text-amber-800">
-            <strong>Note:</strong> If a parent email already exists, the child is added to that parent's account.
-            Passwords are set randomly — parents log in via Google (or password reset). If the imported email matches
-            their Google account, they sign in straight away with no approval needed. Migrated enrollments don't create
-            a payment record, so revenue reports are unaffected.
+            <strong>{{ __('messages.admin.import.note_label') }}</strong> {{ __('messages.admin.import.note_body') }}
         </div>
     </x-card>
 
     {{-- Upload form --}}
     @if (!$done)
         <x-card padding="p-5">
-            <p class="text-xs font-bold uppercase tracking-wide text-muted mb-4">Upload File</p>
+            <p class="text-xs font-bold uppercase tracking-wide text-muted mb-4">{{ __('messages.admin.import.upload_file') }}</p>
 
             <div class="space-y-4">
                 {{-- Drop zone --}}
@@ -69,7 +66,7 @@
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-sm font-semibold text-ink">Click to upload <span class="text-muted font-normal">or drag & drop</span></p>
+                                <p class="text-sm font-semibold text-ink">{{ __('messages.admin.import.click_to_upload') }} <span class="text-muted font-normal">{{ __('messages.admin.import.or_drag_drop') }}</span></p>
                                 <p class="text-xs text-faint mt-0.5">.xlsx · .xls · .csv &nbsp;—&nbsp; max 5 MB</p>
                             </div>
                         </div>
@@ -94,14 +91,14 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
                             </svg>
-                            Import Members
+                            {{ __('messages.admin.import.import_btn') }}
                         </span>
                         <span wire:loading wire:target="import" class="inline-flex items-center gap-2">
                             <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                             </svg>
-                            Processing…
+                            {{ __('messages.admin.import.processing') }}
                         </span>
                     </button>
                 </div>
@@ -135,7 +132,7 @@
                 </p>
                 <p class="text-xs text-muted mt-0.5">Review the details below.</p>
             </div>
-            <x-btn variant="secondary" wire:click="clearResults">Import Another File</x-btn>
+            <x-btn variant="secondary" wire:click="clearResults">{{ __('messages.admin.import.import_another') }}</x-btn>
         </div>
 
         {{-- Row-by-row results --}}
@@ -145,9 +142,9 @@
                     <table class="w-full text-sm">
                         <thead>
                             <tr class="border-b border-line">
-                                <th class="text-left py-2.5 px-4 font-bold text-muted w-16">Row</th>
-                                <th class="text-left py-2.5 px-4 font-bold text-muted">Child</th>
-                                <th class="text-left py-2.5 px-4 font-bold text-muted">Result</th>
+                                <th class="text-left py-2.5 px-4 font-bold text-muted w-16">{{ __('messages.admin.import.col_row') }}</th>
+                                <th class="text-left py-2.5 px-4 font-bold text-muted">{{ __('messages.admin.import.col_child') }}</th>
+                                <th class="text-left py-2.5 px-4 font-bold text-muted">{{ __('messages.admin.import.col_result') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-line">

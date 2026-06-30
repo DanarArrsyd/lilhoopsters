@@ -15,3 +15,6 @@ Schedule::command('transactions:expire')->dailyAt('02:00');
 // Daily reminder sweep: expiring packages + unpaid transactions.
 // Requires the server cron to run `php artisan schedule:run` every minute.
 Schedule::command('reminders:send')->dailyAt('08:00');
+
+// Auto-mark no_show for enrolled students who missed a coached session.
+Schedule::command('attendance:mark-no-shows')->dailyAt('03:00');

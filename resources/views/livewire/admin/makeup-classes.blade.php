@@ -1,7 +1,7 @@
 <div>
     <div class="mb-6">
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Make-Up Classes</h2>
-        <p class="text-sm text-muted">Review and approve make-up class requests.</p>
+        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.admin.makeup_classes.title') }}</h2>
+        <p class="text-sm text-muted">{{ __('messages.admin.makeup_classes.subtitle') }}</p>
     </div>
 
     @if (session('success'))
@@ -11,11 +11,11 @@
     {{-- Status tabs --}}
     <div class="flex gap-2 flex-wrap mb-4">
         @foreach ([
-            'pending'   => ['label' => 'Pending',   'count' => $counts['pending']],
-            'approved'  => ['label' => 'Approved',  'count' => $counts['approved']],
-            'rejected'  => ['label' => 'Rejected',  'count' => $counts['rejected']],
-            'completed' => ['label' => 'Completed', 'count' => $counts['completed']],
-            ''          => ['label' => 'All',       'count' => null],
+            'pending'   => ['label' => __('messages.admin.makeup_classes.tab_pending'),   'count' => $counts['pending']],
+            'approved'  => ['label' => __('messages.admin.makeup_classes.tab_approved'),  'count' => $counts['approved']],
+            'rejected'  => ['label' => __('messages.admin.makeup_classes.tab_rejected'),  'count' => $counts['rejected']],
+            'completed' => ['label' => __('messages.admin.makeup_classes.tab_completed'), 'count' => $counts['completed']],
+            ''          => ['label' => __('messages.admin.makeup_classes.tab_all'),       'count' => null],
         ] as $val => $tab)
             <button wire:click="$set('filterStatus', '{{ $val }}')"
                     @class([
@@ -43,11 +43,11 @@
             <table class="w-full text-sm min-w-[640px]">
                 <thead>
                     <tr class="border-b border-line">
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Child</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Target Schedule</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Target Date</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Status</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Leave Date</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.makeup_classes.col_child') }}</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.makeup_classes.col_target_sch') }}</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.makeup_classes.col_target_date') }}</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.makeup_classes.col_status') }}</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.makeup_classes.col_leave_date') }}</th>
                         <th class="py-3 px-4"></th>
                     </tr>
                 </thead>
@@ -65,7 +65,7 @@
                             </td>
                             <td class="py-3 px-4 text-ink">{{ $mu->target_date?->format('d M Y') ?? '—' }}</td>
                             <td class="py-3 px-4">
-                                <x-badge :status="$mu->status">{{ ucfirst($mu->status) }}</x-badge>
+                                <x-badge :status="$mu->status">{{ __('messages.status.'.$mu->status) }}</x-badge>
                             </td>
                             <td class="py-3 px-4 text-xs text-faint">
                                 {{ $mu->leaveRequest?->leave_date?->format('d M Y') ?? '—' }}
@@ -73,8 +73,8 @@
                             <td class="py-3 px-4 text-right">
                                 @if ($mu->status === 'pending')
                                     <div class="flex items-center gap-2 justify-end">
-                                        <x-btn variant="success" size="sm" wire:click="openReview({{ $mu->id }}, 'approve')" wire:loading.attr="disabled">Approve</x-btn>
-                                        <x-btn variant="danger" size="sm" wire:click="openReview({{ $mu->id }}, 'reject')" wire:loading.attr="disabled">Reject</x-btn>
+                                        <x-btn variant="success" size="sm" wire:click="openReview({{ $mu->id }}, 'approve')" wire:loading.attr="disabled">{{ __('messages.common.approve') }}</x-btn>
+                                        <x-btn variant="danger" size="sm" wire:click="openReview({{ $mu->id }}, 'reject')" wire:loading.attr="disabled">{{ __('messages.common.reject') }}</x-btn>
                                     </div>
                                 @else
                                     <span class="text-faint text-xs">—</span>
@@ -83,7 +83,7 @@
                         </tr>
                     @empty
                         <tr><td colspan="6" class="py-2">
-                            <x-empty-state title="No make-up requests found" description="No requests match the current filter." />
+                            <x-empty-state :title="__('messages.admin.makeup_classes.empty_title')" :description="__('messages.admin.makeup_classes.empty_desc')" />
                         </td></tr>
                     @endforelse
                 </tbody>
@@ -101,13 +101,13 @@
         <div class="relative bg-surface rounded-2xl border border-line shadow-xl w-full max-w-md">
             <div class="flex items-center justify-between px-6 py-4 border-b border-line">
                 <h3 class="text-lg font-extrabold uppercase tracking-tight text-navy">
-                    {{ $reviewAction === 'approve' ? 'Approve' : 'Reject' }} Make-Up Request
+                    {{ $reviewAction === 'approve' ? __('messages.admin.makeup_classes.modal_approve') : __('messages.admin.makeup_classes.modal_reject') }}
                 </h3>
                 <button wire:click="closeReview" class="text-muted hover:text-navy p-1 leading-none">&#x2715;</button>
             </div>
             <div class="p-6">
                 <div class="space-y-1.5">
-                    <label class="block text-xs font-semibold uppercase tracking-wide text-navy">Admin Notes (optional)</label>
+                    <label class="block text-xs font-semibold uppercase tracking-wide text-navy">{{ __('messages.admin.makeup_classes.admin_notes') }}</label>
                     <textarea wire:model="adminNotes" rows="3" aria-label="Admin notes"
                               class="block w-full rounded-xl border border-line bg-surface px-3.5 py-3 text-sm text-ink placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-navy/15 focus:border-navy resize-none"
                               placeholder="Leave a note..."></textarea>
@@ -115,11 +115,11 @@
                 </div>
             </div>
             <div class="flex gap-3 px-6 pb-6">
-                <x-btn variant="secondary" class="flex-1" wire:click="closeReview">Cancel</x-btn>
+                <x-btn variant="secondary" class="flex-1" wire:click="closeReview">{{ __('messages.common.cancel') }}</x-btn>
                 <x-btn variant="{{ $reviewAction === 'approve' ? 'success' : 'danger' }}" class="flex-1"
                        wire:click="saveReview" wire:loading.attr="disabled">
-                    <span wire:loading.remove wire:target="saveReview">{{ $reviewAction === 'approve' ? 'Approve' : 'Reject' }}</span>
-                    <span wire:loading wire:target="saveReview">Saving...</span>
+                    <span wire:loading.remove wire:target="saveReview">{{ $reviewAction === 'approve' ? __('messages.common.approve') : __('messages.common.reject') }}</span>
+                    <span wire:loading wire:target="saveReview">{{ __('messages.common.saving') }}</span>
                 </x-btn>
             </div>
         </div>

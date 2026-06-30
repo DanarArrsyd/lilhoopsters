@@ -26,6 +26,7 @@ class Coaches extends Component
     public string $specialization   = '';
     public bool $is_active          = true;
     public array $selectedLocations = [];
+    public int   $step              = 1;
 
     protected function rules(): array
     {
@@ -50,6 +51,30 @@ class Coaches extends Component
 
     public function updatingSearch(): void { $this->resetPage(); }
 
+    public function nextStep(): void
+    {
+        if ($this->step === 1) {
+            $this->validateOnly(['coach_name', 'coach_email', 'coach_password']);
+            $this->step = 2;
+        }
+    }
+
+    public function prevStep(): void
+    {
+        if ($this->step > 1) $this->step--;
+    }
+
+    public function toggleLocation(int $id): void
+    {
+        if (in_array($id, $this->selectedLocations, true)) {
+            $this->selectedLocations = array_values(
+                array_filter($this->selectedLocations, fn($l) => $l !== $id)
+            );
+        } else {
+            $this->selectedLocations[] = $id;
+        }
+    }
+
     public function openCreate(): void
     {
         $this->resetForm();
@@ -67,6 +92,7 @@ class Coaches extends Component
         $this->specialization     = $coach->specialization ?? '';
         $this->is_active          = $coach->is_active;
         $this->selectedLocations  = $coach->locations->pluck('id')->toArray();
+        $this->step               = 1;
         $this->showModal          = true;
     }
 
@@ -130,6 +156,7 @@ class Coaches extends Component
 
     public function resetForm(): void
     {
+        $this->step               = 1;
         $this->editingId          = null;
         $this->coach_name         = '';
         $this->coach_email        = '';

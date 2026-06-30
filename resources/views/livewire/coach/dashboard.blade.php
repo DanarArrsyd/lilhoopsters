@@ -2,8 +2,8 @@
 
     {{-- Page header --}}
     <div>
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Dashboard</h2>
-        <p class="text-sm text-muted">Welcome back, {{ auth()->user()->name }}</p>
+        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.dashboard.title') }}</h2>
+        <p class="text-sm text-muted">{{ __('messages.dashboard.welcome', ['name' => auth()->user()->name]) }}</p>
     </div>
 
 <div class="flex flex-col lg:flex-row gap-6 items-start">
@@ -13,7 +13,7 @@
         <x-card padding="p-5">
             {{-- Header --}}
             <div class="flex items-center justify-between mb-4">
-                <p class="text-sm font-extrabold text-navy uppercase tracking-tight">This Week</p>
+                <p class="text-sm font-extrabold text-navy uppercase tracking-tight">{{ __('messages.coach.dashboard.this_week') }}</p>
                 <p class="text-[11px] text-faint font-semibold">{{ now()->format('d M Y') }}</p>
             </div>
 
@@ -48,7 +48,7 @@
             <div class="mb-4 text-center">
                 <button wire:click="openCalendar"
                         class="inline-flex items-center gap-1 text-[11px] font-semibold text-navy/70 hover:text-navy hover:underline underline-offset-2 transition-colors">
-                    See details
+                    {{ __('messages.coach.dashboard.see_details') }}
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
                     </svg>
@@ -58,23 +58,23 @@
             {{-- Today's sessions --}}
             <div class="border-t border-line pt-4">
                 <p class="text-[10px] font-bold uppercase tracking-widest text-faint mb-3">
-                    {{ now()->format('l') }}'s Sessions
+                    {{ __('messages.coach.dashboard.todays_sessions') }}
                 </p>
 
                 @if ($todaySchedules->isEmpty())
                     <div class="text-center py-3">
-                        <p class="text-xs text-faint">No sessions today.</p>
+                        <p class="text-xs text-faint">{{ __('messages.coach.dashboard.no_sessions') }}</p>
                         @php
                             $dayOrder = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
                             $todayIdx = array_search(strtolower(now()->format('l')), $dayOrder);
                             $nextDay  = null; $nextDaySchedules = collect();
                             for ($i = 1; $i <= 7; $i++) {
                                 $dk = $dayOrder[($todayIdx + $i) % 7];
-                                if ($schedulesByDay->has($dk)) { $nextDay = ucfirst($dk); $nextDaySchedules = $schedulesByDay->get($dk); break; }
+                                if ($schedulesByDay->has($dk)) { $nextDay = __('messages.coach.days.'.$dk); $nextDaySchedules = $schedulesByDay->get($dk); break; }
                             }
                         @endphp
                         @if ($nextDay)
-                            <p class="text-[10px] text-navy/60 mt-1">Next: <span class="font-semibold">{{ $nextDay }}</span></p>
+                            <p class="text-[10px] text-navy/60 mt-1">{{ __('messages.coach.dashboard.next') }} <span class="font-semibold">{{ $nextDay }}</span></p>
                         @endif
                     </div>
                 @else
@@ -90,7 +90,7 @@
                                     </p>
                                 </div>
                                 @if ($sched->type === 'private')
-                                    <span class="text-[8px] font-bold uppercase bg-purple-100 text-purple-700 px-1 py-0.5 rounded-full shrink-0">PVT</span>
+                                    <span class="text-[8px] font-bold uppercase bg-purple-100 text-purple-700 px-1 py-0.5 rounded-full shrink-0">{{ __('messages.coach.dashboard.private_badge') }}</span>
                                 @endif
                             </div>
                         @endforeach
@@ -101,13 +101,13 @@
             {{-- Rest of the week --}}
             @php
                 $dayOrder  = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
-                $dayLabels = ['monday'=>'Monday','tuesday'=>'Tuesday','wednesday'=>'Wednesday','thursday'=>'Thursday','friday'=>'Friday','saturday'=>'Saturday','sunday'=>'Sunday'];
+                $dayLabels = ['monday' => __('messages.coach.days.monday'), 'tuesday' => __('messages.coach.days.tuesday'), 'wednesday' => __('messages.coach.days.wednesday'), 'thursday' => __('messages.coach.days.thursday'), 'friday' => __('messages.coach.days.friday'), 'saturday' => __('messages.coach.days.saturday'), 'sunday' => __('messages.coach.days.sunday')];
                 $todayKey  = strtolower(now()->format('l'));
                 $hasOther  = collect($dayOrder)->filter(fn($d) => $d !== $todayKey && $schedulesByDay->has($d))->isNotEmpty();
             @endphp
             @if ($hasOther)
                 <div class="border-t border-line pt-4 mt-4 space-y-4">
-                    <p class="text-[10px] font-bold uppercase tracking-widest text-faint">Rest of Week</p>
+                    <p class="text-[10px] font-bold uppercase tracking-widest text-faint">{{ __('messages.coach.dashboard.rest_of_week') }}</p>
                     @foreach ($dayOrder as $dk)
                         @if ($dk !== $todayKey && $schedulesByDay->has($dk))
                             <div>
@@ -134,15 +134,15 @@
 
         {{-- Quick Access --}}
         <div>
-            <p class="text-[10px] font-bold uppercase tracking-widest text-muted mb-3">Quick Access</p>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-muted mb-3">{{ __('messages.coach.dashboard.quick_access') }}</p>
             <div class="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-4 gap-2 sm:gap-3">
                 @foreach ([
-                    ['route' => 'coach.qr-scanner',  'label' => 'QR Scanner',     'bg' => 'bg-navy/8',       'color' => 'text-navy',        'icon' => 'M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z'],
-                    ['route' => 'coach.checkin',     'label' => 'Check-In',        'bg' => 'bg-green-50',     'color' => 'text-green-700',   'icon' => 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M14.121 11.879a3 3 0 10-4.242-4.242 3 3 0 004.242 4.242z'],
-                    ['route' => 'coach.attendance',  'label' => 'Attendance',      'bg' => 'bg-blue-50',      'color' => 'text-blue-700',    'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4'],
-                    ['route' => 'coach.roster',      'label' => 'Daily Roster',    'bg' => 'bg-teal-50',      'color' => 'text-teal-700',    'icon' => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z'],
-                    ['route' => 'coach.schedules',   'label' => 'My Schedules',    'bg' => 'bg-purple-50',    'color' => 'text-purple-700',  'icon' => 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'],
-                    ['route' => 'coach.report-cards','label' => 'Report Cards',    'bg' => 'bg-orange-50',    'color' => 'text-orange-700',  'icon' => 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'],
+                    ['route' => 'coach.qr-scanner',  'label' => __('messages.coach.nav.qr_scanner'),  'bg' => 'bg-navy/8',       'color' => 'text-navy',        'icon' => 'M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z'],
+                    ['route' => 'coach.checkin',     'label' => __('messages.coach.nav.checkin'),      'bg' => 'bg-green-50',     'color' => 'text-green-700',   'icon' => 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M14.121 11.879a3 3 0 10-4.242-4.242 3 3 0 004.242 4.242z'],
+                    ['route' => 'coach.attendance',  'label' => __('messages.nav.attendance'),         'bg' => 'bg-blue-50',      'color' => 'text-blue-700',    'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4'],
+                    ['route' => 'coach.roster',      'label' => __('messages.coach.nav.roster'),       'bg' => 'bg-teal-50',      'color' => 'text-teal-700',    'icon' => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z'],
+                    ['route' => 'coach.schedules',   'label' => __('messages.coach.nav.schedules'),    'bg' => 'bg-purple-50',    'color' => 'text-purple-700',  'icon' => 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'],
+                    ['route' => 'coach.report-cards','label' => __('messages.nav.report_cards'),       'bg' => 'bg-orange-50',    'color' => 'text-orange-700',  'icon' => 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'],
                 ] as $item)
                     <a href="{{ route($item['route']) }}"
                        class="flex flex-col items-center gap-1.5 group p-1.5 sm:p-2 rounded-2xl hover:bg-off transition-colors">
@@ -160,12 +160,12 @@
         {{-- Today's sessions detail --}}
         <x-card padding="p-0">
             <div class="px-4 py-3 border-b border-line flex items-center justify-between">
-                <h3 class="text-sm font-bold uppercase tracking-wide text-navy">Today's Sessions</h3>
+                <h3 class="text-sm font-bold uppercase tracking-wide text-navy">{{ __('messages.coach.dashboard.todays_sessions') }}</h3>
                 <span class="text-xs font-semibold text-faint">{{ now()->format('l, d F Y') }}</span>
             </div>
 
             @if ($todaySchedules->isEmpty())
-                <x-empty-state title="No sessions today" description="Enjoy your day off." />
+                <x-empty-state :title="__('messages.coach.dashboard.empty_title')" :description="__('messages.coach.dashboard.day_off')" />
             @else
                 <div class="divide-y divide-line">
                     @foreach ($todaySchedules as $schedule)
@@ -178,9 +178,9 @@
                                     <div class="flex items-center gap-2 flex-wrap">
                                         <p class="font-semibold text-ink text-sm">{{ $schedule->program->name }}</p>
                                         @if ($schedule->type === 'private')
-                                            <span class="text-[9px] font-bold uppercase bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full">Private</span>
+                                            <span class="text-[9px] font-bold uppercase bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full">{{ __('messages.coach.dashboard.private_badge') }}</span>
                                         @else
-                                            <span class="text-[9px] font-bold uppercase bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-full">Regular</span>
+                                            <span class="text-[9px] font-bold uppercase bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-full">{{ __('messages.coach.dashboard.regular_badge') }}</span>
                                         @endif
                                     </div>
                                     <p class="text-xs text-faint">{{ $schedule->location->name }}</p>
@@ -209,8 +209,8 @@
             {{-- Header --}}
             <div class="sticky top-0 bg-surface flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-line z-10">
                 <div>
-                    <h3 class="text-lg font-extrabold uppercase tracking-tight text-navy">Session Calendar</h3>
-                    <p class="text-[11px] text-faint">Sessions repeat weekly by day.</p>
+                    <h3 class="text-lg font-extrabold uppercase tracking-tight text-navy">{{ __('messages.coach.dashboard.session_calendar') }}</h3>
+                    <p class="text-[11px] text-faint">{{ __('messages.coach.dashboard.sessions_weekly') }}</p>
                 </div>
                 <button wire:click="closeCalendar" class="text-muted hover:text-navy p-1 leading-none">&#x2715;</button>
             </div>
@@ -274,11 +274,11 @@
                 <div class="mt-5 border-t border-line pt-4">
                     <p class="text-[10px] font-bold uppercase tracking-widest text-faint mb-3">
                         {{ \Carbon\Carbon::parse($selectedDate)->format('l, d M Y') }}
-                        <span class="text-navy/50">· {{ $selectedSessions->count() }} session{{ $selectedSessions->count() === 1 ? '' : 's' }}</span>
+                        <span class="text-navy/50">· {{ trans_choice('messages.coach.dashboard.sessions_count', $selectedSessions->count(), ['n' => $selectedSessions->count()]) }}</span>
                     </p>
 
                     @if ($selectedSessions->isEmpty())
-                        <p class="text-xs text-faint py-2">No sessions scheduled on this day.</p>
+                        <p class="text-xs text-faint py-2">{{ __('messages.coach.dashboard.no_sessions_day') }}</p>
                     @else
                         <div class="space-y-2">
                             @foreach ($selectedSessions as $sched)
@@ -288,7 +288,7 @@
                                         <div class="flex items-center gap-2 flex-wrap">
                                             <p class="text-sm font-bold text-ink truncate">{{ $sched->program->name }}</p>
                                             <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-full {{ $sched->type === 'private' ? 'bg-[#7C3AED]/10 text-[#7C3AED]' : 'bg-[#1D4ED8]/10 text-[#1D4ED8]' }}">
-                                                {{ $sched->type === 'private' ? 'Private' : 'Regular' }}
+                                                {{ $sched->type === 'private' ? __('messages.coach.dashboard.private_badge') : __('messages.coach.dashboard.regular_badge') }}
                                             </span>
                                         </div>
                                         <p class="text-[11px] text-faint truncate">{{ $sched->location->name }}</p>

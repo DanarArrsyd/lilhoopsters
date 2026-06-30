@@ -13,21 +13,22 @@ class Schedules extends Component
 {
     use WithPagination;
 
-    public string $search        = '';
-    public ?int $filterLocation  = null;
-    public string $filterType    = '';
-    public bool $showModal       = false;
-    public ?int $editingId       = null;
+    public string $search       = '';
+    public ?int   $filterLocation = null;
+    public string $filterType   = '';
+    public bool   $showModal    = false;
+    public int    $step         = 1;
+    public ?int   $editingId    = null;
 
-    public ?int $location_id     = null;
-    public ?int $program_id      = null;
-    public ?int $coach_id        = null;
-    public string $type          = 'regular';
-    public string $day_of_week   = '';
-    public string $start_time    = '';
-    public string $end_time      = '';
-    public int $max_capacity     = 20;
-    public bool $is_active       = true;
+    public ?int   $location_id  = null;
+    public ?int   $program_id   = null;
+    public ?int   $coach_id     = null;
+    public string $type         = 'regular';
+    public string $day_of_week  = '';
+    public string $start_time   = '';
+    public string $end_time     = '';
+    public int    $max_capacity = 20;
+    public bool   $is_active    = true;
 
     // 12-hour picker fields
     public string $startHour   = '8';
@@ -51,7 +52,9 @@ class Schedules extends Component
     {
         return [
             'location_id'  => 'required|integer|exists:locations,id',
-            'program_id'   => 'required|integer|exists:programs,id',
+            'program_id'   => $this->type === 'private'
+                                ? 'nullable|integer|exists:programs,id'
+                                : 'required|integer|exists:programs,id',
             'type'         => 'required|in:regular,private',
             'coach_id'     => $this->type === 'private'
                                 ? 'required|integer|exists:coaches,id'
@@ -62,7 +65,6 @@ class Schedules extends Component
                 if (!$this->start_time || !$value) return;
                 $start = \Carbon\Carbon::createFromFormat('H:i', $this->start_time);
                 $end   = \Carbon\Carbon::createFromFormat('H:i', $value);
-                // Support cross-midnight (e.g. 11 PM → 12 AM)
                 if ($end->lte($start)) $end->addDay();
                 if ($start->diffInMinutes($end) < 15) {
                     $fail('End time must be at least 15 minutes after start time.');
@@ -80,7 +82,6 @@ class Schedules extends Component
     public function updatingFilterLocation(): void { $this->resetPage(); }
     public function updatingFilterType(): void     { $this->resetPage(); }
 
-    // Recompute 24h strings whenever any 12h picker field changes
     public function updatedStartHour(): void   { $this->start_time = $this->to24h($this->startHour, $this->startMinute, $this->startPeriod); }
     public function updatedStartMinute(): void { $this->start_time = $this->to24h($this->startHour, $this->startMinute, $this->startPeriod); }
     public function updatedStartPeriod(): void { $this->start_time = $this->to24h($this->startHour, $this->startMinute, $this->startPeriod); }
@@ -115,7 +116,7 @@ class Schedules extends Component
     private function setPickerFrom24h(string $time24, string $prefix): void
     {
         [$hStr, $mStr] = explode(':', substr($time24, 0, 5)) + ['0', '00'];
-        $h = (int) $hStr;
+        $h      = (int) $hStr;
         $period = $h >= 12 ? 'PM' : 'AM';
         $h12    = $h % 12 === 0 ? 12 : $h % 12;
 
@@ -129,7 +130,10 @@ class Schedules extends Component
         if ($this->type === 'regular') {
             $this->coach_id = null;
         }
-        $this->resetValidation('coach_id');
+        if ($this->type === 'private') {
+            $this->program_id = null;
+        }
+        $this->resetValidation(['coach_id', 'program_id']);
     }
 
     public function openCreate(): void
@@ -153,7 +157,28 @@ class Schedules extends Component
         $this->setPickerFrom24h($this->end_time,   'end');
         $this->max_capacity = $schedule->max_capacity;
         $this->is_active    = $schedule->is_active;
+        $this->step         = 1;
         $this->showModal    = true;
+    }
+
+    public function nextStep(): void
+    {
+        $this->validate([
+            'location_id' => 'required|integer|exists:locations,id',
+            'type'        => 'required|in:regular,private',
+            'program_id'  => $this->type === 'private'
+                                ? 'nullable|integer|exists:programs,id'
+                                : 'required|integer|exists:programs,id',
+            'coach_id'    => $this->type === 'private'
+                                ? 'required|integer|exists:coaches,id'
+                                : 'nullable|integer|exists:coaches,id',
+        ]);
+        $this->step = 2;
+    }
+
+    public function back(): void
+    {
+        if ($this->step > 1) $this->step--;
     }
 
     public function save(): void
@@ -199,6 +224,7 @@ class Schedules extends Component
     public function resetForm(): void
     {
         $this->editingId    = null;
+        $this->step         = 1;
         $this->location_id  = null;
         $this->program_id   = null;
         $this->coach_id     = null;
@@ -225,7 +251,6 @@ class Schedules extends Component
             ->orderBy('start_time')
             ->get();
 
-        // Group by location (rows already ordered by day then start time).
         $groups = $schedules
             ->groupBy('location_id')
             ->sortBy(fn($items) => optional($items->first()->location)->name)

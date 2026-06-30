@@ -1,8 +1,8 @@
 <div>
     {{-- Header --}}
     <div class="mb-6">
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Players</h2>
-        <p class="text-sm text-muted">All registered players in the academy</p>
+        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.admin.players.title') }}</h2>
+        <p class="text-sm text-muted">{{ __('messages.admin.players.subtitle') }}</p>
     </div>
 
     {{-- Filters --}}
@@ -13,11 +13,11 @@
             </div>
             <div class="w-full sm:w-48">
                 <x-select wire:model.live="filterStatus">
-                    <option value="">All Statuses</option>
-                    <option value="unregistered">Unregistered</option>
-                    <option value="pending">Pending</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
+                    <option value="">{{ __('messages.admin.players.all_statuses') }}</option>
+                    <option value="unregistered">{{ __('messages.status.unregistered') }}</option>
+                    <option value="pending">{{ __('messages.status.pending') }}</option>
+                    <option value="active">{{ __('messages.status.active') }}</option>
+                    <option value="inactive">{{ __('messages.status.inactive') }}</option>
                 </x-select>
             </div>
         </div>
@@ -29,12 +29,12 @@
             <table class="w-full text-sm min-w-[640px]">
                 <thead>
                     <tr class="border-b border-line">
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Player</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Parent</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Age</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Gender</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Jersey</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Status</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.players.col_player') }}</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.players.col_parent') }}</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.players.col_age') }}</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.players.col_gender') }}</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.players.col_jersey') }}</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.players.col_status') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-line">
@@ -69,13 +69,13 @@
                                 @endif
                             </td>
                             <td class="py-3 px-4">
-                                <x-badge :status="$player->status">{{ ucfirst($player->status) }}</x-badge>
+                                <x-badge :status="$player->status">{{ __('messages.status.'.$player->status) }}</x-badge>
                             </td>
                         </tr>
                     @empty
                         <tr>
                             <td colspan="6" class="py-2">
-                                <x-empty-state title="No players found" description="No players match your search." />
+                                <x-empty-state :title="__('messages.admin.players.empty_title')" :description="__('messages.admin.players.empty_desc')" />
                             </td>
                         </tr>
                     @endforelse

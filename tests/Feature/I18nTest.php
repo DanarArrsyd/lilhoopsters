@@ -94,13 +94,24 @@ it('fully localises the payments page to Indonesian', function () {
         ->assertSee('Belum ada transaksi');     // empty state
 });
 
-
 it('fully localises the attendance page to Indonesian', function () {
     $this->parent->update(['locale' => 'id']);
 
     $this->actingAs($this->parent)->get(route('parent.attendance'))
         ->assertSee('Kehadiran')                // page title
         ->assertSee('Tidak ada program aktif'); // empty state
+});
+
+it('fully localises the coach portal to Indonesian', function () {
+    $coach = User::factory()->withRole('coach')->approved()->create(['locale' => 'id']);
+
+    $this->actingAs($coach)->get(route('coach.dashboard'))
+        ->assertSee('Dasbor')
+        ->assertSee('Minggu Ini');
+
+    $this->actingAs($coach)->get(route('coach.profile'))
+        ->assertSee('Pengaturan Profil')
+        ->assertSee('Informasi Pribadi');
 });
 
 it('fully localises the My Players and News pages to Indonesian', function () {
@@ -113,4 +124,19 @@ it('fully localises the My Players and News pages to Indonesian', function () {
     $this->actingAs($this->parent)->get(route('parent.news'))
         ->assertSee('Berita')           // page title
         ->assertSee('Belum ada berita'); // empty state
+});
+
+it('fully localises the admin portal to Indonesian', function () {
+    $admin = User::factory()->withRole('admin')->approved()->create(['locale' => 'id']);
+
+    $this->actingAs($admin)->get(route('admin.dashboard'))
+        ->assertSee('Dasbor')      // page title
+        ->assertSee('Minggu Ini'); // dashboard section heading
+
+    $this->actingAs($admin)->get(route('admin.reports'))
+        ->assertSee('Bulan Ini'); // preset pill
+
+    $this->actingAs($admin)->get(route('admin.owner'))
+        ->assertSee('Retensi & Perpanjangan')  // renewal section heading
+        ->assertSee('Pembayaran Tertunggak');   // AR section heading
 });

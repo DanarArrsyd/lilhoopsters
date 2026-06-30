@@ -1,7 +1,7 @@
 <div>
     <div class="mb-6">
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Enrollments</h2>
-        <p class="text-sm text-muted">Review and approve player enrollments.</p>
+        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.admin.enrollments.title') }}</h2>
+        <p class="text-sm text-muted">{{ __('messages.admin.enrollments.subtitle') }}</p>
     </div>
 
     @if (session('success'))
@@ -11,11 +11,11 @@
     {{-- Status tabs --}}
     <div class="flex gap-2 flex-wrap mb-4">
         @foreach ([
-            ''           => 'All',
-            'pending'    => 'Pending',
-            'approved'   => 'Approved',
-            'rejected'   => 'Rejected',
-            'expired'    => 'Expired',
+            ''           => __('messages.common.all'),
+            'pending'    => __('messages.status.pending'),
+            'approved'   => __('messages.status.approved'),
+            'rejected'   => __('messages.status.rejected'),
+            'expired'    => __('messages.status.expired'),
         ] as $val => $label)
             <button wire:click="$set('filterStatus', '{{ $val }}')"
                     @class([
@@ -33,9 +33,9 @@
         </div>
         <div class="w-40 shrink-0">
             <x-select wire:model.live="filterType">
-                <option value="">All Types</option>
-                <option value="registration">Registration</option>
-                <option value="program">Program</option>
+                <option value="">{{ __('messages.admin.enrollments.all_types') }}</option>
+                <option value="registration">{{ __('messages.admin.enrollments.type_reg') }}</option>
+                <option value="program">{{ __('messages.admin.enrollments.type_program') }}</option>
             </x-select>
         </div>
     </div>
@@ -45,12 +45,12 @@
             <table class="w-full text-sm min-w-[640px]">
                 <thead>
                     <tr class="border-b border-line">
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Player</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Type</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Package</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Schedule</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Submitted</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Status</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.enrollments.col_player') }}</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.enrollments.col_type') }}</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.enrollments.col_package') }}</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.enrollments.col_schedule') }}</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.enrollments.col_submitted') }}</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.enrollments.col_status') }}</th>
                         <th class="py-3 px-4"></th>
                     </tr>
                 </thead>
@@ -77,21 +77,21 @@
                             </td>
                             <td class="py-3 px-4 text-xs text-faint">{{ $enrollment->created_at->format('d M Y') }}</td>
                             <td class="py-3 px-4">
-                                <x-badge :status="$enrollment->status">{{ ucfirst($enrollment->status) }}</x-badge>
+                                <x-badge :status="$enrollment->status">{{ __('messages.status.'.$enrollment->status) }}</x-badge>
                             </td>
                             <td class="py-3 px-4 text-right">
                                 @if ($enrollment->status === 'pending')
                                     <div class="flex items-center gap-2 justify-end">
-                                        <x-btn variant="success" size="sm" wire:click="approve({{ $enrollment->id }})" wire:loading.attr="disabled">Approve</x-btn>
+                                        <x-btn variant="success" size="sm" wire:click="approve({{ $enrollment->id }})" wire:loading.attr="disabled">{{ __('messages.common.approve') }}</x-btn>
                                         <x-btn variant="danger" size="sm" wire:click="reject({{ $enrollment->id }})"
-                                               wire:confirm="Reject this enrollment?" wire:loading.attr="disabled">Reject</x-btn>
+                                               wire:confirm="Reject this enrollment?" wire:loading.attr="disabled">{{ __('messages.common.reject') }}</x-btn>
                                     </div>
                                 @endif
                             </td>
                         </tr>
                     @empty
                         <tr><td colspan="7" class="py-2">
-                            <x-empty-state title="No enrollments found" description="No enrollments match your filters." />
+                            <x-empty-state :title="__('messages.admin.enrollments.empty_title')" :description="__('messages.admin.enrollments.empty_desc')" />
                         </td></tr>
                     @endforelse
                 </tbody>

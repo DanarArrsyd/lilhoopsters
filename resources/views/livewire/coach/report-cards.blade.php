@@ -1,8 +1,8 @@
 <div>
     {{-- Header --}}
     <div class="mb-6">
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Report Cards</h2>
-        <p class="text-sm text-muted">Input scores for your students.</p>
+        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.coach.report_cards.title') }}</h2>
+        <p class="text-sm text-muted">{{ __('messages.coach.report_cards.subtitle') }}</p>
     </div>
 
     {{-- Flash --}}
@@ -14,10 +14,10 @@
     <x-card class="mb-4" padding="p-4">
         <div class="w-full sm:w-44">
             <x-select wire:model.live="filterStatus">
-                <option value="">All Statuses</option>
-                <option value="draft">Draft</option>
-                <option value="submitted">Submitted</option>
-                <option value="published">Published</option>
+                <option value="">{{ __('messages.coach.report_cards.all_statuses') }}</option>
+                <option value="draft">{{ __('messages.status.draft') }}</option>
+                <option value="submitted">{{ __('messages.status.submitted') }}</option>
+                <option value="published">{{ __('messages.status.published') }}</option>
             </x-select>
         </div>
     </x-card>
@@ -25,16 +25,16 @@
     {{-- Table --}}
     <x-card padding="p-0">
         @if ($cards->isEmpty())
-            <x-empty-state title="No report cards assigned to you" description="Report cards appear here once created by an admin." />
+            <x-empty-state :title="__('messages.coach.report_cards.empty_title')" :description="__('messages.coach.report_cards.empty_desc')" />
         @else
             <div class="overflow-x-auto">
                 <table class="w-full text-sm min-w-[560px]">
                     <thead>
                         <tr class="border-b border-line">
-                            <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Student</th>
-                            <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Period</th>
-                            <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Scores</th>
-                            <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Status</th>
+                            <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.coach.report_cards.col_student') }}</th>
+                            <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.coach.report_cards.col_period') }}</th>
+                            <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.coach.report_cards.col_scores') }}</th>
+                            <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.coach.report_cards.col_status') }}</th>
                             <th class="py-3 px-4"></th>
                         </tr>
                     </thead>
@@ -46,9 +46,9 @@
                                     <p class="font-semibold text-ink">{{ $card->period_label }}</p>
                                     <p class="text-xs text-faint">{{ $card->period_start->format('d M') }} – {{ $card->period_end->format('d M Y') }}</p>
                                 </td>
-                                <td class="py-3 px-4 text-muted">{{ $card->scores->count() }}/6 categories</td>
+                                <td class="py-3 px-4 text-muted">{{ __('messages.coach.report_cards.categories', ['n' => $card->scores->count()]) }}</td>
                                 <td class="py-3 px-4">
-                                    <x-badge :status="$card->status">{{ ucfirst($card->status) }}</x-badge>
+                                    <x-badge :status="$card->status">{{ __('messages.status.'.$card->status) }}</x-badge>
                                 </td>
                                 <td class="py-3 px-4">
                                     @if (in_array($card->status, ['draft', 'submitted']))
@@ -56,7 +56,7 @@
                                                wire:click="openScoreModal({{ $card->id }})"
                                                wire:loading.attr="disabled">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                                            {{ $card->status === 'draft' ? 'Input Scores' : 'Edit Scores' }}
+                                            {{ $card->status === 'draft' ? __('messages.coach.report_cards.input_scores') : __('messages.coach.report_cards.edit_scores') }}
                                         </x-btn>
                                     @endif
                                 </td>
@@ -77,7 +77,7 @@
         <div class="absolute inset-0 bg-navy/40" wire:click="closeScoreModal"></div>
         <div class="relative bg-surface rounded-2xl border border-line shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
             <div class="sticky top-0 bg-surface flex items-center justify-between px-6 py-4 border-b border-line z-10">
-                <h3 class="text-lg font-extrabold uppercase tracking-tight text-navy">Input Scores</h3>
+                <h3 class="text-lg font-extrabold uppercase tracking-tight text-navy">{{ __('messages.coach.report_cards.input_scores') }}</h3>
                 <button wire:click="closeScoreModal" class="text-muted hover:text-navy p-1 leading-none">&#x2715;</button>
             </div>
             <div class="p-6 space-y-3">
@@ -106,12 +106,12 @@
             <div class="flex gap-3 px-6 pb-6">
                 <x-btn variant="secondary" class="flex-1" wire:click="closeScoreModal">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                    Cancel
+                    {{ __('messages.common.cancel') }}
                 </x-btn>
                 <x-btn class="flex-1" wire:click="saveScores" wire:loading.attr="disabled">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                    <span wire:loading.remove wire:target="saveScores">Save Scores</span>
-                    <span wire:loading wire:target="saveScores">Saving...</span>
+                    <span wire:loading.remove wire:target="saveScores">{{ __('messages.coach.report_cards.save_scores') }}</span>
+                    <span wire:loading wire:target="saveScores">{{ __('messages.common.saving') }}</span>
                 </x-btn>
             </div>
         </div>

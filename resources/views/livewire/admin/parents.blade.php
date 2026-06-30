@@ -1,8 +1,8 @@
 <div>
     {{-- Header --}}
     <div class="mb-6">
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Parents</h2>
-        <p class="text-sm text-muted">Review and approve parent registrations.</p>
+        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.admin.parents.title') }}</h2>
+        <p class="text-sm text-muted">{{ __('messages.admin.parents.subtitle') }}</p>
     </div>
 
     {{-- Flash --}}
@@ -18,10 +18,10 @@
             </div>
             <div class="w-full sm:w-48">
                 <x-select wire:model.live="filterStatus">
-                    <option value="">All Statuses</option>
-                    <option value="pending">Pending</option>
-                    <option value="approved">Approved</option>
-                    <option value="rejected">Rejected</option>
+                    <option value="">{{ __('messages.admin.parents.all_statuses') }}</option>
+                    <option value="pending">{{ __('messages.status.pending') }}</option>
+                    <option value="approved">{{ __('messages.status.approved') }}</option>
+                    <option value="rejected">{{ __('messages.status.rejected') }}</option>
                 </x-select>
             </div>
         </div>
@@ -33,11 +33,11 @@
             <table class="w-full text-sm min-w-[640px]">
                 <thead>
                     <tr class="border-b border-line">
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Parent</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">WhatsApp</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Players</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Registered</th>
-                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Status</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.parents.col_parent') }}</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.parents.col_whatsapp') }}</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.parents.col_players') }}</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.parents.col_registered') }}</th>
+                        <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.parents.col_status') }}</th>
                         <th class="py-3 px-4"></th>
                     </tr>
                 </thead>
@@ -60,7 +60,7 @@
                             <td class="py-3 px-4 text-faint text-xs">{{ $parent->created_at->format('d M Y') }}</td>
                             <td class="py-3 px-4">
                                 <x-badge :status="$parent->registration_status">
-                                    {{ ucfirst($parent->registration_status) }}
+                                    {{ __('messages.status.'.$parent->registration_status) }}
                                 </x-badge>
                             </td>
                             <td class="py-3 px-4">
@@ -69,26 +69,26 @@
                                         <x-btn variant="success" size="sm" wire:click="approve({{ $parent->id }})"
                                                wire:loading.attr="disabled">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                                            Approve
+                                            {{ __('messages.common.approve') }}
                                         </x-btn>
                                         <x-btn variant="danger" size="sm" wire:click="reject({{ $parent->id }})"
                                                wire:confirm="Reject this registration?"
                                                wire:loading.attr="disabled">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
-                                            Reject
+                                            {{ __('messages.common.reject') }}
                                         </x-btn>
                                     @elseif ($parent->registration_status === 'approved')
                                         <x-btn variant="purple" size="sm" wire:click="reject({{ $parent->id }})"
                                                wire:confirm="Revoke this approval?"
                                                wire:loading.attr="disabled">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                                            Revoke
+                                            {{ __('messages.common.revoke') }}
                                         </x-btn>
                                     @elseif ($parent->registration_status === 'rejected')
                                         <x-btn variant="success" size="sm" wire:click="approve({{ $parent->id }})"
                                                wire:loading.attr="disabled">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                                            Re-approve
+                                            {{ __('messages.admin.parents.re_approve') }}
                                         </x-btn>
                                     @endif
                                 </div>
@@ -97,7 +97,7 @@
                     @empty
                         <tr>
                             <td colspan="6" class="py-2">
-                                <x-empty-state title="No parents found" description="No parent accounts match your search." />
+                                <x-empty-state :title="__('messages.admin.parents.empty_title')" :description="__('messages.admin.parents.empty_desc')" />
                             </td>
                         </tr>
                     @endforelse

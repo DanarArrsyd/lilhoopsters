@@ -5,7 +5,9 @@
 [x-cloak] { display: none !important; }
 
 @theme {
-    --font-sans: Arial, Helvetica, sans-serif;
+    --font-sans:    'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-heading: 'Barlow Semi Condensed', system-ui, sans-serif;
+    --font-mono:    'DM Mono', ui-monospace, monospace;
 
     /* Tighter radius scale (Tailwind defaults are too round) */
     --radius-sm:  0.125rem;  /*  2px — unchanged */
@@ -17,16 +19,16 @@
     --radius-3xl: 1rem;      /* 16px  (was 24px) */
 
     /* Brand two-tone */
-    --color-navy:    #0A0F1E;
-    --color-navy-2:  #141B2E;
-    --color-off:     #FAF9F6;
+    --color-navy:    #1A2F5E;
+    --color-navy-2:  #243A72;
+    --color-off:     #F4F7FC;
     --color-surface: #FFFFFF;
-    --color-line:    #E6E3DC;
+    --color-line:    #DDE4F0;
 
     /* Text */
-    --color-ink:     #0A0F1E;
-    --color-muted:   #6B7280;
-    --color-faint:   #9AA0AC; /* decorative / placeholder only — fails AA for body text */
+    --color-ink:     #0D1B3E;
+    --color-muted:   #5A6A8A;
+    --color-faint:   #8A9BBF; /* decorative / placeholder only — fails AA for body text */
 
     /* Functional status (small doses only) */
     --color-success: #15803D;
@@ -44,6 +46,21 @@
 
     * {
         -webkit-font-smoothing: antialiased;
+    }
+
+    /* Page titles: h1/h2 with uppercase+tracking → Barlow Semi Condensed */
+    h1, h2 {
+        font-family: var(--font-heading);
+    }
+
+    /* Sidebar brand name */
+    .sidebar-brand {
+        font-family: var(--font-heading);
+    }
+
+    /* Numeric data: KPI values, stat counts */
+    .font-numeric {
+        font-family: var(--font-mono);
     }
 }
 

@@ -7,7 +7,11 @@
 
         {{-- Preset pill group --}}
         <div class="flex items-center bg-off rounded-lg p-1 gap-0.5">
-            @foreach (['month' => 'This Month', '30d' => '30 Days', 'year' => 'This Year'] as $key => $label)
+            @foreach ([
+                'month' => __('messages.admin.reports.preset_month'),
+                '30d'   => __('messages.admin.reports.preset_30d'),
+                'year'  => __('messages.admin.reports.preset_year'),
+            ] as $key => $label)
                 <button wire:click="setPreset('{{ $key }}')"
                         class="px-3 py-1 text-xs font-semibold rounded-md transition-all duration-150
                                {{ $preset === $key
@@ -22,7 +26,7 @@
 
         {{-- Date range --}}
         <div class="flex items-center gap-2">
-            <span class="text-xs text-muted hidden sm:inline">From</span>
+            <span class="text-xs text-muted hidden sm:inline">{{ __('messages.admin.reports.from_label') }}</span>
             <input type="date" wire:model.live="dateFrom"
                    class="text-xs border rounded-lg px-2.5 py-1.5 text-ink bg-off focus:outline-none
                           focus:ring-2 focus:ring-navy/20 focus:border-navy/40
@@ -39,7 +43,7 @@
         {{-- Location --}}
         <div class="min-w-36">
             <x-select wire:model.live="filterLocation">
-                <option value="">All Locations</option>
+                <option value="">{{ __('messages.admin.reports.all_locations') }}</option>
                 @foreach ($locations as $loc)
                     <option value="{{ $loc->id }}">{{ $loc->name }}</option>
                 @endforeach
@@ -61,7 +65,7 @@
                 <circle class="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                 <path fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
             </svg>
-            Loading…
+            {{ __('messages.admin.reports.loading') }}
         </div>
 
         {{-- Export CSV --}}
@@ -76,369 +80,421 @@
                 <circle class="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                 <path fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
             </svg>
-            Export CSV
+            {{ __('messages.admin.reports.export_csv') }}
         </button>
     </div>
 
-    {{-- Content fades while a filter reload is in flight --}}
-    <div wire:loading.class="opacity-40 pointer-events-none"
-         wire:target="setPreset,dateFrom,dateTo,filterLocation"
-         class="transition-opacity duration-200">
-
     {{-- ══════════════════════════════════════════════
-         KPI CARDS
+         TAB CONTROLLER (Alpine.js — no Livewire round-trip)
     ══════════════════════════════════════════════ --}}
-    @php
-        $kpiCards = [
-            [
-                'key'     => 'total_revenue',
-                'label'   => 'Total Revenue',
-                'value'   => 'Rp ' . number_format($kpis['total_revenue'], 0, ',', '.'),
-                'sub'     => 'paid transactions',
-                'ib'      => 'bg-[#15803D]/10',
-                'it'      => 'text-[#15803D]',
-                'bar'     => 'bg-[#15803D]',
-                'good'    => 'up',
-                'icon'    => 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 8v1m0 0c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
-            ],
-            [
-                'key'     => 'paid_count',
-                'label'   => 'Paid Transactions',
-                'value'   => number_format($kpis['paid_count']),
-                'sub'     => 'completed transactions',
-                'ib'      => 'bg-navy/10',
-                'it'      => 'text-navy',
-                'bar'     => 'bg-navy',
-                'good'    => 'up',
-                'icon'    => 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
-            ],
-            [
-                'key'     => 'avg_transaction',
-                'label'   => 'Average Transaction',
-                'value'   => 'Rp ' . number_format($kpis['avg_transaction'], 0, ',', '.'),
-                'sub'     => 'average value',
-                'ib'      => 'bg-[#1D4ED8]/10',
-                'it'      => 'text-[#1D4ED8]',
-                'bar'     => 'bg-[#1D4ED8]',
-                'good'    => 'up',
-                'icon'    => 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
-            ],
-            [
-                'key'     => 'conversion_rate',
-                'label'   => 'Conversion Rate',
-                'value'   => $kpis['conversion_rate'] . '%',
-                'sub'     => 'paid ÷ all initiated',
-                'ib'      => 'bg-[#B45309]/10',
-                'it'      => 'text-[#B45309]',
-                'bar'     => 'bg-[#B45309]',
-                'good'    => 'up',
-                'icon'    => 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6',
-            ],
-        ];
-    @endphp
+    <div x-data="{ tab: 'revenue' }">
 
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
-        @foreach ($kpiCards as $card)
-            <div class="bg-surface border border-line rounded-xl px-4 pt-4 pb-3 flex flex-col gap-3">
-                <div class="flex items-start justify-between gap-2">
-                    <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">{{ $card['label'] }}</p>
-                    <div class="w-7 h-7 rounded-lg {{ $card['ib'] }} flex items-center justify-center shrink-0">
-                        <svg class="w-3.5 h-3.5 {{ $card['it'] }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $card['icon'] }}"/>
-                        </svg>
-                    </div>
-                </div>
-                <div>
-                    <p class="text-xl font-extrabold text-navy leading-none tracking-tight">{{ $card['value'] }}</p>
-                    <div class="flex items-center gap-1.5 mt-1.5">
-                        @php $d = $deltas[$card['key']] ?? null; @endphp
-                        @if ($d)
-                            @php
-                                $isGood = $d['dir'] === $card['good'];
-                                $isFlat = $d['dir'] === 'flat';
-                                $badge  = $isFlat
-                                    ? 'bg-off text-muted border-line'
-                                    : ($isGood ? 'bg-[#15803D]/10 text-[#15803D] border-[#15803D]/20'
-                                               : 'bg-[#B91C1C]/10 text-[#B91C1C] border-[#B91C1C]/20');
-                            @endphp
-                            <span class="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-md border {{ $badge }}">
-                                @if (! $isFlat)
-                                    <svg class="w-2.5 h-2.5 shrink-0 {{ $d['dir'] === 'down' ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/>
+        {{-- Tab nav --}}
+        <div class="bg-surface border border-line rounded-xl p-1.5 mb-5 flex items-center gap-1">
+            <button @click="tab='revenue'"
+                    :class="tab === 'revenue' ? 'bg-navy text-off shadow-sm' : 'text-muted hover:text-ink hover:bg-off'"
+                    class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-150 text-sm font-bold">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 8v1m0 0c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Revenue
+            </button>
+
+            <button @click="tab='packages'"
+                    :class="tab === 'packages' ? 'bg-navy text-off shadow-sm' : 'text-muted hover:text-ink hover:bg-off'"
+                    class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-150 text-sm font-bold">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                </svg>
+                Packages
+            </button>
+
+            <button @click="tab='payments'"
+                    :class="tab === 'payments' ? 'bg-navy text-off shadow-sm' : 'text-muted hover:text-ink hover:bg-off'"
+                    class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-150 text-sm font-bold">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                </svg>
+                Payments
+            </button>
+        </div>
+
+        {{-- Content fades while a filter reload is in flight --}}
+        <div wire:loading.class="opacity-40 pointer-events-none"
+             wire:target="setPreset,dateFrom,dateTo,filterLocation"
+             class="transition-opacity duration-200">
+
+            {{-- ══════════════════════════════════════════════
+                 TAB: REVENUE — KPI cards + chart
+            ══════════════════════════════════════════════ --}}
+            <div x-show="tab === 'revenue'"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 translate-y-1"
+                 x-transition:enter-end="opacity-100 translate-y-0">
+
+                @php
+                    $kpiCards = [
+                        [
+                            'key'     => 'total_revenue',
+                            'label'   => __('messages.admin.reports.kpi_total_revenue'),
+                            'value'   => 'Rp ' . number_format($kpis['total_revenue'], 0, ',', '.'),
+                            'sub'     => __('messages.admin.reports.sub_paid_txn'),
+                            'ib'      => 'bg-[#15803D]/10',
+                            'it'      => 'text-[#15803D]',
+                            'bar'     => 'bg-[#15803D]',
+                            'good'    => 'up',
+                            'icon'    => 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 8v1m0 0c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+                        ],
+                        [
+                            'key'     => 'paid_count',
+                            'label'   => __('messages.admin.reports.kpi_paid_count'),
+                            'value'   => number_format($kpis['paid_count']),
+                            'sub'     => __('messages.admin.reports.sub_completed'),
+                            'ib'      => 'bg-navy/10',
+                            'it'      => 'text-navy',
+                            'bar'     => 'bg-navy',
+                            'good'    => 'up',
+                            'icon'    => 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
+                        ],
+                        [
+                            'key'     => 'avg_transaction',
+                            'label'   => __('messages.admin.reports.kpi_avg_transaction'),
+                            'value'   => 'Rp ' . number_format($kpis['avg_transaction'], 0, ',', '.'),
+                            'sub'     => __('messages.admin.reports.sub_avg_value'),
+                            'ib'      => 'bg-[#1D4ED8]/10',
+                            'it'      => 'text-[#1D4ED8]',
+                            'bar'     => 'bg-[#1D4ED8]',
+                            'good'    => 'up',
+                            'icon'    => 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
+                        ],
+                        [
+                            'key'     => 'conversion_rate',
+                            'label'   => __('messages.admin.reports.kpi_conv_rate'),
+                            'value'   => $kpis['conversion_rate'] . '%',
+                            'sub'     => __('messages.admin.reports.sub_paid_div_all'),
+                            'ib'      => 'bg-[#B45309]/10',
+                            'it'      => 'text-[#B45309]',
+                            'bar'     => 'bg-[#B45309]',
+                            'good'    => 'up',
+                            'icon'    => 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6',
+                        ],
+                    ];
+                @endphp
+
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+                    @foreach ($kpiCards as $card)
+                        <div class="bg-surface border border-line rounded-xl px-4 pt-4 pb-3 flex flex-col gap-3">
+                            <div class="flex items-start justify-between gap-2">
+                                <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">{{ $card['label'] }}</p>
+                                <div class="w-7 h-7 rounded-lg {{ $card['ib'] }} flex items-center justify-center shrink-0">
+                                    <svg class="w-3.5 h-3.5 {{ $card['it'] }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $card['icon'] }}"/>
                                     </svg>
-                                @endif
-                                {{ $d['pct'] }}%
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-xl font-extrabold text-navy leading-none tracking-tight">{{ $card['value'] }}</p>
+                                <div class="flex items-center gap-1.5 mt-1.5">
+                                    @php $d = $deltas[$card['key']] ?? null; @endphp
+                                    @if ($d)
+                                        @php
+                                            $isGood = $d['dir'] === $card['good'];
+                                            $isFlat = $d['dir'] === 'flat';
+                                            $badge  = $isFlat
+                                                ? 'bg-off text-muted border-line'
+                                                : ($isGood ? 'bg-[#15803D]/10 text-[#15803D] border-[#15803D]/20'
+                                                           : 'bg-[#B91C1C]/10 text-[#B91C1C] border-[#B91C1C]/20');
+                                        @endphp
+                                        <span class="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-md border {{ $badge }}">
+                                            @if (! $isFlat)
+                                                <svg class="w-2.5 h-2.5 shrink-0 {{ $d['dir'] === 'down' ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/>
+                                                </svg>
+                                            @endif
+                                            {{ $d['pct'] }}%
+                                        </span>
+                                        <span class="text-[10px] text-faint">{{ __('messages.admin.reports.vs_prev_period') }}</span>
+                                    @else
+                                        <p class="text-[11px] text-muted">{{ $card['sub'] }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="h-0.5 w-10 {{ $card['bar'] }} rounded-full"></div>
+                        </div>
+                    @endforeach
+                </div>
+
+                {{-- REVENUE OVER TIME — CHART.JS --}}
+                <div class="bg-surface border border-line rounded-xl overflow-hidden">
+                    <div class="px-5 py-3.5 border-b border-line flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                            <h3 class="text-sm font-extrabold text-navy uppercase tracking-wide">{{ __('messages.admin.reports.revenue_over_time') }}</h3>
+                            <p class="text-xs text-muted mt-0.5">
+                                Based on paid_at · {{ $bucketMode === 'daily' ? __('messages.admin.reports.bucket_daily') : __('messages.admin.reports.bucket_monthly') }}
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-4 text-xs text-muted">
+                            <span class="flex items-center gap-1.5">
+                                <span class="inline-block w-4 h-3 rounded bg-navy"></span>
+                                {{ __('messages.admin.reports.legend_above') }}
                             </span>
-                            <span class="text-[10px] text-faint">vs previous period</span>
+                            <span class="flex items-center gap-1.5">
+                                <span class="inline-block w-4 h-3 rounded bg-[#94a3b8]"></span>
+                                {{ __('messages.admin.reports.legend_below') }}
+                            </span>
+                            <span class="flex items-center gap-1.5">
+                                <span class="inline-block w-4 border-t-2 border-dashed border-[#B45309]"></span>
+                                {{ __('messages.admin.reports.legend_avg') }}
+                            </span>
+                        </div>
+                    </div>
+
+                    @if (empty($chartLabels) || array_sum($chartAmounts) === 0)
+                        <div class="py-20 flex flex-col items-center gap-3 text-center">
+                            <div class="w-14 h-14 rounded-xl bg-off border border-line flex items-center justify-center">
+                                <svg class="w-7 h-7 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-ink">{{ __('messages.admin.reports.no_data_title') }}</p>
+                                <p class="text-xs text-muted mt-0.5">{{ __('messages.admin.reports.no_data_desc') }}</p>
+                            </div>
+                        </div>
+                    @else
+                        <div wire:ignore
+                             x-data="revenueChart(@js($chartLabels), @js($chartAmounts), {{ $chartAvg }})"
+                             class="px-5 py-5">
+                            <div style="height: 300px; position: relative;">
+                                <canvas></canvas>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+
+            </div>{{-- /revenue tab --}}
+
+            {{-- ══════════════════════════════════════════════
+                 TAB: PACKAGES — breakdown + top packages
+            ══════════════════════════════════════════════ --}}
+            <div x-show="tab === 'packages'"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 translate-y-1"
+                 x-transition:enter-end="opacity-100 translate-y-0">
+
+                @php
+                    $typeMeta = [
+                        'registration' => ['label' => __('messages.admin.packages.type_reg'),    'class' => 'bg-[#1D4ED8]/10 text-[#1D4ED8]', 'bar' => 'bg-[#1D4ED8]'],
+                        'regular'      => ['label' => __('messages.admin.packages.type_regular'),'class' => 'bg-navy/10 text-navy',           'bar' => 'bg-navy'],
+                        'drop_in'      => ['label' => __('messages.admin.packages.type_drop_in'),'class' => 'bg-[#B45309]/10 text-[#B45309]', 'bar' => 'bg-[#B45309]'],
+                        'private'      => ['label' => __('messages.admin.packages.type_private'),'class' => 'bg-[#7C3AED]/10 text-[#7C3AED]', 'bar' => 'bg-[#7C3AED]'],
+                    ];
+                    $maxTypeRev     = $byType->max('revenue')     ?: 1;
+                    $maxLocationRev = $byLocation->max('revenue') ?: 1;
+                    $totalTypeRev   = $byType->sum('revenue')     ?: 1;
+                    $totalLocRev    = $byLocation->sum('revenue') ?: 1;
+                @endphp
+
+                {{-- BREAKDOWN: BY TYPE + BY LOCATION --}}
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5">
+
+                    <div class="bg-surface border border-line rounded-xl overflow-hidden">
+                        <div class="px-4 py-3 border-b border-line">
+                            <h3 class="text-sm font-extrabold text-navy uppercase tracking-wide">{{ __('messages.admin.reports.by_type') }}</h3>
+                        </div>
+                        <div class="p-4 space-y-4">
+                            @forelse ($byType as $type => $data)
+                                @php
+                                    $meta = $typeMeta[$type] ?? ['label' => $type, 'class' => 'bg-line text-ink', 'bar' => 'bg-ink'];
+                                    $pct  = round($data['revenue'] / $totalTypeRev * 100);
+                                @endphp
+                                <div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="flex items-center gap-2">
+                                            <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold {{ $meta['class'] }}">
+                                                {{ $meta['label'] }}
+                                            </span>
+                                            <span class="text-xs text-muted">{{ $data['count'] }} txn</span>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="text-xs font-bold text-ink tabular-nums">
+                                                Rp {{ number_format($data['revenue'], 0, ',', '.') }}
+                                            </span>
+                                            <span class="text-xs text-muted ml-1.5">{{ $pct }}%</span>
+                                        </div>
+                                    </div>
+                                    <div class="h-2.5 bg-off rounded-full overflow-hidden border border-line">
+                                        <div class="{{ $meta['bar'] }} h-full rounded-full transition-all duration-500"
+                                             style="width:{{ round($data['revenue'] / $maxTypeRev * 100) }}%"></div>
+                                    </div>
+                                </div>
+                            @empty
+                                <p class="text-xs text-muted py-6 text-center">{{ __('messages.admin.reports.no_data_period') }}</p>
+                            @endforelse
+                        </div>
+                    </div>
+
+                    <div class="bg-surface border border-line rounded-xl overflow-hidden">
+                        <div class="px-4 py-3 border-b border-line">
+                            <h3 class="text-sm font-extrabold text-navy uppercase tracking-wide">{{ __('messages.admin.reports.by_location') }}</h3>
+                        </div>
+                        <div class="p-4 space-y-4">
+                            @forelse ($byLocation as $locName => $data)
+                                @php $pct = round($data['revenue'] / $totalLocRev * 100); @endphp
+                                <div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-1.5 h-1.5 rounded-full bg-navy shrink-0"></div>
+                                            <span class="text-xs font-semibold text-ink truncate max-w-[40%]">{{ $locName }}</span>
+                                            <span class="text-xs text-muted">{{ $data['count'] }} txn</span>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="text-xs font-bold text-ink tabular-nums">
+                                                Rp {{ number_format($data['revenue'], 0, ',', '.') }}
+                                            </span>
+                                            <span class="text-xs text-muted ml-1.5">{{ $pct }}%</span>
+                                        </div>
+                                    </div>
+                                    <div class="h-2.5 bg-off rounded-full overflow-hidden border border-line">
+                                        <div class="bg-navy h-full rounded-full transition-all duration-500"
+                                             style="width:{{ round($data['revenue'] / $maxLocationRev * 100) }}%"></div>
+                                    </div>
+                                </div>
+                            @empty
+                                <p class="text-xs text-muted py-6 text-center">{{ __('messages.admin.reports.no_data_period') }}</p>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+
+                {{-- TOP PACKAGES TABLE --}}
+                <div class="bg-surface border border-line rounded-xl overflow-hidden">
+                    <div class="px-5 py-3 border-b border-line">
+                        <h3 class="text-sm font-extrabold text-navy uppercase tracking-wide">{{ __('messages.admin.reports.top_packages') }}</h3>
+                        <p class="text-xs text-muted mt-0.5">{{ __('messages.admin.reports.top_packages_sub') }}</p>
+                    </div>
+
+                    @if ($topPackages->isEmpty())
+                        <div class="py-12 flex flex-col items-center gap-3 text-center">
+                            <div class="w-12 h-12 rounded-xl bg-off border border-line flex items-center justify-center">
+                                <svg class="w-6 h-6 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-ink">{{ __('messages.admin.reports.no_packages_title') }}</p>
+                                <p class="text-xs text-muted">{{ __('messages.admin.reports.no_packages_desc') }}</p>
+                            </div>
+                        </div>
+                    @else
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-xs">
+                                <thead>
+                                    <tr class="border-b border-line bg-off/50">
+                                        <th class="px-5 py-2.5 text-left font-semibold text-muted uppercase tracking-wide text-[10px] w-8">{{ __('messages.admin.reports.col_rank') }}</th>
+                                        <th class="px-5 py-2.5 text-left font-semibold text-muted uppercase tracking-wide text-[10px]">{{ __('messages.admin.reports.col_package') }}</th>
+                                        <th class="px-5 py-2.5 text-left font-semibold text-muted uppercase tracking-wide text-[10px]">{{ __('messages.admin.reports.col_type') }}</th>
+                                        <th class="px-5 py-2.5 text-left font-semibold text-muted uppercase tracking-wide text-[10px] hidden md:table-cell">{{ __('messages.admin.reports.col_location') }}</th>
+                                        <th class="px-5 py-2.5 text-right font-semibold text-muted uppercase tracking-wide text-[10px]">{{ __('messages.admin.reports.col_unit') }}</th>
+                                        <th class="px-5 py-2.5 text-right font-semibold text-muted uppercase tracking-wide text-[10px]">{{ __('messages.admin.reports.col_revenue') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-line">
+                                    @foreach ($topPackages as $idx => $pkg)
+                                        @php $meta = $typeMeta[$pkg['type']] ?? ['label' => $pkg['type'], 'class' => 'bg-line text-ink']; @endphp
+                                        <tr class="hover:bg-off/60 transition-colors group">
+                                            <td class="px-5 py-3 text-muted tabular-nums font-semibold">{{ $idx + 1 }}</td>
+                                            <td class="px-5 py-3 font-semibold text-ink group-hover:text-navy transition-colors">{{ $pkg['name'] }}</td>
+                                            <td class="px-5 py-3">
+                                                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold {{ $meta['class'] }}">
+                                                    {{ $meta['label'] }}
+                                                </span>
+                                            </td>
+                                            <td class="px-5 py-3 text-muted hidden md:table-cell">{{ $pkg['location'] }}</td>
+                                            <td class="px-5 py-3 text-right tabular-nums text-muted">{{ $pkg['units'] }}</td>
+                                            <td class="px-5 py-3 text-right tabular-nums font-bold text-ink">
+                                                Rp {{ number_format($pkg['revenue'], 0, ',', '.') }}
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                </div>
+
+            </div>{{-- /packages tab --}}
+
+            {{-- ══════════════════════════════════════════════
+                 TAB: PAYMENTS — funnel
+            ══════════════════════════════════════════════ --}}
+            <div x-show="tab === 'payments'"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 translate-y-1"
+                 x-transition:enter-end="opacity-100 translate-y-0">
+
+                @php
+                    $funnelMeta = [
+                        'paid'     => ['label' => __('messages.status.paid'),      'bg' => 'bg-green-500',  'text' => 'text-green-700',  'light' => 'bg-green-50',  'border' => 'border-green-200'],
+                        'pending'  => ['label' => __('messages.status.pending'),   'bg' => 'bg-amber-400',  'text' => 'text-amber-700',  'light' => 'bg-amber-50',  'border' => 'border-amber-200'],
+                        'rejected' => ['label' => __('messages.status.rejected'),  'bg' => 'bg-red-500',    'text' => 'text-red-700',    'light' => 'bg-red-50',    'border' => 'border-red-200'],
+                        'expired'  => ['label' => __('messages.status.expired'),   'bg' => 'bg-slate-400',  'text' => 'text-slate-600',  'light' => 'bg-slate-50',  'border' => 'border-slate-200'],
+                    ];
+                @endphp
+
+                <div class="bg-surface border border-line rounded-xl overflow-hidden">
+                    <div class="px-5 py-3 border-b border-line">
+                        <h3 class="text-sm font-extrabold text-navy uppercase tracking-wide">{{ __('messages.admin.reports.payment_funnel') }}</h3>
+                        <p class="text-xs text-muted mt-0.5">{{ __('messages.admin.reports.funnel_sub') }}</p>
+                    </div>
+
+                    <div class="p-5">
+                        @if ($funnelTotal === 0)
+                            <div class="py-6 text-center">
+                                <p class="text-sm font-bold text-ink">{{ __('messages.admin.reports.no_txn_title') }}</p>
+                                <p class="text-xs text-muted mt-1">{{ __('messages.admin.reports.no_txn_desc') }}</p>
+                            </div>
                         @else
-                            <p class="text-[11px] text-muted">{{ $card['sub'] }}</p>
-                        @endif
-                    </div>
-                </div>
-                <div class="h-0.5 w-10 {{ $card['bar'] }} rounded-full"></div>
-            </div>
-        @endforeach
-    </div>
-
-    {{-- ══════════════════════════════════════════════
-         REVENUE OVER TIME — CHART.JS
-    ══════════════════════════════════════════════ --}}
-    <div class="bg-surface border border-line rounded-xl mb-5 overflow-hidden">
-        <div class="px-5 py-3.5 border-b border-line flex flex-wrap items-start justify-between gap-3">
-            <div>
-                <h3 class="text-sm font-extrabold text-navy uppercase tracking-wide">Revenue Over Time</h3>
-                <p class="text-xs text-muted mt-0.5">
-                    Based on paid_at · {{ $bucketMode === 'daily' ? 'Daily' : 'Monthly' }}
-                </p>
-            </div>
-            <div class="flex items-center gap-4 text-xs text-muted">
-                <span class="flex items-center gap-1.5">
-                    <span class="inline-block w-4 h-3 rounded bg-navy"></span>
-                    Above average
-                </span>
-                <span class="flex items-center gap-1.5">
-                    <span class="inline-block w-4 h-3 rounded bg-[#94a3b8]"></span>
-                    Below average
-                </span>
-                <span class="flex items-center gap-1.5">
-                    <span class="inline-block w-4 border-t-2 border-dashed border-[#B45309]"></span>
-                    Rata-rata
-                </span>
-            </div>
-        </div>
-
-        @if (empty($chartLabels) || array_sum($chartAmounts) === 0)
-            <div class="py-20 flex flex-col items-center gap-3 text-center">
-                <div class="w-14 h-14 rounded-xl bg-off border border-line flex items-center justify-center">
-                    <svg class="w-7 h-7 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                    </svg>
-                </div>
-                <div>
-                    <p class="text-sm font-bold text-ink">No data yet</p>
-                    <p class="text-xs text-muted mt-0.5">No paid transactions in this period.</p>
-                </div>
-            </div>
-        @else
-            <div wire:ignore
-                 x-data="revenueChart(@js($chartLabels), @js($chartAmounts), {{ $chartAvg }})"
-                 class="px-5 py-5">
-                <div style="height: 300px; position: relative;">
-                    <canvas></canvas>
-                </div>
-            </div>
-        @endif
-    </div>
-
-    {{-- ══════════════════════════════════════════════
-         BREAKDOWN: BY TYPE + BY LOCATION
-    ══════════════════════════════════════════════ --}}
-    @php
-        $typeMeta = [
-            'registration' => ['label' => 'Registration', 'class' => 'bg-[#1D4ED8]/10 text-[#1D4ED8]', 'bar' => 'bg-[#1D4ED8]'],
-            'regular'      => ['label' => 'Regular',      'class' => 'bg-navy/10 text-navy',           'bar' => 'bg-navy'],
-            'drop_in'      => ['label' => 'Drop-in',      'class' => 'bg-[#B45309]/10 text-[#B45309]', 'bar' => 'bg-[#B45309]'],
-            'private'      => ['label' => 'Private',      'class' => 'bg-[#7C3AED]/10 text-[#7C3AED]', 'bar' => 'bg-[#7C3AED]'],
-        ];
-        $maxTypeRev     = $byType->max('revenue')     ?: 1;
-        $maxLocationRev = $byLocation->max('revenue') ?: 1;
-        $totalTypeRev   = $byType->sum('revenue')     ?: 1;
-        $totalLocRev    = $byLocation->sum('revenue') ?: 1;
-    @endphp
-
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5">
-
-        {{-- By package type --}}
-        <div class="bg-surface border border-line rounded-xl overflow-hidden">
-            <div class="px-4 py-3 border-b border-line">
-                <h3 class="text-sm font-extrabold text-navy uppercase tracking-wide">By Package Type</h3>
-            </div>
-            <div class="p-4 space-y-4">
-                @forelse ($byType as $type => $data)
-                    @php
-                        $meta = $typeMeta[$type] ?? ['label' => $type, 'class' => 'bg-line text-ink', 'bar' => 'bg-ink'];
-                        $pct  = round($data['revenue'] / $totalTypeRev * 100);
-                    @endphp
-                    <div>
-                        <div class="flex items-center justify-between mb-2">
-                            <div class="flex items-center gap-2">
-                                <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold {{ $meta['class'] }}">
-                                    {{ $meta['label'] }}
-                                </span>
-                                <span class="text-xs text-muted">{{ $data['count'] }} txn</span>
+                            {{-- Proportional bar --}}
+                            <div class="flex h-8 rounded-xl overflow-hidden mb-5" style="gap:1px; background:#E6E3DC;">
+                                @foreach ($funnelMeta as $status => $meta)
+                                    @php $count = $funnel[$status] ?? 0; $pct = round($count / $funnelTotal * 100); @endphp
+                                    @if ($pct > 0)
+                                        <div class="{{ $meta['bg'] }} flex items-center justify-center"
+                                             style="width:{{ $pct }}%"
+                                             title="{{ $meta['label'] }}: {{ $count }} ({{ $pct }}%)">
+                                            @if ($pct >= 7)
+                                                <span class="text-white text-[10px] font-bold select-none">{{ $pct }}%</span>
+                                            @endif
+                                        </div>
+                                    @endif
+                                @endforeach
                             </div>
-                            <div class="text-right">
-                                <span class="text-xs font-bold text-ink tabular-nums">
-                                    Rp {{ number_format($data['revenue'], 0, ',', '.') }}
-                                </span>
-                                <span class="text-xs text-muted ml-1.5">{{ $pct }}%</span>
-                            </div>
-                        </div>
-                        <div class="h-2.5 bg-off rounded-full overflow-hidden border border-line">
-                            <div class="{{ $meta['bar'] }} h-full rounded-full transition-all duration-500"
-                                 style="width:{{ round($data['revenue'] / $maxTypeRev * 100) }}%"></div>
-                        </div>
-                    </div>
-                @empty
-                    <p class="text-xs text-muted py-6 text-center">No data in this period.</p>
-                @endforelse
-            </div>
-        </div>
 
-        {{-- By location --}}
-        <div class="bg-surface border border-line rounded-xl overflow-hidden">
-            <div class="px-4 py-3 border-b border-line">
-                <h3 class="text-sm font-extrabold text-navy uppercase tracking-wide">By Location</h3>
-            </div>
-            <div class="p-4 space-y-4">
-                @forelse ($byLocation as $locName => $data)
-                    @php $pct = round($data['revenue'] / $totalLocRev * 100); @endphp
-                    <div>
-                        <div class="flex items-center justify-between mb-2">
-                            <div class="flex items-center gap-2">
-                                <div class="w-1.5 h-1.5 rounded-full bg-navy shrink-0"></div>
-                                <span class="text-xs font-semibold text-ink truncate max-w-[40%]">{{ $locName }}</span>
-                                <span class="text-xs text-muted">{{ $data['count'] }} txn</span>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-xs font-bold text-ink tabular-nums">
-                                    Rp {{ number_format($data['revenue'], 0, ',', '.') }}
-                                </span>
-                                <span class="text-xs text-muted ml-1.5">{{ $pct }}%</span>
-                            </div>
-                        </div>
-                        <div class="h-2.5 bg-off rounded-full overflow-hidden border border-line">
-                            <div class="bg-navy h-full rounded-full transition-all duration-500"
-                                 style="width:{{ round($data['revenue'] / $maxLocationRev * 100) }}%"></div>
-                        </div>
-                    </div>
-                @empty
-                    <p class="text-xs text-muted py-6 text-center">No data in this period.</p>
-                @endforelse
-            </div>
-        </div>
-    </div>
-
-    {{-- ══════════════════════════════════════════════
-         TOP PACKAGES TABLE
-    ══════════════════════════════════════════════ --}}
-    <div class="bg-surface border border-line rounded-xl mb-5 overflow-hidden">
-        <div class="px-5 py-3 border-b border-line">
-            <h3 class="text-sm font-extrabold text-navy uppercase tracking-wide">Top Packages</h3>
-            <p class="text-xs text-muted mt-0.5">Top 10 packages by revenue.</p>
-        </div>
-
-        @if ($topPackages->isEmpty())
-            <div class="py-12 flex flex-col items-center gap-3 text-center">
-                <div class="w-12 h-12 rounded-xl bg-off border border-line flex items-center justify-center">
-                    <svg class="w-6 h-6 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                    </svg>
-                </div>
-                <div>
-                    <p class="text-sm font-bold text-ink">No packages sold yet</p>
-                    <p class="text-xs text-muted">No paid transactions in this period.</p>
-                </div>
-            </div>
-        @else
-            <div class="overflow-x-auto">
-                <table class="w-full text-xs">
-                    <thead>
-                        <tr class="border-b border-line bg-off/50">
-                            <th class="px-5 py-2.5 text-left font-semibold text-muted uppercase tracking-wide text-[10px] w-8">#</th>
-                            <th class="px-5 py-2.5 text-left font-semibold text-muted uppercase tracking-wide text-[10px]">Package</th>
-                            <th class="px-5 py-2.5 text-left font-semibold text-muted uppercase tracking-wide text-[10px]">Tipe</th>
-                            <th class="px-5 py-2.5 text-left font-semibold text-muted uppercase tracking-wide text-[10px] hidden md:table-cell">Location</th>
-                            <th class="px-5 py-2.5 text-right font-semibold text-muted uppercase tracking-wide text-[10px]">Unit</th>
-                            <th class="px-5 py-2.5 text-right font-semibold text-muted uppercase tracking-wide text-[10px]">Revenue</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-line">
-                        @foreach ($topPackages as $idx => $pkg)
-                            @php $meta = $typeMeta[$pkg['type']] ?? ['label' => $pkg['type'], 'class' => 'bg-line text-ink']; @endphp
-                            <tr class="hover:bg-off/60 transition-colors group">
-                                <td class="px-5 py-3 text-muted tabular-nums font-semibold">{{ $idx + 1 }}</td>
-                                <td class="px-5 py-3 font-semibold text-ink group-hover:text-navy transition-colors">{{ $pkg['name'] }}</td>
-                                <td class="px-5 py-3">
-                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold {{ $meta['class'] }}">
-                                        {{ $meta['label'] }}
-                                    </span>
-                                </td>
-                                <td class="px-5 py-3 text-muted hidden md:table-cell">{{ $pkg['location'] }}</td>
-                                <td class="px-5 py-3 text-right tabular-nums text-muted">{{ $pkg['units'] }}</td>
-                                <td class="px-5 py-3 text-right tabular-nums font-bold text-ink">
-                                    Rp {{ number_format($pkg['revenue'], 0, ',', '.') }}
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        @endif
-    </div>
-
-    {{-- ══════════════════════════════════════════════
-         PAYMENT FUNNEL
-    ══════════════════════════════════════════════ --}}
-    @php
-        $funnelMeta = [
-            'paid'     => ['label' => 'Paid',     'bg' => 'bg-green-500',  'text' => 'text-green-700',  'light' => 'bg-green-50',  'border' => 'border-green-200'],
-            'pending'  => ['label' => 'Pending',  'bg' => 'bg-amber-400',  'text' => 'text-amber-700',  'light' => 'bg-amber-50',  'border' => 'border-amber-200'],
-            'rejected' => ['label' => 'Rejected', 'bg' => 'bg-red-500',    'text' => 'text-red-700',    'light' => 'bg-red-50',    'border' => 'border-red-200'],
-            'expired'  => ['label' => 'Expired',  'bg' => 'bg-slate-400',  'text' => 'text-slate-600',  'light' => 'bg-slate-50',  'border' => 'border-slate-200'],
-        ];
-    @endphp
-
-    <div class="bg-surface border border-line rounded-xl mb-5 overflow-hidden">
-        <div class="px-5 py-3 border-b border-line">
-            <h3 class="text-sm font-extrabold text-navy uppercase tracking-wide">Payment Funnel</h3>
-            <p class="text-xs text-muted mt-0.5">Based on transaction initiation date (created_at).</p>
-        </div>
-
-        <div class="p-5">
-            @if ($funnelTotal === 0)
-                <div class="py-6 text-center">
-                    <p class="text-sm font-bold text-ink">No transactions yet</p>
-                    <p class="text-xs text-muted mt-1">No transactions in this period.</p>
-                </div>
-            @else
-                {{-- Proportional bar --}}
-                <div class="flex h-8 rounded-xl overflow-hidden mb-5" style="gap:1px; background:#E6E3DC;">
-                    @foreach ($funnelMeta as $status => $meta)
-                        @php $count = $funnel[$status] ?? 0; $pct = round($count / $funnelTotal * 100); @endphp
-                        @if ($pct > 0)
-                            <div class="{{ $meta['bg'] }} flex items-center justify-center"
-                                 style="width:{{ $pct }}%"
-                                 title="{{ $meta['label'] }}: {{ $count }} ({{ $pct }}%)">
-                                @if ($pct >= 7)
-                                    <span class="text-white text-[10px] font-bold select-none">{{ $pct }}%</span>
-                                @endif
+                            {{-- Status cards --}}
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                @foreach ($funnelMeta as $status => $meta)
+                                    @php
+                                        $count = $funnel[$status] ?? 0;
+                                        $pct   = $funnelTotal > 0 ? round($count / $funnelTotal * 100, 1) : 0;
+                                    @endphp
+                                    <div class="border rounded-xl p-4 {{ $meta['light'] }} {{ $meta['border'] }}">
+                                        <div class="flex items-center gap-1.5 mb-3">
+                                            <span class="w-2.5 h-2.5 rounded-full {{ $meta['bg'] }} shrink-0"></span>
+                                            <span class="{{ $meta['text'] }} text-[11px] font-bold uppercase tracking-wide">{{ $meta['label'] }}</span>
+                                        </div>
+                                        <p class="{{ $meta['text'] }} text-3xl font-extrabold leading-none tabular-nums">{{ $count }}</p>
+                                        <p class="{{ $meta['text'] }} text-xs mt-2 font-medium">{{ $pct }}{{ __('messages.admin.reports.pct_of_total') }}</p>
+                                    </div>
+                                @endforeach
                             </div>
                         @endif
-                    @endforeach
+                    </div>
                 </div>
 
-                {{-- Status cards --}}
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    @foreach ($funnelMeta as $status => $meta)
-                        @php
-                            $count = $funnel[$status] ?? 0;
-                            $pct   = $funnelTotal > 0 ? round($count / $funnelTotal * 100, 1) : 0;
-                        @endphp
-                        <div class="border rounded-xl p-4 {{ $meta['light'] }} {{ $meta['border'] }}">
-                            <div class="flex items-center gap-1.5 mb-3">
-                                <span class="w-2.5 h-2.5 rounded-full {{ $meta['bg'] }} shrink-0"></span>
-                                <span class="{{ $meta['text'] }} text-[11px] font-bold uppercase tracking-wide">{{ $meta['label'] }}</span>
-                            </div>
-                            <p class="{{ $meta['text'] }} text-3xl font-extrabold leading-none tabular-nums">{{ $count }}</p>
-                            <p class="{{ $meta['text'] }} text-xs mt-2 font-medium">{{ $pct }}% of total</p>
-                        </div>
-                    @endforeach
-                </div>
-            @endif
-        </div>
-    </div>
+            </div>{{-- /payments tab --}}
 
-    </div>{{-- /content fade wrapper --}}
+        </div>{{-- /content fade wrapper --}}
+    </div>{{-- /tab controller --}}
 
 </div>

@@ -4,6 +4,7 @@ namespace App\Livewire\Admin;
 
 use App\Models\Attendance;
 use App\Models\Child;
+use App\Models\CoachSession;
 use App\Models\Schedule;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -12,6 +13,7 @@ class Attendances extends Component
 {
     use WithPagination;
 
+    public string $activeTab    = 'students';
     public string $search      = '';
     public string $filterDate  = '';
     public string $filterStatus = '';
@@ -23,8 +25,9 @@ class Attendances extends Component
     public string $overrideStatus = '';
     public string $overrideNotes  = '';
 
-    public function updatedSearch(): void    { $this->resetPage(); }
-    public function updatedFilterDate(): void { $this->resetPage(); }
+    public function updatedActiveTab(): void    { $this->resetPage(); $this->search = ''; }
+    public function updatedSearch(): void       { $this->resetPage(); }
+    public function updatedFilterDate(): void   { $this->resetPage(); }
     public function updatedFilterStatus(): void { $this->resetPage(); }
     public function updatedFilterSchedule(): void { $this->resetPage(); }
 
@@ -63,6 +66,26 @@ class Attendances extends Component
 
     public function render()
     {
+        $schedules = Schedule::where('is_active', true)->with(['program', 'location'])->get();
+
+        if ($this->activeTab === 'coaches') {
+            $coachSessions = CoachSession::with(['coach.user', 'schedule.program', 'schedule.location'])
+                ->when($this->search, fn($q) =>
+                    $q->whereHas('coach.user', fn($u) => $u->where('name', 'like', "%{$this->search}%"))
+                )
+                ->when($this->filterDate, fn($q) => $q->whereDate('session_date', $this->filterDate))
+                ->when($this->filterSchedule, fn($q) => $q->where('schedule_id', $this->filterSchedule))
+                ->latest('session_date')
+                ->paginate(20);
+
+            return view('livewire.admin.attendances', [
+                'attendances'   => null,
+                'coachSessions' => $coachSessions,
+                'stats'         => [],
+                'schedules'     => $schedules,
+            ]);
+        }
+
         $query = Attendance::with(['child', 'schedule.program', 'schedule.location', 'coach.user'])
             ->when($this->search, function ($q) {
                 $q->whereHas('child', fn($c) => $c->where('name', 'like', "%{$this->search}%"));
@@ -79,12 +102,11 @@ class Attendances extends Component
             'sick'    => Attendance::when($this->filterDate, fn($q) => $q->whereDate('attended_at', $this->filterDate))->whereIn('status', ['sick', 'permit'])->count(),
         ];
 
-        $schedules = Schedule::where('is_active', true)->with(['program', 'location'])->get();
-
         return view('livewire.admin.attendances', [
-            'attendances' => $query->paginate(20),
-            'stats'       => $stats,
-            'schedules'   => $schedules,
+            'attendances'   => $query->paginate(20),
+            'coachSessions' => null,
+            'stats'         => $stats,
+            'schedules'     => $schedules,
         ]);
     }
 }

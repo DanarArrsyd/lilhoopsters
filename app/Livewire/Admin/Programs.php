@@ -10,15 +10,16 @@ class Programs extends Component
 {
     use WithPagination;
 
-    public string $search       = '';
-    public bool $showModal      = false;
-    public ?int $editingId      = null;
+    public string $search    = '';
+    public bool   $showModal = false;
+    public int    $step      = 1;
+    public ?int   $editingId = null;
 
     public string $name        = '';
-    public int $minAgeYears    = 1;
-    public int $maxAgeYears    = 7;
+    public int    $minAgeYears = 1;
+    public int    $maxAgeYears = 7;
     public string $description = '';
-    public bool $is_active     = true;
+    public bool   $is_active   = true;
 
     protected function rules(): array
     {
@@ -48,13 +49,29 @@ class Programs extends Component
     public function openEdit(int $id): void
     {
         $program = Program::findOrFail($id);
-        $this->editingId    = $id;
-        $this->name         = $program->name;
-        $this->minAgeYears  = (int) round($program->min_age_months / 12);
-        $this->maxAgeYears  = (int) round($program->max_age_months / 12);
-        $this->description  = $program->description ?? '';
-        $this->is_active    = $program->is_active;
-        $this->showModal    = true;
+        $this->editingId   = $id;
+        $this->name        = $program->name;
+        $this->minAgeYears = (int) round($program->min_age_months / 12);
+        $this->maxAgeYears = (int) round($program->max_age_months / 12);
+        $this->description = $program->description ?? '';
+        $this->is_active   = $program->is_active;
+        $this->step        = 1;
+        $this->showModal   = true;
+    }
+
+    public function nextStep(): void
+    {
+        $this->validate([
+            'name'        => 'required|string|max:255',
+            'minAgeYears' => 'required|integer|min:1|max:21',
+            'maxAgeYears' => 'required|integer|min:1|max:21|gte:minAgeYears',
+        ]);
+        $this->step = 2;
+    }
+
+    public function back(): void
+    {
+        if ($this->step > 1) $this->step--;
     }
 
     public function save(): void
@@ -96,6 +113,7 @@ class Programs extends Component
     public function resetForm(): void
     {
         $this->editingId   = null;
+        $this->step        = 1;
         $this->name        = '';
         $this->minAgeYears = 1;
         $this->maxAgeYears = 7;

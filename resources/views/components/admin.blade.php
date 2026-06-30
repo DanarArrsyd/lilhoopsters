@@ -14,8 +14,8 @@
             <div class="h-16 flex items-center gap-3 px-4 border-b border-line">
                 <img src="{{ asset('basket_logo.jpeg') }}" alt="Lil' Hoopsters" class="w-9 h-9 rounded-xl object-cover shrink-0">
                 <div>
-                    <p class="text-navy font-extrabold text-sm uppercase tracking-tight leading-tight">Lil' Hoopsters</p>
-                    <p class="text-faint text-[10px] uppercase tracking-wide">Admin Panel</p>
+                    <p class="text-navy font-extrabold text-base uppercase tracking-tight leading-tight sidebar-brand">Lil' Hoopsters</p>
+                    <p class="text-faint text-[10px] uppercase tracking-wide">{{ __('messages.admin.panel') }}</p>
                 </div>
             </div>
 
@@ -36,7 +36,7 @@
                     </div>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="text-muted hover:text-[#B91C1C] transition-colors p-1" title="Sign out">
+                        <button type="submit" class="text-muted hover:text-[#B91C1C] transition-colors p-1" title="{{ __('messages.admin.sign_out') }}">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                             </svg>
@@ -65,6 +65,7 @@
                     <h1 class="text-sm font-bold uppercase tracking-wide text-navy">{{ $title ?? 'Dashboard' }}</h1>
                 </div>
                 {{ $actions ?? '' }}
+                <livewire:locale-switcher />
                 <livewire:notification-bell />
             </header>
 
