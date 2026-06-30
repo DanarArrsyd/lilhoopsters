@@ -82,6 +82,7 @@
                         </div>
                     @endif
                     <x-portal.child-switcher :children="$children" :active-child-id="$activeChildId" />
+                    <x-portal.event-banner :active-event="$activeEvent" />
                     <x-portal.schedule-card :next-session="$nextSession" :week-sessions="$weekSessions" />
                     <x-portal.payment-card :transactions="$transactions" :pending-amount="$pendingAmount" />
                     <x-portal.attendance-strip :attendance-counts="$attendanceCounts" />

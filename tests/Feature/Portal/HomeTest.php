@@ -93,3 +93,17 @@ it('shows quick action buttons that open the existing wizards', function () {
         ->assertSeeLivewire(\App\Livewire\Portal\PrivateSessions::class)
         ->assertSeeLivewire(\App\Livewire\Portal\MakeUpClasses::class);
 });
+
+it('shows a banner when an event is open for registration', function () {
+    $child = Child::factory()->create(['user_id' => $this->parent->id, 'status' => 'active']);
+    \App\Models\Event::factory()->create([
+        'name' => 'Summer Camp 2026',
+        'is_active' => true, 'is_registerable' => true,
+        'location_id' => null,
+        'start_date' => now()->addDays(5), 'end_date' => now()->addDays(10),
+    ]);
+
+    Livewire::actingAs($this->parent)
+        ->test(Home::class)
+        ->assertSee('Summer Camp 2026');
+});
