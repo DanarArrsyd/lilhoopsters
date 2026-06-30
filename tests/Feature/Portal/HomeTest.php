@@ -71,3 +71,15 @@ it('shows the next session for the active child', function () {
         ->assertSee('MVP')
         ->assertSee('GOR Senayan');
 });
+
+it('shows payment status for the active child', function () {
+    $child = Child::factory()->create(['user_id' => $this->parent->id, 'status' => 'active']);
+    \App\Models\Transaction::factory()->create([
+        'user_id' => $this->parent->id, 'child_id' => $child->id,
+        'status' => 'pending', 'amount' => 450000,
+    ]);
+
+    Livewire::actingAs($this->parent)
+        ->test(Home::class)
+        ->assertSee('450.000', escape: false);
+});

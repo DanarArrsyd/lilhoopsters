@@ -83,7 +83,8 @@
                     @endif
                     <x-portal.child-switcher :children="$children" :active-child-id="$activeChildId" />
                     <x-portal.schedule-card :next-session="$nextSession" :week-sessions="$weekSessions" />
-                    {{-- Sections added in Tasks 4-6 --}}
+                    <x-portal.payment-card :transactions="$transactions" :pending-amount="$pendingAmount" />
+                    {{-- Sections added in Tasks 5-6 --}}
                 @endif
 
             </div>{{-- /max-w-2xl --}}
