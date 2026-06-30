@@ -24,6 +24,22 @@ it('renders the home page', function () {
     $this->actingAs($this->parent)->get(route('parent.home'))->assertOk();
 });
 
+it('redirects the old dashboard route to home', function () {
+    $this->actingAs($this->parent)->get(route('parent.dashboard'))
+        ->assertRedirect(route('parent.home'));
+});
+
+it('returns 404 for routes removed from navigation', function () {
+    $this->actingAs($this->parent)->get('/parent/payments')->assertNotFound();
+    $this->actingAs($this->parent)->get('/parent/attendance')->assertNotFound();
+    $this->actingAs($this->parent)->get('/parent/leaves')->assertNotFound();
+    $this->actingAs($this->parent)->get('/parent/makeup')->assertNotFound();
+    $this->actingAs($this->parent)->get('/parent/report-cards')->assertNotFound();
+    $this->actingAs($this->parent)->get('/parent/players')->assertNotFound();
+    $this->actingAs($this->parent)->get('/parent/events')->assertNotFound();
+    $this->actingAs($this->parent)->get('/parent/private')->assertNotFound();
+});
+
 it('shows an empty state when the parent has no children', function () {
     Livewire::actingAs($this->parent)
         ->test(Home::class)

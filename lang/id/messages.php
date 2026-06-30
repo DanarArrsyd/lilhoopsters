@@ -1086,7 +1086,6 @@ return [
             'makeup_class'           => 'Kelas pengganti',
             'private_session'        => 'Sesi privat',
             'event_open'             => 'Pendaftaran dibuka',
-            'event_cta'              => 'Lihat detail',
         ],
     ],
 ];

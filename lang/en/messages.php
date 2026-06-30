@@ -1086,7 +1086,6 @@ return [
             'makeup_class'           => 'Makeup class',
             'private_session'        => 'Private session',
             'event_open'             => 'Registration is open',
-            'event_cta'              => 'View details',
         ],
     ],
 ];
