@@ -1056,4 +1056,15 @@ return [
         'auto_title'         => 'Persetujuan otomatis dalam 72 jam',
         'auto_desc'          => 'Izin disetujui otomatis jika tidak ditinjau admin dalam 72 jam.',
     ],
+    'portal' => [
+        'home' => [
+            'title'         => 'Beranda',
+            'subtitle'      => 'Semua tentang anak Anda, dalam satu halaman.',
+            'empty_title'   => 'Belum ada pemain',
+            'empty_desc'    => 'Tambahkan pemain pertama untuk melihat jadwal dan progresnya di sini.',
+            'add_player'    => 'Tambah pemain',
+            'section_error' => 'Sebagian informasi gagal dimuat. Bagian lain tetap bisa dipakai.',
+            'retry'         => 'Coba lagi',
+        ],
+    ],
 ];

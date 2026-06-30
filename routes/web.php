@@ -93,7 +93,8 @@ Route::middleware(['auth', 'role:parent', 'registration.status'])
         Route::get('/complete-profile', \App\Livewire\Portal\CompleteProfile::class)->name('complete-profile');
 
         Route::middleware('profile.complete')->group(function () {
-        Route::get('/dashboard',  fn() => view('parent.dashboard'))->name('dashboard');
+        Route::get('/dashboard',  fn() => redirect()->route('parent.home'))->name('dashboard');
+        Route::get('/home',       \App\Livewire\Portal\Home::class)->name('home');
         Route::get('/players',    fn() => view('parent.players'))->name('players');
         Route::get('/enroll',     \App\Livewire\Portal\EnrollPlayer::class)->name('enroll');
         Route::get('/events',     fn() => view('parent.events'))->name('events');

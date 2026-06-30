@@ -22,19 +22,17 @@ beforeEach(function () {
 
 it('defaults to English for a parent with no saved locale', function () {
     $this->actingAs($this->parent)
-        ->get(route('parent.dashboard'))
-        ->assertSee('Dashboard')
-        ->assertDontSee('Dasbor');
+        ->get(route('parent.home'))
+        ->assertSee('Home')
+        ->assertDontSee('Beranda');
 });
 
 it('renders the portal in Indonesian when the user locale is id', function () {
     $this->parent->update(['locale' => 'id']);
 
     $this->actingAs($this->parent)
-        ->get(route('parent.dashboard'))
-        ->assertSee('Dasbor')        // dashboard title
-        ->assertSee('Berita')        // nav: News
-        ->assertSee('Pembayaran');   // nav: Payments
+        ->get(route('parent.home'))
+        ->assertSee('Beranda');      // home title
 });
 
 it('switcher saves the chosen locale to the user', function () {

@@ -58,5 +58,5 @@ test('parent can access parent dashboard', function () {
     $role = Role::where('name', 'parent')->first();
     $user = User::factory()->approved()->create(['role_id' => $role->id]);
 
-    $this->actingAs($user)->get('/parent/dashboard')->assertOk();
+    $this->actingAs($user)->get('/parent/home')->assertOk();
 });

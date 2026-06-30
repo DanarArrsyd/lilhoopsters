@@ -1056,4 +1056,15 @@ return [
         'auto_title'         => 'Auto-approval in 72 hours',
         'auto_desc'          => 'Leave requests are auto-approved if not reviewed by admin within 72 hours.',
     ],
+    'portal' => [
+        'home' => [
+            'title'         => 'Home',
+            'subtitle'      => 'Everything about your child, in one place.',
+            'empty_title'   => 'No players yet',
+            'empty_desc'    => 'Add your first player to see their schedule and progress here.',
+            'add_player'    => 'Add player',
+            'section_error' => "Some information couldn't load. The rest of the page still works.",
+            'retry'         => 'Retry',
+        ],
+    ],
 ];

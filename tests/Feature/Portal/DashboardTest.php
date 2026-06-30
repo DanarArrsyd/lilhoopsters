@@ -24,10 +24,10 @@ beforeEach(function () {
     $this->parent = User::factory()->withRole('parent')->approved()->create();
 });
 
-it('renders dashboard for parent', function () {
+it('redirects the old dashboard route to home for parent', function () {
     $this->actingAs($this->parent)
         ->get(route('parent.dashboard'))
-        ->assertOk();
+        ->assertRedirect(route('parent.home'));
 });
 
 it('non-parent cannot access parent dashboard', function () {
