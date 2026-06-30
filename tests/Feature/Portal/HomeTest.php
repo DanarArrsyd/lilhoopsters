@@ -49,3 +49,25 @@ it('refuses to switch to a child that does not belong to the parent', function (
         ->test(Home::class)
         ->call('switchChild', $notMine->id);
 })->throws(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
+
+it('shows the next session for the active child', function () {
+    $child = Child::factory()->create(['user_id' => $this->parent->id, 'status' => 'active']);
+    $location = \App\Models\Location::factory()->create(['name' => 'GOR Senayan']);
+    $program  = \App\Models\Program::factory()->create(['name' => 'MVP']);
+    $schedule = \App\Models\Schedule::factory()->create([
+        'location_id' => $location->id,
+        'program_id'  => $program->id,
+        'day_of_week' => strtolower(now()->format('l')),
+        'is_active'   => true,
+    ]);
+    \App\Models\Enrollment::factory()->create([
+        'child_id' => $child->id, 'schedule_id' => $schedule->id,
+        'type' => 'program', 'status' => 'approved',
+        'started_at' => now()->subMonth(), 'expires_at' => now()->addMonth(),
+    ]);
+
+    Livewire::actingAs($this->parent)
+        ->test(Home::class)
+        ->assertSee('MVP')
+        ->assertSee('GOR Senayan');
+});

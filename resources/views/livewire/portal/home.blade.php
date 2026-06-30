@@ -81,8 +81,9 @@
                             <button wire:click="$refresh" class="font-semibold underline shrink-0 ml-3">{{ __('messages.portal.home.retry') }}</button>
                         </div>
                     @endif
-                    {{-- Sections added in Tasks 3-6 --}}
-                    <div id="portal-home-sections"></div>
+                    <x-portal.child-switcher :children="$children" :active-child-id="$activeChildId" />
+                    <x-portal.schedule-card :next-session="$nextSession" :week-sessions="$weekSessions" />
+                    {{-- Sections added in Tasks 4-6 --}}
                 @endif
 
             </div>{{-- /max-w-2xl --}}

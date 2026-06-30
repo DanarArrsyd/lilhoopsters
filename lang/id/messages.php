@@ -1065,6 +1065,11 @@ return [
             'add_player'    => 'Tambah pemain',
             'section_error' => 'Sebagian informasi gagal dimuat. Bagian lain tetap bisa dipakai.',
             'retry'         => 'Coba lagi',
+            'next_session'  => 'Sesi berikutnya',
+            'no_coach'      => 'Pelatih belum ditentukan',
+            'no_session'    => 'Belum ada sesi terjadwal.',
+            'view_week'     => 'Lihat minggu ini',
+            'hide_week'     => 'Sembunyikan minggu ini',
         ],
     ],
 ];

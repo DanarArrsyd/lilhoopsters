@@ -1065,6 +1065,11 @@ return [
             'add_player'    => 'Add player',
             'section_error' => "Some information couldn't load. The rest of the page still works.",
             'retry'         => 'Retry',
+            'next_session'  => 'Next session',
+            'no_coach'      => 'Coach TBA',
+            'no_session'    => 'No upcoming sessions scheduled.',
+            'view_week'     => 'View this week',
+            'hide_week'     => 'Hide this week',
         ],
     ],
 ];
