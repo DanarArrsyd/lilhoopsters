@@ -1078,6 +1078,13 @@ return [
             'hide_history'  => 'Hide payment history',
             'transaction'   => 'Payment',
             'no_history'    => 'No payment history yet.',
+            'attendance_this_month' => 'Attendance this month',
+            'present'                => 'Present',
+            'absent'                 => 'Absent',
+            'quick_actions'          => 'Quick actions',
+            'leave_request'          => 'Request leave',
+            'makeup_class'           => 'Makeup class',
+            'private_session'        => 'Private session',
         ],
     ],
 ];

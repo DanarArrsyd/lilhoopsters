@@ -1078,6 +1078,13 @@ return [
             'hide_history'  => 'Sembunyikan riwayat pembayaran',
             'transaction'   => 'Pembayaran',
             'no_history'    => 'Belum ada riwayat pembayaran.',
+            'attendance_this_month' => 'Kehadiran bulan ini',
+            'present'                => 'Hadir',
+            'absent'                 => 'Tidak hadir',
+            'quick_actions'          => 'Aksi cepat',
+            'leave_request'          => 'Ajukan izin',
+            'makeup_class'           => 'Kelas pengganti',
+            'private_session'        => 'Sesi privat',
         ],
     ],
 ];

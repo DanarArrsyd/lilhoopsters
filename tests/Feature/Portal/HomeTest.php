@@ -83,3 +83,13 @@ it('shows payment status for the active child', function () {
         ->test(Home::class)
         ->assertSee('450.000', escape: false);
 });
+
+it('shows quick action buttons that open the existing wizards', function () {
+    Child::factory()->create(['user_id' => $this->parent->id, 'status' => 'active']);
+
+    Livewire::actingAs($this->parent)
+        ->test(Home::class)
+        ->assertSeeLivewire(\App\Livewire\Portal\LeaveRequests::class)
+        ->assertSeeLivewire(\App\Livewire\Portal\PrivateSessions::class)
+        ->assertSeeLivewire(\App\Livewire\Portal\MakeUpClasses::class);
+});
