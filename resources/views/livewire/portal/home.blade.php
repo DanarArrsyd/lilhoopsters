@@ -9,22 +9,15 @@
         <div class="flex items-center justify-end gap-4">
             <livewire:locale-switcher />
             <livewire:notification-bell />
+            <div class="w-8 h-8 rounded-full bg-navy text-off flex items-center justify-center font-bold text-xs shrink-0">
+                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+            </div>
         </div>
     </header>
 
     {{-- ── Scrollable content ── --}}
     <div class="flex-1 bg-off">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-24 lg:pb-10">
-
-            <div class="bg-navy text-off rounded-2xl px-5 py-4 mb-4 flex items-center gap-3 lg:max-w-2xl">
-                <div class="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center font-extrabold text-base shrink-0">
-                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                </div>
-                <div class="min-w-0">
-                    <p class="text-sm font-bold truncate">{{ __('messages.portal.home.greeting', ['name' => auth()->user()->name]) }}</p>
-                    <p class="text-xs text-off/60">{{ now()->translatedFormat('l, d M Y') }}</p>
-                </div>
-            </div>
 
             @if ($children->isEmpty())
                 <x-empty-state
