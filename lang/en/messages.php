@@ -400,7 +400,7 @@ return [
             'no_sessions'        => 'No sessions today.',
             'next'               => 'Next:',
             'rest_of_week'       => 'Rest of Week',
-            'quick_access'       => 'Quick Access',
+            'quick_actions'      => 'Quick Actions',
             'todays_activity'    => "Today's Activity",
             'no_sessions_title'  => 'No sessions today',
             'present_recorded'   => ':a present · :b recorded',

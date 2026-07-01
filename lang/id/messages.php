@@ -400,7 +400,7 @@ return [
             'no_sessions'        => 'Tidak ada sesi hari ini.',
             'next'               => 'Berikutnya:',
             'rest_of_week'       => 'Sisa Minggu',
-            'quick_access'       => 'Akses Cepat',
+            'quick_actions'      => 'Aksi cepat',
             'todays_activity'    => 'Aktivitas Hari Ini',
             'no_sessions_title'  => 'Tidak ada sesi hari ini',
             'present_recorded'   => ':a hadir · :b tercatat',
