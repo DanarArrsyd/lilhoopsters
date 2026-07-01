@@ -1,12 +1,13 @@
 <x-parent-portal title="User Guide">
-    <div class="lg:grid lg:grid-cols-3 lg:gap-6 lg:items-start">
-    <div class="lg:col-span-2 max-w-3xl space-y-6">
+    <div class="max-w-6xl mx-auto">
 
         <div class="mb-6">
             <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.portal.guide.title') }}</h2>
             <p class="text-sm text-muted">{{ __('messages.portal.guide.subtitle') }}</p>
         </div>
 
+        <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
+        <div class="min-w-0">
         <div x-data="{ open: 'players' }" class="space-y-3">
 
             @foreach ([
@@ -77,6 +78,7 @@
             <p class="text-sm text-muted leading-relaxed">{{ __('messages.portal.guide.contact_prompt') }}</p>
         </x-card>
 
+    </div>
     </div>
     </div>
 </x-parent-portal>

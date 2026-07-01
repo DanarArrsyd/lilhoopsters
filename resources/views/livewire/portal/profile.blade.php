@@ -1,11 +1,13 @@
-<div class="lg:grid lg:grid-cols-3 lg:gap-6 lg:items-start">
-<div class="lg:col-span-2 max-w-2xl space-y-6">
+<div class="max-w-6xl mx-auto">
 
     {{-- Header --}}
     <div class="mb-6">
         <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">Profile Settings</h2>
         <p class="text-sm text-muted">Manage your account information.</p>
     </div>
+
+    <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
+    <div class="space-y-6 min-w-0">
 
     {{-- Personal Information --}}
     <x-card padding="p-0">
@@ -173,5 +175,6 @@
         </div>
     </x-card>
 
+</div>
 </div>
 </div>
