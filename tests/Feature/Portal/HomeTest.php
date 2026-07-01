@@ -35,9 +35,12 @@ it('returns 404 for routes removed from navigation', function () {
     $this->actingAs($this->parent)->get('/parent/leaves')->assertNotFound();
     $this->actingAs($this->parent)->get('/parent/makeup')->assertNotFound();
     $this->actingAs($this->parent)->get('/parent/report-cards')->assertNotFound();
-    $this->actingAs($this->parent)->get('/parent/players')->assertNotFound();
     $this->actingAs($this->parent)->get('/parent/events')->assertNotFound();
     $this->actingAs($this->parent)->get('/parent/private')->assertNotFound();
+});
+
+it('renders the players page', function () {
+    $this->actingAs($this->parent)->get(route('parent.players'))->assertOk();
 });
 
 it('shows an empty state when the parent has no children', function () {

@@ -95,6 +95,7 @@ Route::middleware(['auth', 'role:parent', 'registration.status'])
         Route::middleware('profile.complete')->group(function () {
         Route::get('/dashboard',  fn() => redirect()->route('parent.home'))->name('dashboard');
         Route::get('/home',       \App\Livewire\Portal\Home::class)->name('home');
+        Route::get('/players',    fn() => view('parent.players'))->name('players');
         Route::get('/enroll',     \App\Livewire\Portal\EnrollPlayer::class)->name('enroll');
         Route::get('/news',       fn() => view('parent.news'))->name('news');
         Route::get('/profile',    fn() => view('parent.profile'))->name('profile');
