@@ -23,8 +23,8 @@ beforeEach(function () {
 it('defaults to English for a parent with no saved locale', function () {
     $this->actingAs($this->parent)
         ->get(route('parent.home'))
-        ->assertSee('Home')
-        ->assertDontSee('Beranda');
+        ->assertSee('No players yet')
+        ->assertDontSee('Belum ada pemain');
 });
 
 it('renders the portal in Indonesian when the user locale is id', function () {
@@ -32,7 +32,7 @@ it('renders the portal in Indonesian when the user locale is id', function () {
 
     $this->actingAs($this->parent)
         ->get(route('parent.home'))
-        ->assertSee('Beranda');      // home title
+        ->assertSee('Belum ada pemain');
 });
 
 it('switcher saves the chosen locale to the user', function () {

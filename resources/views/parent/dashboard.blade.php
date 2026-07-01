@@ -1,7 +1,3 @@
 <x-parent-portal title="Dashboard">
-    <x-slot name="navigation">
-        <x-parent-nav />
-    </x-slot>
-
     <livewire:portal.dashboard />
 </x-parent-portal>
