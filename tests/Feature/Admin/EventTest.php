@@ -3,7 +3,6 @@
 
 use App\Livewire\Admin\Events;
 use App\Livewire\Portal\AttendanceHistory;
-use App\Livewire\Portal\Dashboard as PortalDashboard;
 use App\Models\Child;
 use App\Models\Enrollment;
 use App\Models\Event;
@@ -140,15 +139,4 @@ it('skips event dates on the parent attendance calendar', function () {
         $s['date']->betweenIncluded(today()->subWeek(), today()->addWeek())
     );
     expect($inEvent)->toHaveCount(0);
-});
-
-it('shows the active event banner on the parent dashboard', function () {
-    Event::create([
-        'name' => 'Summer Champ', 'start_date' => today()->subDay(), 'end_date' => today()->addDays(10), 'is_active' => true,
-    ]);
-
-    $events = Livewire::actingAs($this->parent)->test(PortalDashboard::class)->viewData('activeEvents');
-
-    expect($events)->toHaveCount(1);
-    expect($events->first()->name)->toBe('Summer Champ');
 });

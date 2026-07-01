@@ -156,7 +156,7 @@
         <div>
             <p class="text-[10px] font-bold uppercase tracking-widest text-muted mb-3">Quick Access</p>
             <div class="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-4 gap-2 sm:gap-3">
-                @foreach ([
+                @foreach (collect([
                     ['route' => 'parent.players',    'label' => 'My Players',    'bg' => 'bg-teal-50',    'color' => 'text-teal-700',   'icon' => 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'],
                     ['route' => 'parent.enroll',     'label' => 'Enroll Player', 'bg' => 'bg-green-50',   'color' => 'text-green-700',  'icon' => 'M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z'],
                     ['route' => 'parent.attendance', 'label' => 'Attendance',    'bg' => 'bg-indigo-50',  'color' => 'text-indigo-700', 'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4'],
@@ -165,7 +165,7 @@
                     ['route' => 'parent.payments',   'label' => 'Payments',      'bg' => 'bg-navy/8',     'color' => 'text-navy',       'icon' => 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z'],
                     ['route' => 'parent.report-cards','label' => 'Report Cards',     'bg' => 'bg-pink-50',    'color' => 'text-pink-700',   'icon' => 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'],
                     ['route' => 'parent.private',     'label' => 'Private Sessions', 'bg' => 'bg-purple-50',  'color' => 'text-purple-700', 'icon' => 'M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0m6 2a9 9 0 11-18 0 9 9 0 0118 0z'],
-                ] as $item)
+                ])->filter(fn ($item) => \Illuminate\Support\Facades\Route::has($item['route'])) as $item)
                     <a href="{{ route($item['route']) }}"
                        class="flex flex-col items-center gap-1.5 group p-1.5 sm:p-2 rounded-2xl hover:bg-off transition-colors">
                         <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl {{ $item['bg'] }} flex items-center justify-center group-hover:scale-105 transition-transform duration-150 shrink-0">

@@ -41,12 +41,6 @@ beforeEach(function () {
     ]);
 });
 
-it('renders parent report cards page', function () {
-    $this->actingAs($this->parent)
-        ->get(route('parent.report-cards'))
-        ->assertOk();
-});
-
 it('only shows published cards', function () {
     Livewire::actingAs($this->parent)
         ->test(ReportCards::class)

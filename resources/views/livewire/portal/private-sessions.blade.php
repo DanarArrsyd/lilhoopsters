@@ -512,7 +512,7 @@
                         </svg>
                         <p class="text-xs text-blue-600 leading-relaxed">
                             After booking, upload payment proof in the
-                            <a href="{{ route('parent.payments') }}" class="font-bold underline">Payments</a> page for admin review.
+                            <a href="{{ route('parent.home') }}" class="font-bold underline">Payments</a> page for admin review.
                         </p>
                     </div>
 

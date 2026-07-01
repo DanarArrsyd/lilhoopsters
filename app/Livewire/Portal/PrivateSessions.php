@@ -164,7 +164,7 @@ class PrivateSessions extends Component
         );
 
         session()->flash('success', 'Private session booked! Please upload payment proof from the Payments page.');
-        $this->redirect(route('parent.payments'), navigate: true);
+        $this->redirect(route('parent.home'), navigate: true);
     }
 
     public function nextOccurrence(string $dayOfWeek): Carbon

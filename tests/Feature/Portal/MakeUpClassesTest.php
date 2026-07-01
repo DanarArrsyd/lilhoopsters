@@ -36,12 +36,6 @@ beforeEach(function () {
     ]);
 });
 
-it('renders make-up classes page', function () {
-    $this->actingAs($this->parent)
-        ->get(route('parent.makeup'))
-        ->assertOk();
-});
-
 it('shows empty state when no requests', function () {
     Livewire::actingAs($this->parent)
         ->test(MakeUpClasses::class)

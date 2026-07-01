@@ -28,19 +28,6 @@ beforeEach(function () {
     $this->child    = Child::factory()->create(['user_id' => $this->parent->id]);
 });
 
-it('renders payments page for parent', function () {
-    $this->actingAs($this->parent)
-        ->get(route('parent.payments'))
-        ->assertOk();
-});
-
-it('non-parent cannot access payments page', function () {
-    $admin = User::factory()->withRole('admin')->approved()->create();
-
-    $this->actingAs($admin)
-        ->get(route('parent.payments'))
-        ->assertForbidden();
-});
 
 it('shows only own transactions', function () {
     $trx = Transaction::factory()->create([

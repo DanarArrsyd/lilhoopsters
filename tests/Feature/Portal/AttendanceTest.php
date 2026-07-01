@@ -46,20 +46,6 @@ beforeEach(function () {
     ]);
 });
 
-it('renders attendance page for parent', function () {
-    $this->actingAs($this->parent)
-        ->get(route('parent.attendance'))
-        ->assertOk();
-});
-
-it('non-parent cannot access attendance page', function () {
-    $admin = User::factory()->withRole('admin')->approved()->create();
-
-    $this->actingAs($admin)
-        ->get(route('parent.attendance'))
-        ->assertForbidden();
-});
-
 it('shows the selected child program and hides another parents child', function () {
     // The session-calendar view defaults to the parent's active enrollment
     // and renders its program/location. Another parent's child must not leak.

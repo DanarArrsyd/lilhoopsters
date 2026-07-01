@@ -164,7 +164,7 @@ class EnrollPlayer extends Component
         );
 
         session()->flash('success', 'Enrollment submitted! Please upload your payment proof.');
-        $this->redirect(route('parent.payments'), navigate: true);
+        $this->redirect(route('parent.home'), navigate: true);
     }
 
     public function render()

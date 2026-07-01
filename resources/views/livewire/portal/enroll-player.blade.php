@@ -130,7 +130,7 @@
                         <div class="py-10 text-center border-2 border-dashed border-gray-100 rounded-2xl">
                             <p class="text-sm font-semibold text-gray-500 mb-1">No players available</p>
                             <p class="text-xs text-gray-400 mb-5">Add a player first, or all your players are pending approval.</p>
-                            <a href="{{ route('parent.players') }}"
+                            <a href="{{ route('parent.home') }}"
                                 class="inline-flex items-center gap-2 bg-navy text-white text-xs font-bold uppercase tracking-wide px-4 py-2 rounded-xl hover:bg-navy/90 transition-colors">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
@@ -528,7 +528,7 @@
                         </svg>
                         <p class="text-xs text-blue-600 leading-relaxed">
                             After enrolling, upload payment proof in the
-                            <a href="{{ route('parent.payments') }}" class="font-bold underline">Payments</a> page for admin review.
+                            <a href="{{ route('parent.home') }}" class="font-bold underline">Payments</a> page for admin review.
                         </p>
                     </div>
 

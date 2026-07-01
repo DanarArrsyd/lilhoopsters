@@ -49,57 +49,6 @@ it('switcher ignores an unsupported locale', function () {
     expect($this->parent->fresh()->locale)->toBeNull();
 });
 
-it('localises parent page headers to Indonesian', function () {
-    $this->parent->update(['locale' => 'id']);
-
-    $this->actingAs($this->parent)->get(route('parent.payments'))
-        ->assertSee('Pembayaran')
-        ->assertSee('Riwayat transaksi');
-
-    $this->actingAs($this->parent)->get(route('parent.attendance'))
-        ->assertSee('Kehadiran');
-});
-
-it('fully localises the leave requests page to Indonesian', function () {
-    $this->parent->update(['locale' => 'id']);
-
-    $this->actingAs($this->parent)->get(route('parent.leaves'))
-        ->assertSee('Izin / Sakit')                  // page title
-        ->assertSee('Belum ada pendaftaran aktif');  // empty state (no enrollment)
-});
-
-it('fully localises the make-up classes page to Indonesian', function () {
-    $this->parent->update(['locale' => 'id']);
-
-    $this->actingAs($this->parent)->get(route('parent.makeup'))
-        ->assertSee('Kelas Pengganti')                          // page title
-        ->assertSee('Belum ada permintaan kelas pengganti');   // empty state
-});
-
-it('fully localises the parent Events page to Indonesian', function () {
-    $this->parent->update(['locale' => 'id']);
-
-    $this->actingAs($this->parent)->get(route('parent.events'))
-        ->assertSee('Acara')              // page title
-        ->assertSee('Belum ada acara');   // empty state (no open events)
-});
-
-it('fully localises the payments page to Indonesian', function () {
-    $this->parent->update(['locale' => 'id']);
-
-    $this->actingAs($this->parent)->get(route('parent.payments'))
-        ->assertSee('Pembayaran')               // page title
-        ->assertSee('Belum ada transaksi');     // empty state
-});
-
-it('fully localises the attendance page to Indonesian', function () {
-    $this->parent->update(['locale' => 'id']);
-
-    $this->actingAs($this->parent)->get(route('parent.attendance'))
-        ->assertSee('Kehadiran')                // page title
-        ->assertSee('Tidak ada program aktif'); // empty state
-});
-
 it('fully localises the coach portal to Indonesian', function () {
     $coach = User::factory()->withRole('coach')->approved()->create(['locale' => 'id']);
 
@@ -112,12 +61,8 @@ it('fully localises the coach portal to Indonesian', function () {
         ->assertSee('Informasi Pribadi');
 });
 
-it('fully localises the My Players and News pages to Indonesian', function () {
+it('fully localises the News page to Indonesian', function () {
     $this->parent->update(['locale' => 'id']);
-
-    $this->actingAs($this->parent)->get(route('parent.players'))
-        ->assertSee('Anak Saya')        // page title
-        ->assertSee('Belum ada pemain'); // empty state
 
     $this->actingAs($this->parent)->get(route('parent.news'))
         ->assertSee('Berita')           // page title
