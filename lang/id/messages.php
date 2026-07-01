@@ -886,6 +886,7 @@ return [
         ],
         'reports' => [
             'title'              => 'Laporan',
+            'subtitle'           => 'Analitik pendapatan, kehadiran, dan utilisasi.',
             'preset_month'       => 'Bulan Ini',
             'preset_30d'         => '30 Hari',
             'preset_year'        => 'Tahun Ini',

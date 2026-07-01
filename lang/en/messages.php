@@ -886,6 +886,7 @@ return [
         ],
         'reports' => [
             'title'              => 'Reports',
+            'subtitle'           => 'Revenue, attendance, and utilization analytics.',
             'preset_month'       => 'This Month',
             'preset_30d'         => '30 Days',
             'preset_year'        => 'This Year',
