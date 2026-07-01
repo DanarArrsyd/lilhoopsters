@@ -21,6 +21,8 @@ class Home extends Component
     public bool $showQr = false;
     public string $qrSvg = '';
 
+    public string $classesTab = 'regular';
+
     public function mount(): void
     {
         $storedId = session('portal_active_child_id');
@@ -67,6 +69,11 @@ class Home extends Component
     public function selectDate(string $date): void
     {
         $this->selectedDate = $date;
+    }
+
+    public function selectClassesTab(string $tab): void
+    {
+        $this->classesTab = in_array($tab, ['regular', 'private'], true) ? $tab : 'regular';
     }
 
     public function openQr(): void
@@ -146,6 +153,51 @@ class Home extends Component
             return [$calendar, $selectedSessions];
         }, [null, collect()], $sectionFailed);
 
+        $weekStrip = $this->safely(function () use ($child) {
+            if (! $child) {
+                return collect();
+            }
+
+            $enrollments = ChildSchedulePlanner::approvedEnrollments($child);
+            $weekStart   = now()->startOfWeek(Carbon::MONDAY);
+
+            return collect(range(0, 6))->map(function (int $i) use ($weekStart, $enrollments) {
+                $date = $weekStart->copy()->addDays($i);
+
+                return [
+                    'date'    => $date->toDateString(),
+                    'label'   => $date->translatedFormat('D'),
+                    'day'     => $date->day,
+                    'isToday' => $date->isToday(),
+                    'count'   => ChildSchedulePlanner::sessionsOn($enrollments, $date)->count(),
+                ];
+            });
+        }, collect(), $sectionFailed);
+
+        $classes = $this->safely(function () use ($child) {
+            if (! $child) {
+                return collect();
+            }
+
+            return ChildSchedulePlanner::approvedEnrollments($child)->map(function ($enrollment) {
+                $attended = $enrollment->attendances()->where('status', 'present')->count();
+                $total    = $enrollment->total_sessions ?? $enrollment->attendances()->count();
+
+                return [
+                    'type'     => $enrollment->schedule->type,
+                    'program'  => $enrollment->schedule->program->name,
+                    'coach'    => $enrollment->schedule->coach?->user?->name,
+                    'location' => $enrollment->schedule->location->name,
+                    'day'      => $enrollment->schedule->day_of_week,
+                    'start'    => $enrollment->schedule->start_time,
+                    'end'      => $enrollment->schedule->end_time,
+                    'attended' => $attended,
+                    'total'    => $total,
+                    'pct'      => $total > 0 ? (int) round($attended / $total * 100) : 0,
+                ];
+            });
+        }, collect(), $sectionFailed);
+
         $activeEvent = $this->safely(function () use ($child) {
             if (! $child) {
                 return null;
@@ -166,6 +218,8 @@ class Home extends Component
             'weekSessions'     => $weekSessions,
             'calendar'         => $calendar,
             'selectedSessions' => $selectedSessions,
+            'weekStrip'        => $weekStrip,
+            'classes'          => $classes,
             'activeEvent'      => $activeEvent,
             'sectionFailed'    => $sectionFailed,
         ])->layout('components.app', ['title' => 'Home']);

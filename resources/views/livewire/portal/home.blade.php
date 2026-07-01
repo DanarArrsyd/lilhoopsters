@@ -42,6 +42,7 @@
                 <div class="lg:grid lg:grid-cols-3 lg:gap-6 lg:items-start">
                     <div class="lg:col-span-2">
                         <x-portal.child-switcher :children="$children" :active-child-id="$activeChildId" />
+                        <x-portal.week-strip :week-strip="$weekStrip" :selected-date="$selectedDate" />
                         <x-portal.event-banner :active-event="$activeEvent" />
                         <x-portal.schedule-card
                             :next-session="$nextSession"
@@ -50,6 +51,7 @@
                             :calendar="$calendar"
                             :selected-date="$selectedDate"
                             :selected-sessions="$selectedSessions" />
+                        <x-portal.class-list :classes="$classes" :classes-tab="$classesTab" />
                         <x-portal.quick-actions :show-qr="$showQr" :qr-svg="$qrSvg" :active-child="$child" />
                     </div>
 
