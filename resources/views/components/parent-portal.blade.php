@@ -3,7 +3,7 @@
 
     <div class="flex flex-col min-h-[100dvh]">
         {{-- Topbar --}}
-        <header class="h-14 bg-surface border-b border-line grid grid-cols-[1fr_auto_1fr] items-center px-4 gap-4 sticky top-0 z-30">
+        <header class="h-14 bg-surface border-b border-line flex justify-between lg:grid lg:grid-cols-[1fr_auto_1fr] items-center px-4 gap-4 sticky top-0 z-30">
             <div class="flex items-center min-w-0">
                 <img src="{{ asset('basket_logo.jpeg') }}" alt="Lil' Hoopsters" class="w-8 h-8 rounded-lg object-cover shrink-0">
             </div>
