@@ -1,9 +1,7 @@
 <div>
-    {{-- Header --}}
-    <div class="mb-6">
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.admin.players.title') }}</h2>
-        <p class="text-sm text-muted">{{ __('messages.admin.players.subtitle') }}</p>
-    </div>
+    <div class="max-w-6xl mx-auto">
+
+    <x-admin.page-header :title="__('messages.admin.players.title')" :subtitle="__('messages.admin.players.subtitle')" />
 
     {{-- Filters --}}
     <x-card class="mb-4" padding="p-4">
@@ -88,4 +86,6 @@
             </div>
         @endif
     </x-card>
+
+    </div>{{-- /max-w-6xl --}}
 </div>

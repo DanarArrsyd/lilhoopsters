@@ -1,8 +1,7 @@
 <div>
-    <div class="mb-6">
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.admin.attendances.title') }}</h2>
-        <p class="text-sm text-muted">{{ __('messages.admin.attendances.subtitle') }}</p>
-    </div>
+    <div class="max-w-6xl mx-auto">
+
+    <x-admin.page-header :title="__('messages.admin.attendances.title')" :subtitle="__('messages.admin.attendances.subtitle')" />
 
     @if (session('success'))
         <x-alert type="success" class="mb-4">{{ session('success') }}</x-alert>
@@ -169,6 +168,8 @@
             @endif
         </x-card>
     @endif
+
+    </div>{{-- /max-w-6xl --}}
 
     {{-- Override Modal --}}
     @if ($showOverride)
