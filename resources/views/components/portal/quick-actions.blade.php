@@ -12,7 +12,16 @@
          @open-modal.window="activeModal = $event.detail"
          @keydown.escape.window="activeModal = null">
 
-        <div class="grid grid-cols-3 gap-2">
+        <div class="grid grid-cols-2 gap-2">
+            <a href="{{ route('parent.enroll') }}"
+               class="flex flex-col items-center gap-1.5 text-center p-3 rounded-xl border border-line hover:border-navy/40 hover:bg-off transition-colors">
+                <span class="w-8 h-8 rounded-lg bg-navy/8 text-navy flex items-center justify-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                </span>
+                <span class="text-xs font-semibold text-ink">{{ __('messages.portal.home.enroll_package') }}</span>
+            </a>
             <button @click="$dispatch('open-modal', 'leave-request')"
                     class="flex flex-col items-center gap-1.5 text-center p-3 rounded-xl border border-line hover:border-navy/40 hover:bg-off transition-colors">
                 <span class="w-8 h-8 rounded-lg bg-navy/8 text-navy flex items-center justify-center">

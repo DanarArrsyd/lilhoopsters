@@ -48,6 +48,8 @@
         <header class="h-14 bg-surface border-b border-line flex items-center px-4 gap-3 sticky top-0 z-30">
             <h1 class="flex-1 text-sm font-bold uppercase tracking-wide text-navy">Regular Sessions</h1>
             <span class="text-[11px] text-gray-400 font-medium tabular-nums">{{ $step }} / {{ $totalSteps }}</span>
+            <livewire:locale-switcher />
+            <livewire:notification-bell />
         </header>
 
         {{-- Progress bar (sits flush below topbar) --}}

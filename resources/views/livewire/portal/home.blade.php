@@ -47,6 +47,8 @@
         {{-- Topbar --}}
         <header class="h-14 bg-surface border-b border-line flex items-center px-4 gap-3 sticky top-0 z-30">
             <h1 class="flex-1 text-sm font-bold uppercase tracking-wide text-navy">{{ __('messages.portal.home.title') }}</h1>
+            <livewire:locale-switcher />
+            <livewire:notification-bell />
         </header>
 
         {{-- ── Scrollable content ── --}}
