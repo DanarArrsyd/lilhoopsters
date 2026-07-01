@@ -1060,6 +1060,7 @@ return [
         'home' => [
             'title'         => 'Beranda',
             'subtitle'      => 'Semua tentang anak Anda, dalam satu halaman.',
+            'greeting'      => 'Hai, :name',
             'empty_title'   => 'Belum ada pemain',
             'empty_desc'    => 'Tambahkan pemain pertama untuk melihat jadwal dan progresnya di sini.',
             'add_player'    => 'Tambah pemain',
@@ -1070,6 +1071,8 @@ return [
             'no_session'    => 'Belum ada sesi terjadwal.',
             'view_week'     => 'Lihat minggu ini',
             'hide_week'     => 'Sembunyikan minggu ini',
+            'calendar'      => 'Kalender',
+            'no_sessions_day' => 'Tidak ada sesi terjadwal pada hari ini.',
             'payments'      => 'Pembayaran',
             'pending'       => 'Menunggu',
             'up_to_date'    => 'Lunas',

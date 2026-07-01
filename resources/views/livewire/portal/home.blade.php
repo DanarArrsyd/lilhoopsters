@@ -55,9 +55,14 @@
         <div class="flex-1 bg-off">
             <div class="max-w-2xl mx-auto px-4 sm:px-6 pt-6 pb-24 lg:pb-20">
 
-                <div class="mb-6">
-                    <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.portal.home.title') }}</h2>
-                    <p class="text-sm text-muted">{{ __('messages.portal.home.subtitle') }}</p>
+                <div class="bg-navy text-off rounded-2xl px-5 py-4 mb-4 flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center font-extrabold text-base shrink-0">
+                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-sm font-bold truncate">{{ __('messages.portal.home.greeting', ['name' => auth()->user()->name]) }}</p>
+                        <p class="text-xs text-off/60">{{ now()->translatedFormat('l, d M Y') }}</p>
+                    </div>
                 </div>
 
                 @if ($children->isEmpty())
@@ -77,7 +82,13 @@
                     @endif
                     <x-portal.child-switcher :children="$children" :active-child-id="$activeChildId" />
                     <x-portal.event-banner :active-event="$activeEvent" />
-                    <x-portal.schedule-card :next-session="$nextSession" :week-sessions="$weekSessions" />
+                    <x-portal.schedule-card
+                        :next-session="$nextSession"
+                        :week-sessions="$weekSessions"
+                        :show-calendar="$showCalendar"
+                        :calendar="$calendar"
+                        :selected-date="$selectedDate"
+                        :selected-sessions="$selectedSessions" />
                     <x-portal.payment-card :transactions="$transactions" :pending-amount="$pendingAmount" />
                     <x-portal.attendance-strip :attendance-counts="$attendanceCounts" />
                     <x-portal.quick-actions />

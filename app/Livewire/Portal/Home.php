@@ -5,12 +5,17 @@ namespace App\Livewire\Portal;
 use App\Models\Child;
 use App\Models\Event;
 use App\Support\ChildSchedulePlanner;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class Home extends Component
 {
     public ?int $activeChildId = null;
+
+    public bool $showCalendar    = false;
+    public string $calendarCursor = '';
+    public ?string $selectedDate  = null;
 
     public function mount(): void
     {
@@ -20,6 +25,9 @@ class Home extends Component
         $this->activeChildId = ($storedId && $children->contains('id', $storedId))
             ? $storedId
             : $children->first()?->id;
+
+        $this->calendarCursor = now()->startOfMonth()->toDateString();
+        $this->selectedDate   = now()->toDateString();
     }
 
     public function switchChild(int $childId): void
@@ -28,6 +36,33 @@ class Home extends Component
 
         $this->activeChildId = $childId;
         session(['portal_active_child_id' => $childId]);
+    }
+
+    public function openCalendar(): void
+    {
+        $this->calendarCursor = now()->startOfMonth()->toDateString();
+        $this->selectedDate   = now()->toDateString();
+        $this->showCalendar   = true;
+    }
+
+    public function closeCalendar(): void
+    {
+        $this->showCalendar = false;
+    }
+
+    public function prevMonth(): void
+    {
+        $this->calendarCursor = Carbon::parse($this->calendarCursor)->subMonthNoOverflow()->startOfMonth()->toDateString();
+    }
+
+    public function nextMonth(): void
+    {
+        $this->calendarCursor = Carbon::parse($this->calendarCursor)->addMonthNoOverflow()->startOfMonth()->toDateString();
+    }
+
+    public function selectDate(string $date): void
+    {
+        $this->selectedDate = $date;
     }
 
     public function getChildrenProperty()
@@ -55,6 +90,39 @@ class Home extends Component
             return $child
                 ? [ChildSchedulePlanner::nextSession($child), ChildSchedulePlanner::weekSessions($child)]
                 : [null, collect()];
+        }, [null, collect()], $sectionFailed);
+
+        [$calendar, $selectedSessions] = $this->safely(function () use ($child) {
+            if (! $child || ! $this->showCalendar) {
+                return [null, collect()];
+            }
+
+            $enrollments = ChildSchedulePlanner::approvedEnrollments($child);
+            $monthStart  = Carbon::parse($this->calendarCursor ?: now()->startOfMonth())->startOfMonth();
+            $gridStart   = $monthStart->copy()->startOfWeek(Carbon::MONDAY);
+            $gridEnd     = $monthStart->copy()->endOfMonth()->endOfWeek(Carbon::SUNDAY);
+
+            $days = collect();
+            for ($d = $gridStart->copy(); $d->lte($gridEnd); $d->addDay()) {
+                $days->push([
+                    'date'    => $d->toDateString(),
+                    'day'     => $d->day,
+                    'inMonth' => $d->month === $monthStart->month,
+                    'isToday' => $d->isToday(),
+                    'count'   => ChildSchedulePlanner::sessionsOn($enrollments, $d->copy())->count(),
+                ]);
+            }
+
+            $calendar = [
+                'label' => $monthStart->translatedFormat('F Y'),
+                'weeks' => $days->chunk(7)->values(),
+            ];
+
+            $selectedSessions = $this->selectedDate
+                ? ChildSchedulePlanner::sessionsOn($enrollments, Carbon::parse($this->selectedDate))
+                : collect();
+
+            return [$calendar, $selectedSessions];
         }, [null, collect()], $sectionFailed);
 
         [$transactions, $pendingAmount] = $this->safely(function () use ($child) {
@@ -95,6 +163,8 @@ class Home extends Component
             'child'            => $child,
             'nextSession'      => $nextSession,
             'weekSessions'     => $weekSessions,
+            'calendar'         => $calendar,
+            'selectedSessions' => $selectedSessions,
             'transactions'     => $transactions,
             'pendingAmount'    => $pendingAmount,
             'attendanceCounts' => $attendanceCounts,

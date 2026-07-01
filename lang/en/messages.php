@@ -1060,6 +1060,7 @@ return [
         'home' => [
             'title'         => 'Home',
             'subtitle'      => 'Everything about your child, in one place.',
+            'greeting'      => 'Hi, :name',
             'empty_title'   => 'No players yet',
             'empty_desc'    => 'Add your first player to see their schedule and progress here.',
             'add_player'    => 'Add player',
@@ -1070,6 +1071,8 @@ return [
             'no_session'    => 'No upcoming sessions scheduled.',
             'view_week'     => 'View this week',
             'hide_week'     => 'Hide this week',
+            'calendar'      => 'Calendar',
+            'no_sessions_day' => 'No sessions scheduled on this day.',
             'payments'      => 'Payments',
             'pending'       => 'Pending',
             'up_to_date'    => 'Up to date',
