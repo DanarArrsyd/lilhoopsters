@@ -41,19 +41,11 @@
         </div>
     </aside>
 
-    {{-- Mobile overlay --}}
-    <div id="sidebar-overlay" class="fixed inset-0 bg-navy/40 z-40 hidden lg:hidden" onclick="closeSidebar()"></div>
-
     {{-- ── Main ── --}}
     <div class="flex-1 flex flex-col min-w-0 lg:ml-60">
 
         {{-- Topbar --}}
         <header class="h-14 bg-surface border-b border-line flex items-center px-4 gap-3 sticky top-0 z-30">
-            <button class="lg:hidden p-2 rounded-lg hover:bg-off text-muted" onclick="openSidebar()">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                </svg>
-            </button>
             <h1 class="flex-1 text-sm font-bold uppercase tracking-wide text-navy">{{ __('messages.portal.home.title') }}</h1>
         </header>
 
@@ -98,16 +90,3 @@
     <x-portal.bottom-nav />
 
 </div>{{-- /flex --}}
-
-@push('scripts')
-<script>
-    function openSidebar() {
-        document.getElementById('sidebar').classList.remove('-translate-x-full');
-        document.getElementById('sidebar-overlay').classList.remove('hidden');
-    }
-    function closeSidebar() {
-        document.getElementById('sidebar').classList.add('-translate-x-full');
-        document.getElementById('sidebar-overlay').classList.add('hidden');
-    }
-</script>
-@endpush

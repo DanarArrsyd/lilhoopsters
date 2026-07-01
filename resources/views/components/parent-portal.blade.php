@@ -2,13 +2,12 @@
     <x-slot name="title">{{ $title ?? 'Parent' }}</x-slot>
 
     <div class="flex min-h-[100dvh]"
-         x-data="{ collapsed: false, mobileOpen: false, toggle() { window.innerWidth >= 1024 ? (this.collapsed = !this.collapsed) : (this.mobileOpen = !this.mobileOpen) } }"
+         x-data="{ collapsed: false }"
          x-init="collapsed = localStorage.getItem('sidebarCollapsed') === '1'; $watch('collapsed', v => localStorage.setItem('sidebarCollapsed', v ? '1' : '0'))">
-        {{-- Sidebar --}}
-        <aside id="sidebar"
-               class="fixed inset-y-0 left-0 z-50 w-60 bg-surface border-r border-line flex flex-col
+        {{-- Sidebar (desktop only — mobile uses the bottom nav) --}}
+        <aside class="fixed inset-y-0 left-0 z-50 w-60 bg-surface border-r border-line hidden flex-col
                       transform transition-transform duration-300"
-               :class="{ 'translate-x-0': mobileOpen, '-translate-x-full': !mobileOpen, 'lg:translate-x-0': !collapsed, 'lg:-translate-x-full': collapsed }">
+               :class="collapsed ? 'lg:-translate-x-full' : 'lg:flex lg:translate-x-0'">
 
             {{-- Logo --}}
             <div class="h-16 flex items-center gap-3 px-4 border-b border-line">
@@ -46,17 +45,13 @@
             </div>
         </aside>
 
-        {{-- Overlay mobile --}}
-        <div x-show="mobileOpen" x-transition.opacity @click="mobileOpen = false"
-             class="fixed inset-0 bg-navy/40 z-40 lg:hidden" style="display:none"></div>
-
         {{-- Main --}}
         <div class="flex-1 flex flex-col min-w-0 transition-[margin] duration-300"
              :class="collapsed ? 'lg:ml-0' : 'lg:ml-60'">
             {{-- Topbar --}}
             <header class="h-14 bg-surface border-b border-line flex items-center px-4 gap-4 sticky top-0 z-30">
-                <button type="button" @click="toggle()" title="Toggle menu"
-                        class="p-2 rounded-lg hover:bg-off text-muted">
+                <button type="button" @click="collapsed = !collapsed" title="Toggle menu"
+                        class="hidden lg:block p-2 rounded-lg hover:bg-off text-muted">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                     </svg>
