@@ -440,6 +440,7 @@ return [
         'coaches' => [
             'title'              => 'Coaches',
             'subtitle'           => 'Manage coach accounts and location assignments.',
+            'new'                => 'New Coach',
             'col_coach'          => 'Coach',
             'col_phone'          => 'Phone',
             'col_specialization' => 'Specialization',

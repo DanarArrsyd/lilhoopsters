@@ -440,6 +440,7 @@ return [
         'coaches' => [
             'title'              => 'Pelatih',
             'subtitle'           => 'Kelola akun pelatih dan penugasan lokasi.',
+            'new'                => 'Pelatih Baru',
             'col_coach'          => 'Pelatih',
             'col_phone'          => 'Telepon',
             'col_specialization' => 'Spesialisasi',
