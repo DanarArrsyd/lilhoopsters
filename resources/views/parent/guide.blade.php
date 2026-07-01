@@ -1,5 +1,6 @@
 <x-parent-portal title="User Guide">
-    <div class="max-w-3xl space-y-6">
+    <div class="lg:grid lg:grid-cols-3 lg:gap-6 lg:items-start">
+    <div class="lg:col-span-2 max-w-3xl space-y-6">
 
         <div class="mb-6">
             <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.portal.guide.title') }}</h2>
@@ -42,11 +43,40 @@
             @endforeach
 
         </div>
+    </div>
+
+    {{-- Right column --}}
+    <div class="hidden lg:block lg:sticky lg:top-20 space-y-6">
+
+        <x-card padding="p-0">
+            <div class="px-6 py-4 border-b border-line">
+                <p class="text-xs font-bold uppercase tracking-wide text-navy">{{ __('messages.portal.guide.quick_links') }}</p>
+            </div>
+            <div class="p-2">
+                <a href="{{ route('parent.players') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-ink hover:bg-off transition-colors">
+                    <svg class="w-4 h-4 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    {{ __('messages.nav.players') }}
+                </a>
+                <a href="{{ route('parent.enroll') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-ink hover:bg-off transition-colors">
+                    <svg class="w-4 h-4 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    {{ __('messages.nav.enroll') }}
+                </a>
+                <a href="{{ route('parent.payments') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-ink hover:bg-off transition-colors">
+                    <svg class="w-4 h-4 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V6m0 10v2m0-2c-1.11 0-2.08-.402-2.599-1"/></svg>
+                    {{ __('messages.portal.home.payments') }}
+                </a>
+                <a href="{{ route('parent.report-cards') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-ink hover:bg-off transition-colors">
+                    <svg class="w-4 h-4 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6h2v6H9zm4 0V7h2v10h-2zm-8 0v-3h2v3H5z"/></svg>
+                    {{ __('messages.portal.home.report_cards') }}
+                </a>
+            </div>
+        </x-card>
 
         <x-card>
-            <p class="text-sm text-muted">
-                {{ __('messages.portal.guide.contact_prompt') }}
-            </p>
+            <p class="text-xs font-bold uppercase tracking-wide text-navy mb-2">{{ __('messages.portal.guide.need_help_title') }}</p>
+            <p class="text-sm text-muted leading-relaxed">{{ __('messages.portal.guide.contact_prompt') }}</p>
         </x-card>
+
+    </div>
     </div>
 </x-parent-portal>

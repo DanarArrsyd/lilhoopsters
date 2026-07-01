@@ -1095,6 +1095,8 @@ return [
         'guide' => [
             'title'    => 'User Guide',
             'subtitle' => 'A quick walkthrough of everything you can do in the parent portal.',
+            'quick_links'    => 'Quick Links',
+            'need_help_title' => 'Need help?',
 
             'players_title' => 'Managing your players',
             'players_body'  => 'Open "My Players" from the bottom navigation to add a child, edit their details, or switch between multiple children. The player you have selected there is the one shown across Home, schedules, and reports.',

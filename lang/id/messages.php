@@ -1095,6 +1095,8 @@ return [
         'guide' => [
             'title'    => 'Panduan Pengguna',
             'subtitle' => 'Panduan singkat semua yang bisa Anda lakukan di portal orang tua.',
+            'quick_links'     => 'Tautan Cepat',
+            'need_help_title' => 'Butuh bantuan?',
 
             'players_title' => 'Mengelola anak',
             'players_body'  => 'Buka "My Players" dari navigasi bawah untuk menambah anak, mengubah data, atau berpindah antar anak. Anak yang dipilih di sana akan tampil di Home, jadwal, dan rapor.',
