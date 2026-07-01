@@ -24,12 +24,4 @@
         </svg>
         <span class="text-[11px] font-semibold">{{ __('messages.nav.news') }}</span>
     </a>
-    <a href="{{ route('parent.profile') }}"
-       class="flex-1 flex flex-col items-center gap-1 py-2.5 {{ request()->routeIs('parent.profile') ? 'text-navy' : 'text-faint' }}">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-        </svg>
-        <span class="text-[11px] font-semibold">{{ __('messages.nav.profile') }}</span>
-    </a>
 </nav>

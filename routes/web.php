@@ -105,5 +105,6 @@ Route::middleware(['auth', 'role:parent', 'registration.status'])
         Route::get('/report-cards',  fn() => view('parent.report-cards'))->name('report-cards');
         Route::get('/news',       fn() => view('parent.news'))->name('news');
         Route::get('/profile',    fn() => view('parent.profile'))->name('profile');
+        Route::get('/guide',      fn() => view('parent.guide'))->name('guide');
         }); // end profile.complete middleware group
     });

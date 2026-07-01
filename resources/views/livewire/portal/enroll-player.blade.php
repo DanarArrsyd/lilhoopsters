@@ -10,9 +10,7 @@
             <span class="text-[11px] text-gray-400 font-medium tabular-nums shrink-0">{{ $step }} / {{ $totalSteps }}</span>
             <livewire:locale-switcher />
             <livewire:notification-bell />
-            <div class="w-8 h-8 rounded-full bg-navy text-off flex items-center justify-center font-bold text-xs shrink-0">
-                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-            </div>
+            <x-portal.avatar-menu />
         </div>
     </header>
 

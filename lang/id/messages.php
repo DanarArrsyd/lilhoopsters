@@ -1072,6 +1072,9 @@ return [
             'regular_classes'   => 'Sesi Reguler',
             'private_classes'   => 'Sesi Privat',
             'no_classes'        => 'Belum ada kelas di kategori ini.',
+            'manage_profile'    => 'Kelola Profil',
+            'user_guide'        => 'Panduan Pengguna',
+            'sign_out'          => 'Keluar',
             'attendance_label'  => 'Kehadiran: :a dari :b sesi',
             'no_session'    => 'Belum ada sesi terjadwal.',
             'view_week'     => 'Lihat minggu ini',
@@ -1088,6 +1091,39 @@ return [
             'report_cards'           => 'Rapor',
             'qr_code'                => 'QR Code Presensi',
             'event_open'             => 'Pendaftaran dibuka',
+        ],
+        'guide' => [
+            'title'    => 'Panduan Pengguna',
+            'subtitle' => 'Panduan singkat semua yang bisa Anda lakukan di portal orang tua.',
+
+            'players_title' => 'Mengelola anak',
+            'players_body'  => 'Buka "My Players" dari navigasi bawah untuk menambah anak, mengubah data, atau berpindah antar anak. Anak yang dipilih di sana akan tampil di Home, jadwal, dan rapor.',
+
+            'qr_title' => 'QR Code Presensi',
+            'qr_body'  => 'Setiap anak punya QR code unik untuk check-in di akademi. Buka dari Quick Actions di Home, atau dari "My Players". Tunjukkan ke pelatih atau alat pemindai saat anak tiba di sesi.',
+
+            'sessions_title' => 'Mendaftar Regular Sessions',
+            'sessions_body'  => 'Gunakan "Regular Sessions" di Quick Actions untuk melihat program dan paket, lalu ikuti langkah-langkahnya untuk memilih program, jadwal, dan opsi pembayaran anak Anda.',
+
+            'leave_title' => 'Mengajukan izin',
+            'leave_body'  => '"Request Leave" memandu Anda memilih tanggal sesi, memberi alasan, dan mengirim untuk disetujui admin. Izin yang disetujui otomatis tercatat di kehadiran anak. Pengajuan yang belum ditinjau otomatis disetujui setelah 72 jam.',
+
+            'makeup_title' => 'Memesan kelas pengganti',
+            'makeup_body'  => 'Jika anak tidak hadir di suatu sesi, gunakan "Makeup Class" untuk memilih sesi yang terlewat dan memesan slot pengganti yang tersedia.',
+
+            'private_title' => 'Memesan sesi privat',
+            'private_body'  => '"Private Session" memungkinkan Anda meminta waktu latihan satu-lawan-satu — pilih pelatih, tanggal, dan waktu, lalu konfirmasi permintaan.',
+
+            'payments_title' => 'Pembayaran',
+            'payments_body'  => 'Quick action "Payments" menampilkan invoice dan status pembayaran paket, serta memungkinkan Anda menyelesaikan pembayaran yang belum lunas.',
+
+            'reports_title' => 'Kehadiran & rapor',
+            'reports_body'  => '"Attendance" menampilkan riwayat sesi yang dihadiri, terlewat, atau diizinkan absen. "Report Cards" menampilkan penilaian dan catatan perkembangan dari pelatih untuk setiap program yang diikuti anak.',
+
+            'calendar_title' => 'Menggunakan kalender',
+            'calendar_body'  => 'Kalender di Home menandai setiap hari anak Anda punya sesi. Ketuk tanggal untuk melihat jadwalnya, dan gunakan "This Week" untuk melihat sekilas minggu berjalan.',
+
+            'contact_prompt' => 'Masih butuh bantuan? Hubungi koordinator akademi melalui kontak yang dibagikan saat pendaftaran.',
         ],
     ],
 ];

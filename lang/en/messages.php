@@ -1072,6 +1072,9 @@ return [
             'regular_classes'   => 'Regular Sessions',
             'private_classes'   => 'Private Sessions',
             'no_classes'        => 'No classes in this category yet.',
+            'manage_profile'    => 'Manage Profile',
+            'user_guide'        => 'User Guide',
+            'sign_out'          => 'Sign Out',
             'attendance_label'  => 'Attendance: :a of :b sessions',
             'no_session'    => 'No upcoming sessions scheduled.',
             'view_week'     => 'View this week',
@@ -1088,6 +1091,39 @@ return [
             'report_cards'           => 'Report Cards',
             'qr_code'                => 'Presence QR Code',
             'event_open'             => 'Registration is open',
+        ],
+        'guide' => [
+            'title'    => 'User Guide',
+            'subtitle' => 'A quick walkthrough of everything you can do in the parent portal.',
+
+            'players_title' => 'Managing your players',
+            'players_body'  => 'Open "My Players" from the bottom navigation to add a child, edit their details, or switch between multiple children. The player you have selected there is the one shown across Home, schedules, and reports.',
+
+            'qr_title' => 'Presence QR Code',
+            'qr_body'  => 'Each child has a unique QR code used for check-in at the academy. Open it from Quick Actions on Home, or from "My Players". Show it to the coach or scan station when your child arrives for a session.',
+
+            'sessions_title' => 'Enrolling in Regular Sessions',
+            'sessions_body'  => 'Use "Regular Sessions" in Quick Actions to browse programs and packages, then follow the step-by-step enrollment to pick a program, schedule, and payment option for your child.',
+
+            'leave_title' => 'Requesting leave',
+            'leave_body'  => '"Request Leave" walks you through picking the session date, giving a reason, and submitting for admin approval. Approved leaves are reflected in your child\'s attendance automatically. Requests left unreviewed are auto-approved after 72 hours.',
+
+            'makeup_title' => 'Booking a makeup class',
+            'makeup_body'  => 'If your child missed a session, use "Makeup Class" to choose an eligible missed session and book an available replacement slot in a few steps.',
+
+            'private_title' => 'Booking a private session',
+            'private_body'  => '"Private Session" lets you request one-on-one coaching time — pick a coach, date, and time, then confirm the request.',
+
+            'payments_title' => 'Payments',
+            'payments_body'  => 'The "Payments" quick action shows your invoices and package payment status, and lets you complete outstanding payments for enrollments.',
+
+            'reports_title' => 'Attendance & report cards',
+            'reports_body'  => '"Attendance" shows a history of sessions attended, missed, or excused. "Report Cards" shows coach evaluations and progress notes for each program your child is enrolled in.',
+
+            'calendar_title' => 'Using the calendar',
+            'calendar_body'  => 'The calendar on Home highlights every day your child has a session. Tap a day to see what is scheduled, and use "This Week" for a fast look at the current week at a glance.',
+
+            'contact_prompt' => 'Still need help? Reach out to your academy coordinator through the contact details shared at enrollment.',
         ],
     ],
 ];
