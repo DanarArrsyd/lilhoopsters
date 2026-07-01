@@ -99,7 +99,7 @@ Route::middleware(['auth', 'role:parent', 'registration.status'])
         Route::get('/enroll',     \App\Livewire\Portal\EnrollPlayer::class)->name('enroll');
         Route::get('/leaves',     fn() => view('parent.leaves'))->name('leaves');
         Route::get('/makeup',     fn() => view('parent.makeup'))->name('makeup');
-        Route::get('/private',    fn() => view('parent.private'))->name('private');
+        Route::get('/private',    \App\Livewire\Portal\PrivateSessions::class)->name('private');
         Route::get('/payments',      fn() => view('parent.payments'))->name('payments');
         Route::get('/attendance',    fn() => view('parent.attendance'))->name('attendance');
         Route::get('/report-cards',  fn() => view('parent.report-cards'))->name('report-cards');

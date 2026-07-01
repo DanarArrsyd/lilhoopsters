@@ -1085,7 +1085,7 @@ return [
             'quick_actions'          => 'Quick actions',
             'leave_request'          => 'Request leave',
             'makeup_class'           => 'Makeup class',
-            'private_session'        => 'Private session',
+            'private_session'        => 'Private Sessions',
             'enroll_package'         => 'Regular Sessions',
             'attendance'             => 'Attendance',
             'report_cards'           => 'Report Cards',

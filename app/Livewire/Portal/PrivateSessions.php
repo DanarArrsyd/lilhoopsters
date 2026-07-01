@@ -17,6 +17,7 @@ use Livewire\Component;
 class PrivateSessions extends Component
 {
     public int $step = 1; // 1=player, 2=location, 3=coach, 4=package+slot, 5=confirm
+    public int $totalSteps = 5;
 
     public ?int    $selectedChildId    = null;
     public ?int    $selectedLocationId = null;

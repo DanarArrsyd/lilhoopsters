@@ -1085,7 +1085,7 @@ return [
             'quick_actions'          => 'Aksi cepat',
             'leave_request'          => 'Ajukan izin',
             'makeup_class'           => 'Kelas pengganti',
-            'private_session'        => 'Sesi privat',
+            'private_session'        => 'Private Sessions',
             'enroll_package'         => 'Sesi Reguler',
             'attendance'             => 'Kehadiran',
             'report_cards'           => 'Rapor',
