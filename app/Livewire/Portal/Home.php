@@ -114,7 +114,7 @@ class Home extends Component
         }, [null, collect()], $sectionFailed);
 
         [$calendar, $selectedSessions] = $this->safely(function () use ($child) {
-            if (! $child || ! $this->showCalendar) {
+            if (! $child) {
                 return [null, collect()];
             }
 

@@ -11,7 +11,7 @@
             <p class="text-xs font-bold uppercase tracking-wide text-muted">{{ __('messages.portal.home.next_session') }}</p>
         </div>
         <button wire:click="openCalendar" wire:loading.attr="disabled"
-                class="inline-flex items-center gap-1.5 text-xs font-semibold text-navy bg-navy/8 px-2.5 py-1 rounded-lg hover:bg-navy/15 transition-colors shrink-0">
+                class="lg:hidden inline-flex items-center gap-1.5 text-xs font-semibold text-navy bg-navy/8 px-2.5 py-1 rounded-lg hover:bg-navy/15 transition-colors shrink-0">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
             </svg>

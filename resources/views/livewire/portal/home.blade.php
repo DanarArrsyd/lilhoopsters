@@ -11,9 +11,9 @@
 
     {{-- ── Scrollable content ── --}}
     <div class="flex-1 bg-off">
-        <div class="max-w-2xl mx-auto px-4 sm:px-6 pt-6 pb-24 lg:pb-20">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-24 lg:pb-10">
 
-            <div class="bg-navy text-off rounded-2xl px-5 py-4 mb-4 flex items-center gap-3">
+            <div class="bg-navy text-off rounded-2xl px-5 py-4 mb-4 flex items-center gap-3 lg:max-w-2xl">
                 <div class="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center font-extrabold text-base shrink-0">
                     {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                 </div>
@@ -33,24 +33,36 @@
                 </x-empty-state>
             @else
                 @if ($sectionFailed ?? false)
-                    <div class="mb-4 px-4 py-3 rounded-xl bg-[#B91C1C]/10 text-[#B91C1C] text-sm flex items-center justify-between">
+                    <div class="mb-4 px-4 py-3 rounded-xl bg-[#B91C1C]/10 text-[#B91C1C] text-sm flex items-center justify-between lg:max-w-2xl">
                         <span>{{ __('messages.portal.home.section_error') }}</span>
                         <button wire:click="$refresh" class="font-semibold underline shrink-0 ml-3">{{ __('messages.portal.home.retry') }}</button>
                     </div>
                 @endif
-                <x-portal.child-switcher :children="$children" :active-child-id="$activeChildId" />
-                <x-portal.event-banner :active-event="$activeEvent" />
-                <x-portal.schedule-card
-                    :next-session="$nextSession"
-                    :week-sessions="$weekSessions"
-                    :show-calendar="$showCalendar"
-                    :calendar="$calendar"
-                    :selected-date="$selectedDate"
-                    :selected-sessions="$selectedSessions" />
-                <x-portal.quick-actions :show-qr="$showQr" :qr-svg="$qrSvg" :active-child="$child" />
+
+                <div class="lg:grid lg:grid-cols-3 lg:gap-6 lg:items-start">
+                    <div class="lg:col-span-2">
+                        <x-portal.child-switcher :children="$children" :active-child-id="$activeChildId" />
+                        <x-portal.event-banner :active-event="$activeEvent" />
+                        <x-portal.schedule-card
+                            :next-session="$nextSession"
+                            :week-sessions="$weekSessions"
+                            :show-calendar="$showCalendar"
+                            :calendar="$calendar"
+                            :selected-date="$selectedDate"
+                            :selected-sessions="$selectedSessions" />
+                        <x-portal.quick-actions :show-qr="$showQr" :qr-svg="$qrSvg" :active-child="$child" />
+                    </div>
+
+                    <div class="hidden lg:block lg:sticky lg:top-20">
+                        <x-portal.calendar-panel
+                            :calendar="$calendar"
+                            :selected-date="$selectedDate"
+                            :selected-sessions="$selectedSessions" />
+                    </div>
+                </div>
             @endif
 
-        </div>{{-- /max-w-2xl --}}
+        </div>{{-- /max-w-6xl --}}
     </div>{{-- /flex-1 bg-off --}}
 
     <x-portal.bottom-nav />
