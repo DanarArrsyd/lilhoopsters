@@ -1,9 +1,5 @@
-<div>
-    {{-- Header --}}
-    <div class="mb-6">
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.coach.take_attendance.title') }}</h2>
-        <p class="text-sm text-muted">{{ __('messages.coach.take_attendance.subtitle') }}</p>
-    </div>
+<div class="max-w-6xl mx-auto">
+    <x-admin.page-header :title="__('messages.coach.take_attendance.title')" :subtitle="__('messages.coach.take_attendance.subtitle')" />
 
     {{-- Flash --}}
     @if (session('attendance_success'))

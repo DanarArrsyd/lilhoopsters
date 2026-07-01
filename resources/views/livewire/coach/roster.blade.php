@@ -1,9 +1,5 @@
-<div>
-    {{-- Header --}}
-    <div class="mb-5">
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.coach.roster.title') }}</h2>
-        <p class="text-sm text-muted">{{ __('messages.coach.roster.subtitle') }}</p>
-    </div>
+<div class="max-w-6xl mx-auto">
+    <x-admin.page-header :title="__('messages.coach.roster.title')" :subtitle="__('messages.coach.roster.subtitle')" />
 
     {{-- Compact filters --}}
     <div class="flex flex-col sm:flex-row gap-2 mb-4">

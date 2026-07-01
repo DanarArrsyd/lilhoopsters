@@ -1,13 +1,9 @@
-<div class="space-y-6"
+<div class="max-w-6xl mx-auto space-y-6"
      x-data="qrScanner($wire)"
      x-init="captureGps()"
      @show-checkin-warning.window="showCheckinWarning = true">
 
-    {{-- Header --}}
-    <div class="mb-6">
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.coach.qr_scanner.title') }}</h2>
-        <p class="text-sm text-muted">{{ __('messages.coach.qr_scanner.subtitle') }}</p>
-    </div>
+    <x-admin.page-header :title="__('messages.coach.qr_scanner.title')" :subtitle="__('messages.coach.qr_scanner.subtitle')" />
 
     {{-- Setup card --}}
     <x-card padding="p-5">

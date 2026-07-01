@@ -1,9 +1,5 @@
-<div>
-    {{-- Header --}}
-    <div class="mb-6">
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.coach.report_cards.title') }}</h2>
-        <p class="text-sm text-muted">{{ __('messages.coach.report_cards.subtitle') }}</p>
-    </div>
+<div class="max-w-6xl mx-auto">
+    <x-admin.page-header :title="__('messages.coach.report_cards.title')" :subtitle="__('messages.coach.report_cards.subtitle')" />
 
     {{-- Flash --}}
     @if (session('success'))
