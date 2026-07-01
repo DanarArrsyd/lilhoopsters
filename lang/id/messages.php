@@ -1085,7 +1085,7 @@ return [
             'leave_request'          => 'Ajukan izin',
             'makeup_class'           => 'Kelas pengganti',
             'private_session'        => 'Sesi privat',
-            'enroll_package'         => 'Daftar / paket',
+            'enroll_package'         => 'Sesi Reguler',
             'event_open'             => 'Pendaftaran dibuka',
         ],
     ],

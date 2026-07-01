@@ -2,7 +2,6 @@
 
 namespace App\Livewire\Portal;
 
-use App\Models\Enrollment;
 use App\Models\LeaveRequest;
 use App\Models\MakeUpClass;
 use App\Models\Schedule;
@@ -14,22 +13,48 @@ class MakeUpClasses extends Component
 {
     use WithPagination;
 
-    public bool $showForm       = false;
-    public int|string $leaveRequestId  = '';
+    public bool $showForm = false;
+    public int $step      = 1;
+
+    public int|string $leaveRequestId   = '';
     public int|string $targetScheduleId = '';
-    public string $targetDate   = '';
+    public string $targetDate           = '';
 
     public function openForm(): void
     {
+        $this->step             = 1;
         $this->leaveRequestId   = '';
         $this->targetScheduleId = '';
         $this->targetDate       = '';
+        $this->resetErrorBag();
         $this->showForm         = true;
     }
 
     public function closeForm(): void
     {
         $this->showForm = false;
+    }
+
+    public function nextStep(): void
+    {
+        if ($this->step === 1) {
+            $this->validate(['leaveRequestId' => 'required|integer']);
+            $this->step = 2;
+            return;
+        }
+
+        if ($this->step === 2) {
+            $this->validate([
+                'targetScheduleId' => 'required|exists:schedules,id',
+                'targetDate'       => 'required|date|after_or_equal:today',
+            ]);
+            $this->step = 3;
+        }
+    }
+
+    public function prevStep(): void
+    {
+        if ($this->step > 1) $this->step--;
     }
 
     public function submit(): void
@@ -47,13 +72,14 @@ class MakeUpClasses extends Component
             ->find($this->leaveRequestId);
 
         if (!$leaveRequest) {
+            $this->step = 1;
             $this->addError('leaveRequestId', 'Leave request not found.');
             return;
         }
 
-        // Check not already requested
         $exists = MakeUpClass::where('leave_request_id', $leaveRequest->id)->exists();
         if ($exists) {
+            $this->step = 1;
             $this->addError('leaveRequestId', 'Make-up class already requested for this leave.');
             return;
         }
@@ -67,8 +93,8 @@ class MakeUpClasses extends Component
             'status'             => 'pending',
         ]);
 
-        $this->showForm = false;
         session()->flash('success', 'Make-up class requested.');
+        $this->showForm = false;
     }
 
     public function render()
@@ -91,6 +117,16 @@ class MakeUpClasses extends Component
             ->orderByRaw("FIELD(day_of_week,'monday','tuesday','wednesday','thursday','friday','saturday','sunday')")
             ->get();
 
-        return view('livewire.portal.makeup-classes', compact('makeUpClasses', 'approvedLeaves', 'schedules'));
+        $selectedLeave = $this->leaveRequestId
+            ? $approvedLeaves->firstWhere('id', (int) $this->leaveRequestId)
+            : null;
+
+        $selectedSchedule = $this->targetScheduleId
+            ? $schedules->firstWhere('id', (int) $this->targetScheduleId)
+            : null;
+
+        return view('livewire.portal.makeup-classes', compact(
+            'makeUpClasses', 'approvedLeaves', 'schedules', 'selectedLeave', 'selectedSchedule'
+        ));
     }
 }

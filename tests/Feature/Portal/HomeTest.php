@@ -32,15 +32,15 @@ it('redirects the old dashboard route to home', function () {
 it('returns 404 for routes removed from navigation', function () {
     $this->actingAs($this->parent)->get('/parent/payments')->assertNotFound();
     $this->actingAs($this->parent)->get('/parent/attendance')->assertNotFound();
-    $this->actingAs($this->parent)->get('/parent/leaves')->assertNotFound();
-    $this->actingAs($this->parent)->get('/parent/makeup')->assertNotFound();
     $this->actingAs($this->parent)->get('/parent/report-cards')->assertNotFound();
     $this->actingAs($this->parent)->get('/parent/events')->assertNotFound();
-    $this->actingAs($this->parent)->get('/parent/private')->assertNotFound();
 });
 
-it('renders the players page', function () {
+it('renders the players, leaves, makeup, and private pages', function () {
     $this->actingAs($this->parent)->get(route('parent.players'))->assertOk();
+    $this->actingAs($this->parent)->get(route('parent.leaves'))->assertOk();
+    $this->actingAs($this->parent)->get(route('parent.makeup'))->assertOk();
+    $this->actingAs($this->parent)->get(route('parent.private'))->assertOk();
 });
 
 it('shows an empty state when the parent has no children', function () {
@@ -103,14 +103,15 @@ it('shows payment status for the active child', function () {
         ->assertSee('450.000', escape: false);
 });
 
-it('shows quick action buttons that open the existing wizards', function () {
+it('shows quick action links to the leave, makeup, private, and enroll pages', function () {
     Child::factory()->create(['user_id' => $this->parent->id, 'status' => 'active']);
 
     Livewire::actingAs($this->parent)
         ->test(Home::class)
-        ->assertSeeLivewire(\App\Livewire\Portal\LeaveRequests::class)
-        ->assertSeeLivewire(\App\Livewire\Portal\PrivateSessions::class)
-        ->assertSeeLivewire(\App\Livewire\Portal\MakeUpClasses::class);
+        ->assertSee(route('parent.enroll'), false)
+        ->assertSee(route('parent.leaves'), false)
+        ->assertSee(route('parent.makeup'), false)
+        ->assertSee(route('parent.private'), false);
 });
 
 it('shows a banner when an event is open for registration', function () {

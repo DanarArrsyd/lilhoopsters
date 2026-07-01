@@ -97,6 +97,9 @@ Route::middleware(['auth', 'role:parent', 'registration.status'])
         Route::get('/home',       \App\Livewire\Portal\Home::class)->name('home');
         Route::get('/players',    fn() => view('parent.players'))->name('players');
         Route::get('/enroll',     \App\Livewire\Portal\EnrollPlayer::class)->name('enroll');
+        Route::get('/leaves',     fn() => view('parent.leaves'))->name('leaves');
+        Route::get('/makeup',     fn() => view('parent.makeup'))->name('makeup');
+        Route::get('/private',    fn() => view('parent.private'))->name('private');
         Route::get('/news',       fn() => view('parent.news'))->name('news');
         Route::get('/profile',    fn() => view('parent.profile'))->name('profile');
         }); // end profile.complete middleware group
