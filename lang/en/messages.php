@@ -481,6 +481,7 @@ return [
         'events' => [
             'title'              => 'Events',
             'subtitle'           => "Pause regular classes for an event — members' packages are auto-extended.",
+            'new'                => 'New Event',
             'step_info'          => 'Info',
             'step_details'       => 'Details',
             'col_event'          => 'Event',
@@ -529,6 +530,7 @@ return [
         ],
         'leads' => [
             'title'               => 'Leads',
+            'new' => 'New Lead',
             'subtitle'            => 'Prospect pipeline — from lead to conversion.',
             'status_new'          => 'New',
             'status_contacted'    => 'Contacted',
@@ -587,6 +589,7 @@ return [
         ],
         'locations' => [
             'title'        => 'Locations',
+            'new' => 'New Location',
             'subtitle'     => 'Manage basketball court locations.',
             'col_name'     => 'Name',
             'col_address'  => 'Address',
@@ -649,6 +652,7 @@ return [
         ],
         'news' => [
             'title'          => 'News',
+            'new' => 'New Post',
             'subtitle'       => 'Post announcements — published posts notify all parents and coaches.',
             'col_title'      => 'Title',
             'col_status'     => 'Status',
@@ -670,6 +674,7 @@ return [
         ],
         'packages' => [
             'title'          => 'Packages',
+            'new' => 'New Package',
             'subtitle'       => 'Manage pricing packages per location.',
             'all_locations'  => 'All Locations',
             'type_reg'       => 'Registration',
@@ -782,6 +787,7 @@ return [
         ],
         'programs' => [
             'title'        => 'Programs',
+            'new' => 'New Program',
             'subtitle'     => 'Manage academy programs and age groups.',
             'col_program'  => 'Program',
             'col_age_range'=> 'Age Range',
@@ -801,6 +807,7 @@ return [
         ],
         'report_cards' => [
             'title'               => 'Report Cards',
+            'new' => 'New Report Card',
             'subtitle'            => 'Manage and publish student report cards.',
             'col_child'           => 'Child',
             'col_coach'           => 'Coach',
@@ -838,6 +845,7 @@ return [
         ],
         'schedules' => [
             'title'         => 'Schedules',
+            'new' => 'New Schedule',
             'subtitle'      => 'Manage class schedules per location and program.',
             'step_setup'    => 'Setup',
             'step_timing'   => 'Timing',

@@ -480,6 +480,7 @@ return [
         ],
         'events' => [
             'title'              => 'Acara',
+            'new' => 'Acara Baru',
             'subtitle'           => 'Jeda kelas reguler untuk acara — paket anggota diperpanjang otomatis.',
             'step_info'          => 'Info',
             'step_details'       => 'Detail',
@@ -529,6 +530,7 @@ return [
         ],
         'leads' => [
             'title'               => 'Prospek',
+            'new' => 'Prospek Baru',
             'subtitle'            => 'Pipeline prospek — dari lead hingga konversi.',
             'status_new'          => 'Baru',
             'status_contacted'    => 'Dihubungi',
@@ -587,6 +589,7 @@ return [
         ],
         'locations' => [
             'title'        => 'Lokasi',
+            'new' => 'Lokasi Baru',
             'subtitle'     => 'Kelola lokasi lapangan basket.',
             'col_name'     => 'Nama',
             'col_address'  => 'Alamat',
@@ -649,6 +652,7 @@ return [
         ],
         'news' => [
             'title'          => 'Berita',
+            'new' => 'Postingan Baru',
             'subtitle'       => 'Posting pengumuman — postingan yang dipublikasikan memberitahu semua orang tua dan pelatih.',
             'col_title'      => 'Judul',
             'col_status'     => 'Status',
@@ -670,6 +674,7 @@ return [
         ],
         'packages' => [
             'title'          => 'Paket',
+            'new' => 'Paket Baru',
             'subtitle'       => 'Kelola paket harga per lokasi.',
             'all_locations'  => 'Semua Lokasi',
             'type_reg'       => 'Registrasi',
@@ -782,6 +787,7 @@ return [
         ],
         'programs' => [
             'title'        => 'Program',
+            'new' => 'Program Baru',
             'subtitle'     => 'Kelola program akademi dan kelompok usia.',
             'col_program'  => 'Program',
             'col_age_range'=> 'Rentang Usia',
@@ -801,6 +807,7 @@ return [
         ],
         'report_cards' => [
             'title'               => 'Raport',
+            'new' => 'Raport Baru',
             'subtitle'            => 'Kelola dan publikasikan raport siswa.',
             'col_child'           => 'Anak',
             'col_coach'           => 'Pelatih',
@@ -838,6 +845,7 @@ return [
         ],
         'schedules' => [
             'title'         => 'Jadwal',
+            'new' => 'Jadwal Baru',
             'subtitle'      => 'Kelola jadwal kelas per lokasi dan program.',
             'step_setup'    => 'Pengaturan',
             'step_timing'   => 'Waktu',
