@@ -1,17 +1,19 @@
 <div>
     {{-- Header --}}
-    <div class="mb-6">
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.pages.makeup.title') }}</h2>
-        <p class="text-sm text-muted">{{ __('messages.pages.makeup.subtitle') }}</p>
+    <div class="flex items-center justify-between gap-3 mb-6">
+        <div>
+            <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.pages.makeup.title') }}</h2>
+            <p class="text-sm text-muted">{{ __('messages.pages.makeup.subtitle') }}</p>
+        </div>
+        @if ($approvedLeaves->isNotEmpty())
+            <x-btn wire:click="openForm" class="shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+                </svg>
+                {{ __('messages.makeup.submit') }}
+            </x-btn>
+        @endif
     </div>
-    @if ($approvedLeaves->isNotEmpty())
-        <button wire:click="openForm"
-                class="fixed bottom-6 right-5 z-30 w-14 h-14 bg-navy text-off rounded-full shadow-lg flex items-center justify-center hover:bg-navy/90 active:scale-95 transition-all">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
-            </svg>
-        </button>
-    @endif
 
     {{-- Flash --}}
     @if (session('success'))
@@ -62,7 +64,7 @@
 
     {{-- Request Form Modal --}}
     @if ($showForm)
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="fixed inset-0 z-[60] flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-navy/40" wire:click="closeForm"></div>
         <div class="relative bg-surface rounded-2xl border border-line shadow-xl w-full max-w-md">
             <div class="flex items-center justify-between px-6 py-4 border-b border-line">

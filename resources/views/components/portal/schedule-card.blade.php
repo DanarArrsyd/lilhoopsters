@@ -1,7 +1,14 @@
 @props(['nextSession', 'weekSessions'])
 
 <x-card class="mb-4">
-    <p class="text-xs font-bold uppercase tracking-wide text-muted mb-2">{{ __('messages.portal.home.next_session') }}</p>
+    <div class="flex items-center gap-2 mb-3">
+        <span class="w-7 h-7 rounded-lg bg-navy/8 text-navy flex items-center justify-center shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+        </span>
+        <p class="text-xs font-bold uppercase tracking-wide text-muted">{{ __('messages.portal.home.next_session') }}</p>
+    </div>
 
     @if ($nextSession)
         <div class="flex items-start justify-between"
