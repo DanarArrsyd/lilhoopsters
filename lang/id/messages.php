@@ -772,6 +772,12 @@ return [
             'new_password'     => 'Kata Sandi Baru',
             'confirm_password' => 'Konfirmasi Kata Sandi Baru',
             'updating'         => 'Memperbarui...',
+            'account_overview' => 'Ringkasan Akun',
+            'role'             => 'Peran',
+            'role_admin'       => 'Administrator',
+            'role_superadmin'  => 'Super Admin',
+            'member_since'     => 'Anggota sejak',
+            'quick_links'      => 'Tautan Cepat',
         ],
         'programs' => [
             'title'        => 'Program',

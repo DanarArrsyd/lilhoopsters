@@ -772,6 +772,12 @@ return [
             'new_password'     => 'New Password',
             'confirm_password' => 'Confirm New Password',
             'updating'         => 'Updating...',
+            'account_overview' => 'Account Overview',
+            'role'             => 'Role',
+            'role_admin'       => 'Administrator',
+            'role_superadmin'  => 'Super Admin',
+            'member_since'     => 'Member since',
+            'quick_links'      => 'Quick Links',
         ],
         'programs' => [
             'title'        => 'Programs',
