@@ -89,10 +89,7 @@
                         :calendar="$calendar"
                         :selected-date="$selectedDate"
                         :selected-sessions="$selectedSessions" />
-                    <x-portal.payment-card :transactions="$transactions" :pending-amount="$pendingAmount" />
-                    <x-portal.attendance-strip :attendance-counts="$attendanceCounts" />
-                    <x-portal.quick-actions />
-                    {{-- Sections added in Task 6 --}}
+                    <x-portal.quick-actions :show-qr="$showQr" :qr-svg="$qrSvg" :active-child="$child" />
                 @endif
 
             </div>{{-- /max-w-2xl --}}

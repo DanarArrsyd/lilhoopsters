@@ -8,6 +8,7 @@ use App\Support\ChildSchedulePlanner;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class Home extends Component
 {
@@ -16,6 +17,9 @@ class Home extends Component
     public bool $showCalendar    = false;
     public string $calendarCursor = '';
     public ?string $selectedDate  = null;
+
+    public bool $showQr = false;
+    public string $qrSvg = '';
 
     public function mount(): void
     {
@@ -63,6 +67,23 @@ class Home extends Component
     public function selectDate(string $date): void
     {
         $this->selectedDate = $date;
+    }
+
+    public function openQr(): void
+    {
+        $child = $this->activeChild;
+        if (! $child) {
+            return;
+        }
+
+        $this->qrSvg  = (string) QrCode::format('svg')->size(200)->generate($child->qr_identifier);
+        $this->showQr = true;
+    }
+
+    public function closeQr(): void
+    {
+        $this->showQr = false;
+        $this->qrSvg  = '';
     }
 
     public function getChildrenProperty()
@@ -125,26 +146,6 @@ class Home extends Component
             return [$calendar, $selectedSessions];
         }, [null, collect()], $sectionFailed);
 
-        [$transactions, $pendingAmount] = $this->safely(function () use ($child) {
-            return $child
-                ? [
-                    Auth::user()->transactions()->where('child_id', $child->id)->with('package')->latest()->take(5)->get(),
-                    Auth::user()->transactions()->where('child_id', $child->id)->where('status', 'pending')->sum('amount'),
-                ]
-                : [collect(), 0];
-        }, [collect(), 0], $sectionFailed);
-
-        $attendanceCounts = $this->safely(function () use ($child) {
-            return $child
-                ? $child->attendances()
-                    ->whereMonth('attended_at', now()->month)
-                    ->whereYear('attended_at', now()->year)
-                    ->selectRaw('status, count(*) as total')
-                    ->groupBy('status')
-                    ->pluck('total', 'status')
-                : collect();
-        }, collect(), $sectionFailed);
-
         $activeEvent = $this->safely(function () use ($child) {
             if (! $child) {
                 return null;
@@ -165,9 +166,6 @@ class Home extends Component
             'weekSessions'     => $weekSessions,
             'calendar'         => $calendar,
             'selectedSessions' => $selectedSessions,
-            'transactions'     => $transactions,
-            'pendingAmount'    => $pendingAmount,
-            'attendanceCounts' => $attendanceCounts,
             'activeEvent'      => $activeEvent,
             'sectionFailed'    => $sectionFailed,
         ])->layout('components.app', ['title' => 'Home']);

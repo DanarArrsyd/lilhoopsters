@@ -30,17 +30,17 @@ it('redirects the old dashboard route to home', function () {
 });
 
 it('returns 404 for routes removed from navigation', function () {
-    $this->actingAs($this->parent)->get('/parent/payments')->assertNotFound();
-    $this->actingAs($this->parent)->get('/parent/attendance')->assertNotFound();
-    $this->actingAs($this->parent)->get('/parent/report-cards')->assertNotFound();
     $this->actingAs($this->parent)->get('/parent/events')->assertNotFound();
 });
 
-it('renders the players, leaves, makeup, and private pages', function () {
+it('renders the players, leaves, makeup, private, payments, attendance, and report-cards pages', function () {
     $this->actingAs($this->parent)->get(route('parent.players'))->assertOk();
     $this->actingAs($this->parent)->get(route('parent.leaves'))->assertOk();
     $this->actingAs($this->parent)->get(route('parent.makeup'))->assertOk();
     $this->actingAs($this->parent)->get(route('parent.private'))->assertOk();
+    $this->actingAs($this->parent)->get(route('parent.payments'))->assertOk();
+    $this->actingAs($this->parent)->get(route('parent.attendance'))->assertOk();
+    $this->actingAs($this->parent)->get(route('parent.report-cards'))->assertOk();
 });
 
 it('shows an empty state when the parent has no children', function () {
@@ -91,19 +91,17 @@ it('shows the next session for the active child', function () {
         ->assertSee('GOR Senayan');
 });
 
-it('shows payment status for the active child', function () {
+it('opens the active childs QR code', function () {
     $child = Child::factory()->create(['user_id' => $this->parent->id, 'status' => 'active']);
-    \App\Models\Transaction::factory()->create([
-        'user_id' => $this->parent->id, 'child_id' => $child->id,
-        'status' => 'pending', 'amount' => 450000,
-    ]);
 
     Livewire::actingAs($this->parent)
         ->test(Home::class)
-        ->assertSee('450.000', escape: false);
+        ->call('openQr')
+        ->assertSet('showQr', true)
+        ->assertSee($child->name);
 });
 
-it('shows quick action links to the leave, makeup, private, and enroll pages', function () {
+it('shows quick action links to all portal pages', function () {
     Child::factory()->create(['user_id' => $this->parent->id, 'status' => 'active']);
 
     Livewire::actingAs($this->parent)
@@ -111,7 +109,10 @@ it('shows quick action links to the leave, makeup, private, and enroll pages', f
         ->assertSee(route('parent.enroll'), false)
         ->assertSee(route('parent.leaves'), false)
         ->assertSee(route('parent.makeup'), false)
-        ->assertSee(route('parent.private'), false);
+        ->assertSee(route('parent.private'), false)
+        ->assertSee(route('parent.payments'), false)
+        ->assertSee(route('parent.attendance'), false)
+        ->assertSee(route('parent.report-cards'), false);
 });
 
 it('shows a banner when an event is open for registration', function () {
