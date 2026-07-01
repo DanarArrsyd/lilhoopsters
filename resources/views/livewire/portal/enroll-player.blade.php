@@ -1,13 +1,16 @@
 <div class="flex flex-col min-h-[100dvh]">
 
     {{-- Topbar --}}
-    <header class="h-14 bg-surface border-b border-line flex items-center px-4 gap-4 sticky top-0 z-30">
-        <img src="{{ asset('basket_logo.jpeg') }}" alt="Lil' Hoopsters" class="w-8 h-8 rounded-lg object-cover shrink-0">
+    <header class="h-14 bg-surface border-b border-line grid grid-cols-[1fr_auto_1fr] items-center px-4 gap-4 sticky top-0 z-30">
+        <div class="flex items-center min-w-0">
+            <img src="{{ asset('basket_logo.jpeg') }}" alt="Lil' Hoopsters" class="w-8 h-8 rounded-lg object-cover shrink-0">
+        </div>
         <x-portal.top-nav />
-        <div class="flex-1"></div>
-        <span class="text-[11px] text-gray-400 font-medium tabular-nums shrink-0">{{ $step }} / {{ $totalSteps }}</span>
-        <livewire:locale-switcher />
-        <livewire:notification-bell />
+        <div class="flex items-center justify-end gap-4">
+            <span class="text-[11px] text-gray-400 font-medium tabular-nums shrink-0">{{ $step }} / {{ $totalSteps }}</span>
+            <livewire:locale-switcher />
+            <livewire:notification-bell />
+        </div>
     </header>
 
         {{-- Progress bar (sits flush below topbar) --}}
