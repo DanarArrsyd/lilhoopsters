@@ -14,6 +14,7 @@ class LeaveRequests extends Component
 
     public bool   $showForm        = false;
     public int    $step            = 1;
+    public int    $totalSteps      = 3;
     public ?int   $selectedChildId = null;
     public ?int   $enrollmentId    = null;
     public string $leaveDate       = '';
@@ -68,6 +69,11 @@ class LeaveRequests extends Component
     public function prevStep(): void
     {
         if ($this->step > 1) $this->step--;
+    }
+
+    public function back(): void
+    {
+        $this->prevStep();
     }
 
     public function submit(): void
@@ -160,6 +166,6 @@ class LeaveRequests extends Component
         return view('livewire.portal.leave-requests', compact(
             'enrollmentsByChild', 'hasProgramEnrollments', 'leaveRequests',
             'children', 'selectedEnrollment'
-        ));
+        ))->layout('components.app', ['title' => 'Leave Requests']);
     }
 }

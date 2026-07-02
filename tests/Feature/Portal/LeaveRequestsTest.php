@@ -195,3 +195,27 @@ it('can cancel the form', function () {
         ->call('cancel')
         ->assertSet('showForm', false);
 });
+
+it('renders the full wizard chrome for each step', function () {
+    $component = Livewire::actingAs($this->parent)
+        ->test(LeaveRequests::class)
+        ->call('openCreate')
+        ->assertSee('Who?')
+        ->assertSee($this->child->name);
+
+    $component
+        ->set('selectedChildId', $this->child->id)
+        ->call('nextStep')
+        ->assertSet('step', 2)
+        ->assertSee('When & Why?')
+        ->assertSee('Leave Type');
+
+    $component
+        ->set('enrollmentId', $this->enrollment->id)
+        ->set('leaveDate', now()->format('Y-m-d'))
+        ->set('type', 'sick')
+        ->call('nextStep')
+        ->assertSet('step', 3)
+        ->assertSee('Review your request.')
+        ->assertSee('Summary');
+});
