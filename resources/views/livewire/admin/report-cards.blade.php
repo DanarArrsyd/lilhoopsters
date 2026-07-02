@@ -1,15 +1,16 @@
 <div>
-    {{-- Header --}}
-    <div class="mb-6">
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.admin.report_cards.title') }}</h2>
-        <p class="text-sm text-muted">{{ __('messages.admin.report_cards.subtitle') }}</p>
-    </div>
-    <button wire:click="openForm"
-            class="fixed bottom-6 right-5 z-30 w-14 h-14 bg-navy text-off rounded-full shadow-lg flex items-center justify-center hover:bg-navy/90 active:scale-95 transition-all">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
-        </svg>
-    </button>
+    <div class="max-w-6xl mx-auto">
+
+    <x-admin.page-header :title="__('messages.admin.report_cards.title')" :subtitle="__('messages.admin.report_cards.subtitle')">
+        <x-slot name="action">
+            <x-btn variant="add" wire:click="openForm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+                </svg>
+                {{ __('messages.admin.report_cards.new') }}
+            </x-btn>
+        </x-slot>
+    </x-admin.page-header>
 
     @if (session('success'))
         <x-alert type="success" class="mb-4">{{ session('success') }}</x-alert>
@@ -95,6 +96,8 @@
             <div class="px-4 py-3 border-t border-line">{{ $cards->links() }}</div>
         @endif
     </x-card>
+
+    </div>{{-- /max-w-6xl --}}
 
     {{-- Create Modal --}}
     @if ($showForm)

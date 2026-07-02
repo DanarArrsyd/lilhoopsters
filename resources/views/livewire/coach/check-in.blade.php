@@ -11,14 +11,8 @@
             { timeout: 6000, maximumAge: 60000 }
         );
     }
-}">
-    {{-- Header --}}
-    <div class="mb-5">
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.coach.checkin.title') }}</h2>
-        <p class="text-sm text-muted">
-            {{ now()->format('l, d F Y') }} · {{ __('messages.coach.checkin.subtitle') }}
-        </p>
-    </div>
+}" class="max-w-6xl mx-auto">
+    <x-admin.page-header :title="__('messages.coach.checkin.title')" :subtitle="now()->format('l, d F Y') . ' · ' . __('messages.coach.checkin.subtitle')" />
 
     {{-- Flash --}}
     @if (session('success'))

@@ -24,6 +24,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         View::composer('components.admin-nav', AdminNavComposer::class);
+        View::composer('components.admin-nav-desktop', AdminNavComposer::class);
 
         // Inject admin WhatsApp number into every view that needs it
         View::composer('auth.pending', function ($view) {

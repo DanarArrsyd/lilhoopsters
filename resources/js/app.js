@@ -1,7 +1,10 @@
 import './bootstrap';
 import Chart from 'chart.js/auto';
+import collapse from '@alpinejs/collapse';
 
 document.addEventListener('alpine:init', () => {
+    Alpine.plugin(collapse);
+
     Alpine.data('revenueChart', (initialLabels = [], initialAmounts = [], initialAvg = 0) => ({
         chartInstance: null,
         _handler: null,

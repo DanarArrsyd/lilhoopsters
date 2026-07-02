@@ -1,8 +1,7 @@
 <div>
-    <div class="mb-6">
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.admin.payments.title') }}</h2>
-        <p class="text-sm text-muted">{{ __('messages.admin.payments.subtitle') }}</p>
-    </div>
+    <div class="max-w-6xl mx-auto">
+
+    <x-admin.page-header :title="__('messages.admin.payments.title')" :subtitle="__('messages.admin.payments.subtitle')" />
 
     @if (session('success'))
         <x-alert type="success" class="mb-4">{{ session('success') }}</x-alert>
@@ -95,6 +94,8 @@
             <div class="px-4 py-3 border-t border-line">{{ $transactions->links() }}</div>
         @endif
     </x-card>
+
+    </div>{{-- /max-w-6xl --}}
 
     {{-- Reject modal --}}
     @if ($rejectingId)

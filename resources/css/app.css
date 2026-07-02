@@ -5,9 +5,9 @@
 [x-cloak] { display: none !important; }
 
 @theme {
-    --font-sans:    'Plus Jakarta Sans', system-ui, sans-serif;
-    --font-heading: 'Barlow Semi Condensed', system-ui, sans-serif;
-    --font-mono:    'DM Mono', ui-monospace, monospace;
+    --font-sans:    'Public Sans', system-ui, sans-serif;
+    --font-heading: 'Public Sans', system-ui, sans-serif;
+    --font-mono:    'IBM Plex Mono', ui-monospace, monospace;
 
     /* Tighter radius scale (Tailwind defaults are too round) */
     --radius-sm:  0.125rem;  /*  2px — unchanged */
@@ -48,7 +48,7 @@
         -webkit-font-smoothing: antialiased;
     }
 
-    /* Page titles: h1/h2 with uppercase+tracking → Barlow Semi Condensed */
+    /* Page titles: h1/h2 with uppercase+tracking → Public Sans */
     h1, h2 {
         font-family: var(--font-heading);
     }

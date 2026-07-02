@@ -1,9 +1,5 @@
-<div>
-    {{-- Header --}}
-    <div class="mb-6">
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.coach.schedules.title') }}</h2>
-        <p class="text-sm text-muted">{{ __('messages.coach.schedules.subtitle') }}</p>
-    </div>
+<div class="max-w-6xl mx-auto">
+    <x-admin.page-header :title="__('messages.coach.schedules.title')" :subtitle="__('messages.coach.schedules.subtitle')" />
 
     @if ($schedules->isEmpty())
         <x-empty-state :title="__('messages.coach.schedules.empty_title')" :description="__('messages.coach.schedules.empty_desc')" />

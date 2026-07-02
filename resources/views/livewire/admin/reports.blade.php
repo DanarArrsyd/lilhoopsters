@@ -1,4 +1,6 @@
-<div class="relative">
+<div class="relative max-w-6xl mx-auto">
+
+    <x-admin.page-header :title="__('messages.admin.reports.title')" :subtitle="__('messages.admin.reports.subtitle')" />
 
     {{-- ══════════════════════════════════════════════
          FILTER BAR

@@ -93,17 +93,18 @@ Route::middleware(['auth', 'role:parent', 'registration.status'])
         Route::get('/complete-profile', \App\Livewire\Portal\CompleteProfile::class)->name('complete-profile');
 
         Route::middleware('profile.complete')->group(function () {
-        Route::get('/dashboard',  fn() => view('parent.dashboard'))->name('dashboard');
+        Route::get('/dashboard',  fn() => redirect()->route('parent.home'))->name('dashboard');
+        Route::get('/home',       \App\Livewire\Portal\Home::class)->name('home');
         Route::get('/players',    fn() => view('parent.players'))->name('players');
         Route::get('/enroll',     \App\Livewire\Portal\EnrollPlayer::class)->name('enroll');
-        Route::get('/events',     fn() => view('parent.events'))->name('events');
-        Route::get('/news',       fn() => view('parent.news'))->name('news');
-        Route::get('/payments',   fn() => view('parent.payments'))->name('payments');
         Route::get('/leaves',     fn() => view('parent.leaves'))->name('leaves');
+        Route::get('/makeup',     fn() => view('parent.makeup'))->name('makeup');
+        Route::get('/private',    \App\Livewire\Portal\PrivateSessions::class)->name('private');
+        Route::get('/payments',      fn() => view('parent.payments'))->name('payments');
         Route::get('/attendance',    fn() => view('parent.attendance'))->name('attendance');
-        Route::get('/makeup',        fn() => view('parent.makeup'))->name('makeup');
-        Route::get('/report-cards',    fn() => view('parent.report-cards'))->name('report-cards');
-        Route::get('/private',         \App\Livewire\Portal\PrivateSessions::class)->name('private');
-        Route::get('/profile',         fn() => view('parent.profile'))->name('profile');
+        Route::get('/report-cards',  fn() => view('parent.report-cards'))->name('report-cards');
+        Route::get('/news',       fn() => view('parent.news'))->name('news');
+        Route::get('/profile',    fn() => view('parent.profile'))->name('profile');
+        Route::get('/guide',      fn() => view('parent.guide'))->name('guide');
         }); // end profile.complete middleware group
     });

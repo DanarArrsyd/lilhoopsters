@@ -1,4 +1,4 @@
-@props(['title' => 'No data yet', 'description' => null])
+@props(['title' => 'No data yet', 'description' => null, 'action' => null])
 
 <div class="text-center py-16">
     <div class="w-12 h-12 bg-navy/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -11,4 +11,7 @@
         <p class="text-xs text-muted mt-1">{{ $description }}</p>
     @endif
     {{ $slot }}
+    @isset($action)
+        <div class="mt-4">{{ $action }}</div>
+    @endisset
 </div>

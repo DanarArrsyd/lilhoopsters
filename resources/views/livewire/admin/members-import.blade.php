@@ -1,20 +1,17 @@
-<div class="space-y-6">
+<div class="max-w-6xl mx-auto space-y-6">
 
-    {{-- Header --}}
-    <div class="flex items-start justify-between gap-4">
-        <div>
-            <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.admin.import.title') }}</h2>
-            <p class="text-sm text-muted">{{ __('messages.admin.import.subtitle') }}</p>
-        </div>
-        <a href="{{ route('admin.members.template') }}"
-           class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-navy/8 text-navy font-bold text-sm hover:bg-navy/15 transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-            </svg>
-            {{ __('messages.admin.import.download_template') }}
-        </a>
-    </div>
+    <x-admin.page-header :title="__('messages.admin.import.title')" :subtitle="__('messages.admin.import.subtitle')">
+        <x-slot name="action">
+            <a href="{{ route('admin.members.template') }}"
+               class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-navy/8 text-navy font-bold text-sm hover:bg-navy/15 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+                {{ __('messages.admin.import.download_template') }}
+            </a>
+        </x-slot>
+    </x-admin.page-header>
 
     {{-- How it works --}}
     <x-card padding="p-5">

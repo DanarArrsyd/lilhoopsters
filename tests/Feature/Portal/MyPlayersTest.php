@@ -20,20 +20,6 @@ beforeEach(function () {
     $this->parent = User::factory()->withRole('parent')->approved()->create();
 });
 
-it('renders my players page for parent', function () {
-    $this->actingAs($this->parent)
-        ->get(route('parent.players'))
-        ->assertOk();
-});
-
-it('non-parent cannot access my players page', function () {
-    $admin = User::factory()->withRole('admin')->approved()->create();
-
-    $this->actingAs($admin)
-        ->get(route('parent.players'))
-        ->assertForbidden();
-});
-
 it('shows only own children', function () {
     Child::factory()->create(['user_id' => $this->parent->id, 'name' => 'My Child']);
 

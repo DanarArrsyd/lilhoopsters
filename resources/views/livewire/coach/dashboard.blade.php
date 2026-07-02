@@ -1,10 +1,6 @@
-<div class="space-y-6">
+<div class="max-w-6xl mx-auto space-y-6">
 
-    {{-- Page header --}}
-    <div>
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.dashboard.title') }}</h2>
-        <p class="text-sm text-muted">{{ __('messages.dashboard.welcome', ['name' => auth()->user()->name]) }}</p>
-    </div>
+    <x-admin.page-header :title="__('messages.dashboard.title')" :subtitle="__('messages.dashboard.welcome', ['name' => auth()->user()->name])" />
 
 <div class="flex flex-col lg:flex-row gap-6 items-start">
 
@@ -132,30 +128,36 @@
     {{-- RIGHT: Main content --}}
     <div class="flex-1 min-w-0 space-y-6">
 
-        {{-- Quick Access --}}
-        <div>
-            <p class="text-[10px] font-bold uppercase tracking-widest text-muted mb-3">{{ __('messages.coach.dashboard.quick_access') }}</p>
-            <div class="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-4 gap-2 sm:gap-3">
+        {{-- Quick Actions --}}
+        <x-card>
+            <div class="flex items-center gap-2 mb-4">
+                <span class="w-7 h-7 rounded-lg bg-navy/8 text-navy flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                </span>
+                <p class="text-xs font-bold uppercase tracking-wide text-muted">{{ __('messages.coach.dashboard.quick_actions') }}</p>
+            </div>
+            <div class="grid grid-cols-4 gap-2">
                 @foreach ([
-                    ['route' => 'coach.qr-scanner',  'label' => __('messages.coach.nav.qr_scanner'),  'bg' => 'bg-navy/8',       'color' => 'text-navy',        'icon' => 'M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z'],
-                    ['route' => 'coach.checkin',     'label' => __('messages.coach.nav.checkin'),      'bg' => 'bg-green-50',     'color' => 'text-green-700',   'icon' => 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M14.121 11.879a3 3 0 10-4.242-4.242 3 3 0 004.242 4.242z'],
-                    ['route' => 'coach.attendance',  'label' => __('messages.nav.attendance'),         'bg' => 'bg-blue-50',      'color' => 'text-blue-700',    'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4'],
-                    ['route' => 'coach.roster',      'label' => __('messages.coach.nav.roster'),       'bg' => 'bg-teal-50',      'color' => 'text-teal-700',    'icon' => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z'],
-                    ['route' => 'coach.schedules',   'label' => __('messages.coach.nav.schedules'),    'bg' => 'bg-purple-50',    'color' => 'text-purple-700',  'icon' => 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'],
-                    ['route' => 'coach.report-cards','label' => __('messages.nav.report_cards'),       'bg' => 'bg-orange-50',    'color' => 'text-orange-700',  'icon' => 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'],
+                    ['route' => 'coach.qr-scanner',  'label' => __('messages.coach.nav.qr_scanner'),  'icon' => 'M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z'],
+                    ['route' => 'coach.checkin',     'label' => __('messages.coach.nav.checkin'),      'icon' => 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M14.121 11.879a3 3 0 10-4.242-4.242 3 3 0 004.242 4.242z'],
+                    ['route' => 'coach.attendance',  'label' => __('messages.nav.attendance'),         'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4'],
+                    ['route' => 'coach.roster',      'label' => __('messages.coach.nav.roster'),       'icon' => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z'],
+                    ['route' => 'coach.schedules',   'label' => __('messages.coach.nav.schedules'),    'icon' => 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'],
+                    ['route' => 'coach.report-cards','label' => __('messages.nav.report_cards'),       'icon' => 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'],
                 ] as $item)
-                    <a href="{{ route($item['route']) }}"
-                       class="flex flex-col items-center gap-1.5 group p-1.5 sm:p-2 rounded-2xl hover:bg-off transition-colors">
-                        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl {{ $item['bg'] }} flex items-center justify-center group-hover:scale-105 transition-transform duration-150 shrink-0">
-                            <svg class="w-5 h-5 sm:w-6 sm:h-6 {{ $item['color'] }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="{{ $item['icon'] }}"/>
+                    <a href="{{ route($item['route']) }}" class="flex flex-col items-center gap-1.5 text-center group">
+                        <span class="w-12 h-12 rounded-2xl bg-navy/8 text-navy flex items-center justify-center group-hover:bg-navy/15 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $item['icon'] }}"/>
                             </svg>
-                        </div>
-                        <span class="text-[10px] font-semibold text-ink text-center leading-tight">{{ $item['label'] }}</span>
+                        </span>
+                        <span class="text-[11px] font-semibold text-ink leading-tight">{{ $item['label'] }}</span>
                     </a>
                 @endforeach
             </div>
-        </div>
+        </x-card>
 
         {{-- Today's sessions detail --}}
         <x-card padding="p-0">

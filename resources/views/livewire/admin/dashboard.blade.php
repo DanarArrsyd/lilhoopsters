@@ -1,168 +1,57 @@
-<div class="space-y-6">
+<div class="max-w-6xl mx-auto">
 
     {{-- Page header --}}
-    <div>
+    <div class="mb-6">
         <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.admin.dashboard.title') }}</h2>
         <p class="text-sm text-muted">{{ __('messages.admin.dashboard.subtitle') }}</p>
     </div>
 
-<div class="flex flex-col lg:flex-row gap-6 items-start">
+<div class="lg:grid lg:grid-cols-3 lg:gap-6 lg:items-start">
 
-    {{-- LEFT: Weekly Calendar --}}
-    <div class="w-full lg:w-68 shrink-0 lg:sticky lg:top-6">
-        <x-card padding="p-5">
-            {{-- Header --}}
-            <div class="flex items-center justify-between mb-4">
-                <p class="text-sm font-extrabold text-navy uppercase tracking-tight">{{ __('messages.admin.dashboard.this_week') }}</p>
-                <p class="text-[11px] text-faint font-semibold">{{ now()->format('d M Y') }}</p>
-            </div>
+    {{-- LEFT: Main content --}}
+    <div class="lg:col-span-2 min-w-0 space-y-6">
 
-            {{-- Day strip --}}
-            <div class="grid grid-cols-7 gap-0.5 mb-5">
-                @foreach ($weekDays as $day)
-                    @php
-                        $dayKey     = strtolower($day->format('l'));
-                        $isToday    = $day->isToday();
-                        $hasSession = $schedulesByDay->has($dayKey);
-                        $count      = $hasSession ? $schedulesByDay->get($dayKey)->count() : 0;
-                    @endphp
-                    <div class="flex flex-col items-center gap-1">
-                        <span class="text-[9px] font-bold text-faint uppercase">{{ $day->format('D') }}</span>
-                        <div @class([
-                            'w-7 h-7 rounded-full flex items-center justify-center',
-                            'bg-navy text-white shadow-sm' => $isToday,
-                            'text-ink'                     => !$isToday,
-                        ])>
-                            <span class="text-[11px] font-bold">{{ $day->format('j') }}</span>
-                        </div>
-                        <div @class([
-                            'w-1.5 h-1.5 rounded-full',
-                            'bg-navy'    => $hasSession && $isToday,
-                            'bg-navy/35' => $hasSession && !$isToday,
-                            'invisible'  => !$hasSession,
-                        ])></div>
-                    </div>
-                @endforeach
-            </div>
+        {{-- Weekly Calendar (mobile only — desktop shows it in the right column) --}}
+        <div class="lg:hidden">
+            <x-admin.week-calendar :week-days="$weekDays" :schedules-by-day="$schedulesByDay" :today-schedules="$todaySchedules" />
+        </div>
 
-            {{-- See full calendar --}}
-            <div class="mb-4 text-center">
-                <button wire:click="openCalendar"
-                        class="inline-flex items-center gap-1 text-[11px] font-semibold text-navy/70 hover:text-navy hover:underline underline-offset-2 transition-colors">
-                    {{ __('messages.admin.dashboard.see_details') }}
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+        {{-- Quick Actions --}}
+        <x-card>
+            <div class="flex items-center gap-2 mb-4">
+                <span class="w-7 h-7 rounded-lg bg-navy/8 text-navy flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                     </svg>
-                </button>
+                </span>
+                <p class="text-xs font-bold uppercase tracking-wide text-muted">{{ __('messages.admin.dashboard.quick_actions') }}</p>
             </div>
-
-            {{-- Today's sessions --}}
-            <div class="border-t border-line pt-4">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-faint mb-3">
-                    {{ __('messages.admin.dashboard.todays_sessions') }}
-                </p>
-
-                @if ($todaySchedules->isEmpty())
-                    <div class="text-center py-3">
-                        <p class="text-xs text-faint">{{ __('messages.admin.dashboard.no_sessions') }}</p>
-                        @php
-                            $dayOrder = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
-                            $todayIdx = array_search(strtolower(now()->format('l')), $dayOrder);
-                            $nextDay  = null;
-                            for ($i = 1; $i <= 7; $i++) {
-                                $dk = $dayOrder[($todayIdx + $i) % 7];
-                                if ($schedulesByDay->has($dk)) { $nextDay = ucfirst($dk); break; }
-                            }
-                        @endphp
-                        @if ($nextDay)
-                            <p class="text-[10px] text-navy/60 mt-1">{{ __('messages.admin.dashboard.next') }} <span class="font-semibold">{{ $nextDay }}</span></p>
-                        @endif
-                    </div>
-                @else
-                    <div class="space-y-3">
-                        @foreach ($todaySchedules as $sched)
-                            <div class="flex items-start gap-2.5">
-                                <div class="w-1.5 h-1.5 rounded-full bg-navy shrink-0 mt-1.5"></div>
-                                <div class="min-w-0 flex-1">
-                                    <p class="text-xs font-bold text-ink truncate">{{ $sched->program->name }}</p>
-                                    <p class="text-[10px] text-faint truncate">{{ $sched->location->name }}</p>
-                                    <p class="text-[10px] text-muted font-semibold">
-                                        {{ \Carbon\Carbon::parse($sched->start_time)->format('H:i') }}–{{ \Carbon\Carbon::parse($sched->end_time)->format('H:i') }}
-                                    </p>
-                                </div>
-                                @if ($sched->type === 'private')
-                                    <span class="text-[8px] font-bold uppercase bg-purple-100 text-purple-700 px-1 py-0.5 rounded-full shrink-0">PVT</span>
-                                @endif
-                            </div>
-                        @endforeach
-                    </div>
-                @endif
-            </div>
-
-            {{-- Rest of week --}}
-            @php
-                $dayOrder  = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
-                $dayLabels = ['monday'=>__('messages.coach.days.monday'),'tuesday'=>__('messages.coach.days.tuesday'),'wednesday'=>__('messages.coach.days.wednesday'),'thursday'=>__('messages.coach.days.thursday'),'friday'=>__('messages.coach.days.friday'),'saturday'=>__('messages.coach.days.saturday'),'sunday'=>__('messages.coach.days.sunday')];
-                $todayKey  = strtolower(now()->format('l'));
-                $hasOther  = collect($dayOrder)->filter(fn($d) => $d !== $todayKey && $schedulesByDay->has($d))->isNotEmpty();
-            @endphp
-            @if ($hasOther)
-                <div class="border-t border-line pt-4 mt-4 space-y-3">
-                    <p class="text-[10px] font-bold uppercase tracking-widest text-faint">{{ __('messages.admin.dashboard.rest_of_week') }}</p>
-                    @foreach ($dayOrder as $dk)
-                        @if ($dk !== $todayKey && $schedulesByDay->has($dk))
-                            <div>
-                                <p class="text-[10px] font-bold text-muted uppercase mb-1.5">{{ $dayLabels[$dk] }}</p>
-                                <div class="space-y-1">
-                                    @foreach ($schedulesByDay->get($dk) as $sched)
-                                        <div class="flex items-center gap-2">
-                                            <div class="w-1 h-1 rounded-full bg-navy/30 shrink-0"></div>
-                                            <p class="text-[10px] text-ink truncate flex-1">{{ $sched->program->name }}</p>
-                                            <p class="text-[9px] text-faint shrink-0">{{ \Carbon\Carbon::parse($sched->start_time)->format('H:i') }}</p>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                        @endif
-                    @endforeach
-                </div>
-            @endif
-        </x-card>
-    </div>
-
-    {{-- RIGHT: Main content --}}
-    <div class="flex-1 min-w-0 space-y-6">
-
-        {{-- Quick Access --}}
-        <div>
-            <p class="text-[10px] font-bold uppercase tracking-widest text-muted mb-3">{{ __('messages.admin.dashboard.quick_access') }}</p>
-            <div class="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-4 gap-2 sm:gap-3">
+            <div class="grid grid-cols-4 gap-2">
                 @foreach ([
-                    ['route' => 'admin.parents',       'label' => __('messages.admin.nav.parents'),        'bg' => 'bg-blue-50',     'color' => 'text-blue-700',   'icon' => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z'],
-                    ['route' => 'admin.players',       'label' => __('messages.admin.nav.players'),        'bg' => 'bg-teal-50',     'color' => 'text-teal-700',   'icon' => 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'],
-                    ['route' => 'admin.coaches',       'label' => __('messages.admin.nav.coaches'),        'bg' => 'bg-purple-50',   'color' => 'text-purple-700', 'icon' => 'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z'],
-                    ['route' => 'admin.enrollments',   'label' => __('messages.admin.nav.enrollments'),    'bg' => 'bg-green-50',    'color' => 'text-green-700',  'icon' => 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'],
-                    ['route' => 'admin.payments',      'label' => __('messages.admin.nav.payments'),       'bg' => 'bg-navy/8',      'color' => 'text-navy',       'icon' => 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z'],
-                    ['route' => 'admin.attendances',   'label' => __('messages.admin.nav.attendances'),    'bg' => 'bg-indigo-50',   'color' => 'text-indigo-700', 'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4'],
-                    ['route' => 'admin.leave-requests','label' => __('messages.admin.nav.leave_requests'), 'bg' => 'bg-amber-50',    'color' => 'text-amber-700',  'icon' => 'M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636'],
-                    ['route' => 'admin.schedules',     'label' => __('messages.admin.nav.schedules'),      'bg' => 'bg-sky-50',      'color' => 'text-sky-700',    'icon' => 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'],
-                    ['route' => 'admin.locations',     'label' => __('messages.admin.nav.locations'),      'bg' => 'bg-rose-50',     'color' => 'text-rose-700',   'icon' => 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M14.121 11.879a3 3 0 10-4.242-4.242 3 3 0 004.242 4.242z'],
-                    ['route' => 'admin.programs',      'label' => __('messages.admin.nav.programs'),       'bg' => 'bg-cyan-50',     'color' => 'text-cyan-700',   'icon' => 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10'],
-                    ['route' => 'admin.packages',      'label' => __('messages.admin.nav.packages'),       'bg' => 'bg-orange-50',   'color' => 'text-orange-700', 'icon' => 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4'],
-                    ['route' => 'admin.makeup-classes','label' => __('messages.admin.nav.makeup_classes'), 'bg' => 'bg-violet-50',   'color' => 'text-violet-700', 'icon' => 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15'],
+                    ['route' => 'admin.parents',       'label' => __('messages.admin.nav.parents'),        'icon' => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z'],
+                    ['route' => 'admin.players',       'label' => __('messages.admin.nav.players'),        'icon' => 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'],
+                    ['route' => 'admin.coaches',       'label' => __('messages.admin.nav.coaches'),        'icon' => 'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z'],
+                    ['route' => 'admin.enrollments',   'label' => __('messages.admin.nav.enrollments'),    'icon' => 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'],
+                    ['route' => 'admin.payments',      'label' => __('messages.admin.nav.payments'),       'icon' => 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z'],
+                    ['route' => 'admin.attendances',   'label' => __('messages.admin.nav.attendances'),    'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4'],
+                    ['route' => 'admin.leave-requests','label' => __('messages.admin.nav.leave_requests'), 'icon' => 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'],
+                    ['route' => 'admin.schedules',     'label' => __('messages.admin.nav.schedules'),      'icon' => 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'],
+                    ['route' => 'admin.locations',     'label' => __('messages.admin.nav.locations'),      'icon' => 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M14.121 11.879a3 3 0 10-4.242-4.242 3 3 0 004.242 4.242z'],
+                    ['route' => 'admin.programs',      'label' => __('messages.admin.nav.programs'),       'icon' => 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z'],
+                    ['route' => 'admin.packages',      'label' => __('messages.admin.nav.packages'),       'icon' => 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4'],
+                    ['route' => 'admin.makeup-classes','label' => __('messages.admin.nav.makeup_classes'), 'icon' => 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15'],
                 ] as $item)
-                    <a href="{{ route($item['route']) }}"
-                       class="flex flex-col items-center gap-1.5 group p-1.5 sm:p-2 rounded-2xl hover:bg-off transition-colors">
-                        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl {{ $item['bg'] }} flex items-center justify-center group-hover:scale-105 transition-transform duration-150 shrink-0">
-                            <svg class="w-5 h-5 sm:w-6 sm:h-6 {{ $item['color'] }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="{{ $item['icon'] }}"/>
+                    <a href="{{ route($item['route']) }}" class="flex flex-col items-center gap-1.5 text-center group">
+                        <span class="w-12 h-12 rounded-2xl bg-navy/8 text-navy flex items-center justify-center group-hover:bg-navy/15 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $item['icon'] }}"/>
                             </svg>
-                        </div>
-                        <span class="text-[10px] font-semibold text-ink text-center leading-tight">{{ $item['label'] }}</span>
+                        </span>
+                        <span class="text-[11px] font-semibold text-ink leading-tight">{{ $item['label'] }}</span>
                     </a>
                 @endforeach
             </div>
-        </div>
+        </x-card>
 
         {{-- Today's Activity — all locations monitoring --}}
         <x-card padding="p-0">
@@ -216,7 +105,12 @@
         </x-card>
 
     </div>
-</div>{{-- end flex row --}}
+
+    {{-- RIGHT: Weekly Calendar (desktop only) --}}
+    <div class="hidden lg:block lg:sticky lg:top-20">
+        <x-admin.week-calendar :week-days="$weekDays" :schedules-by-day="$schedulesByDay" :today-schedules="$todaySchedules" />
+    </div>
+</div>{{-- end grid --}}
 
     {{-- ════════ Month Calendar modal ════════ --}}
     @if ($showCalendar && $calendar)

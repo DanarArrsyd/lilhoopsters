@@ -1,9 +1,7 @@
 <div>
-    {{-- Header --}}
-    <div class="mb-6">
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.admin.parents.title') }}</h2>
-        <p class="text-sm text-muted">{{ __('messages.admin.parents.subtitle') }}</p>
-    </div>
+    <div class="max-w-6xl mx-auto">
+
+    <x-admin.page-header :title="__('messages.admin.parents.title')" :subtitle="__('messages.admin.parents.subtitle')" />
 
     {{-- Flash --}}
     @if (session('success'))
@@ -108,4 +106,6 @@
             <div class="px-4 py-3 border-t border-line">{{ $parents->links() }}</div>
         @endif
     </x-card>
+
+    </div>{{-- /max-w-6xl --}}
 </div>

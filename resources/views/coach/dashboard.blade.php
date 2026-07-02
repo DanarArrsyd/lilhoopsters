@@ -1,6 +1,3 @@
 <x-coach title="Dashboard">
-    <x-slot name="navigation">
-        <x-coach-nav />
-    </x-slot>
     <livewire:coach.dashboard />
 </x-coach>

@@ -1,71 +1,4 @@
-<div class="flex min-h-[100dvh]">
-
-    {{-- ── Sidebar (matches parent-portal) ── --}}
-    <aside id="sidebar"
-           class="fixed inset-y-0 left-0 z-50 w-60 bg-surface border-r border-line flex flex-col
-                  transform -translate-x-full lg:translate-x-0 transition-transform duration-300">
-
-        {{-- Logo --}}
-        <div class="h-16 flex items-center gap-3 px-4 border-b border-line">
-            <img src="{{ asset('basket_logo.jpeg') }}" alt="Lil' Hoopsters" class="w-9 h-9 rounded-xl object-cover shrink-0">
-            <div>
-                <p class="text-navy font-extrabold text-sm uppercase tracking-tight leading-tight">Lil' Hoopsters</p>
-                <p class="text-faint text-[10px] uppercase tracking-wide">Parent Portal</p>
-            </div>
-        </div>
-
-        {{-- Navigation --}}
-        <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-            <x-parent-nav activeRoute="parent.enroll" />
-        </nav>
-
-        {{-- User --}}
-        <div class="border-t border-line p-4">
-            <div class="flex items-center gap-3">
-                <div class="w-9 h-9 bg-navy rounded-full flex items-center justify-center text-off font-bold text-sm shrink-0">
-                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-ink text-sm font-semibold truncate">{{ auth()->user()->name }}</p>
-                    <p class="text-muted text-xs truncate">{{ auth()->user()->email }}</p>
-                </div>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="text-muted hover:text-[#B91C1C] transition-colors p-1" title="Sign out">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                        </svg>
-                    </button>
-                </form>
-            </div>
-        </div>
-    </aside>
-
-    {{-- Mobile overlay --}}
-    <div id="sidebar-overlay" class="fixed inset-0 bg-navy/40 z-40 hidden lg:hidden" onclick="closeSidebar()"></div>
-
-    {{-- ── Main ── --}}
-    <div class="flex-1 flex flex-col min-w-0 lg:ml-60">
-
-        {{-- Topbar --}}
-        <header class="h-14 bg-surface border-b border-line flex items-center px-4 gap-3 sticky top-0 z-30">
-            <button class="lg:hidden p-2 rounded-lg hover:bg-off text-muted" onclick="openSidebar()">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                </svg>
-            </button>
-            <h1 class="flex-1 text-sm font-bold uppercase tracking-wide text-navy">Regular Sessions</h1>
-            <span class="text-[11px] text-gray-400 font-medium tabular-nums">{{ $step }} / {{ $totalSteps }}</span>
-        </header>
-
-        {{-- Progress bar (sits flush below topbar) --}}
-        <div class="h-[3px] bg-gray-100 sticky top-14 z-20 shrink-0">
-            <div class="h-full bg-navy transition-all duration-500" style="width: {{ round($step / $totalSteps * 100) }}%"></div>
-        </div>
-
-        {{-- ── Scrollable wizard content ── --}}
-        <div class="flex-1 bg-white">
-            <div class="max-w-2xl mx-auto px-4 sm:px-6 pt-6 pb-20">
+<x-portal.wizard-shell :step="$step" :total-steps="$totalSteps">
 
                 {{-- ── Stepper ── --}}
                 @php
@@ -130,7 +63,7 @@
                         <div class="py-10 text-center border-2 border-dashed border-gray-100 rounded-2xl">
                             <p class="text-sm font-semibold text-gray-500 mb-1">No players available</p>
                             <p class="text-xs text-gray-400 mb-5">Add a player first, or all your players are pending approval.</p>
-                            <a href="{{ route('parent.players') }}"
+                            <a href="{{ route('parent.home') }}"
                                 class="inline-flex items-center gap-2 bg-navy text-white text-xs font-bold uppercase tracking-wide px-4 py-2 rounded-xl hover:bg-navy/90 transition-colors">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
@@ -527,8 +460,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                         <p class="text-xs text-blue-600 leading-relaxed">
-                            After enrolling, upload payment proof in the
-                            <a href="{{ route('parent.payments') }}" class="font-bold underline">Payments</a> page for admin review.
+                            After enrolling, upload payment proof on the
+                            <a href="{{ route('parent.home') }}" class="font-bold underline">Home</a> page for admin review.
                         </p>
                     </div>
 
@@ -553,34 +486,4 @@
 
                 @endif
 
-            </div>{{-- /max-w-2xl --}}
-        </div>{{-- /flex-1 bg-white --}}
-
-        {{-- Back arrow (fixed bottom-right, only step 2+) --}}
-        @if ($step > 1)
-            <div class="fixed bottom-5 right-4 sm:bottom-6 sm:right-6 z-20">
-                <button wire:click="back" wire:loading.attr="disabled"
-                    class="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-400 hover:border-navy hover:text-navy shadow-sm transition-colors duration-150">
-                    <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                    </svg>
-                </button>
-            </div>
-        @endif
-
-    </div>{{-- /main --}}
-
-</div>{{-- /flex --}}
-
-@push('scripts')
-<script>
-    function openSidebar() {
-        document.getElementById('sidebar').classList.remove('-translate-x-full');
-        document.getElementById('sidebar-overlay').classList.remove('hidden');
-    }
-    function closeSidebar() {
-        document.getElementById('sidebar').classList.add('-translate-x-full');
-        document.getElementById('sidebar-overlay').classList.add('hidden');
-    }
-</script>
-@endpush
+</x-portal.wizard-shell>

@@ -148,7 +148,7 @@ it('can submit program enrollment after selecting schedule', function () {
     ]);
 });
 
-it('redirects to payments after successful submission', function () {
+it('redirects to home after successful submission', function () {
     $child = Child::factory()->create(['user_id' => $this->parent->id, 'status' => 'unregistered']);
 
     Livewire::actingAs($this->parent)
@@ -157,7 +157,7 @@ it('redirects to payments after successful submission', function () {
         ->set('selectedLocationId', $this->location->id)
         ->set('selectedPackageId', $this->package->id)
         ->call('submit')
-        ->assertRedirect(route('parent.payments'));
+        ->assertRedirect(route('parent.home'));
 });
 
 it('can go back from step 2 to step 1', function () {

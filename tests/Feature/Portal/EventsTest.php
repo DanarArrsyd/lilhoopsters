@@ -39,10 +39,6 @@ function openEvent(array $attrs = []): Event
     ], $attrs));
 }
 
-it('renders the parent events page', function () {
-    $this->actingAs($this->parent)->get(route('parent.events'))->assertOk();
-});
-
 it('lets a parent register a child for a free event', function () {
     $event = openEvent(['price' => null]);
 

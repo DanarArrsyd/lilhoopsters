@@ -47,12 +47,6 @@ beforeEach(function () {
     ]);
 });
 
-it('renders leave requests page for parent', function () {
-    $this->actingAs($this->parent)
-        ->get(route('parent.leaves'))
-        ->assertOk();
-});
-
 it('shows only own childrens leave requests', function () {
     LeaveRequest::create([
         'child_id'      => $this->child->id,

@@ -17,6 +17,7 @@ use Livewire\Component;
 class PrivateSessions extends Component
 {
     public int $step = 1; // 1=player, 2=location, 3=coach, 4=package+slot, 5=confirm
+    public int $totalSteps = 5;
 
     public ?int    $selectedChildId    = null;
     public ?int    $selectedLocationId = null;
@@ -164,7 +165,7 @@ class PrivateSessions extends Component
         );
 
         session()->flash('success', 'Private session booked! Please upload payment proof from the Payments page.');
-        $this->redirect(route('parent.payments'), navigate: true);
+        $this->redirect(route('parent.home'), navigate: true);
     }
 
     public function nextOccurrence(string $dayOfWeek): Carbon

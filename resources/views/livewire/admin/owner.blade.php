@@ -1,4 +1,6 @@
-<div class="space-y-5">
+<div class="max-w-6xl mx-auto space-y-5">
+
+    <x-admin.page-header :title="__('messages.admin.owner.title')" :subtitle="__('messages.admin.owner.subtitle')" />
 
     @if (session('owner_flash'))
         <div class="bg-[#15803D]/10 border border-[#15803D]/20 text-[#15803D] text-sm font-semibold rounded-xl px-4 py-3 flex items-center gap-2">
