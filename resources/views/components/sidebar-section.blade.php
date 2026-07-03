@@ -1,4 +1,4 @@
-@props(['label'])
+@props(['label', 'count' => 0])
 
 @php
     // Auto-open if any child link is currently active
@@ -9,8 +9,13 @@
     <button type="button"
             @click="open = !open"
             class="w-full flex items-center justify-between px-3 py-1.5 group">
-        <span class="text-xs font-bold uppercase tracking-wider text-muted group-hover:text-navy transition-colors sidebar-brand">
+        <span class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted group-hover:text-navy transition-colors sidebar-brand">
             {{ $label }}
+            @if ((int) $count > 0)
+                <span class="bg-[#DC2626] text-off text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none normal-case tracking-normal">
+                    {{ $count > 99 ? '99+' : $count }}
+                </span>
+            @endif
         </span>
         <svg class="w-3.5 h-3.5 text-muted group-hover:text-navy transition-transform duration-200"
              :class="open ? 'rotate-0' : '-rotate-90'"
