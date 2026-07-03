@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Enrollment;
 use App\Models\Notification;
 use App\Models\Transaction;
+use App\Services\TransactionExpiryService;
 use Carbon\Carbon;
 
 /**
@@ -53,8 +54,16 @@ class ReminderService
 
     public static function remindOutstanding(): int
     {
+        // A pending transaction has no stored due date — TransactionExpiryService
+        // auto-expires it after DEFAULT_DAYS, so that's its implicit deadline.
+        // Remind only in the last 3 days of that window (age 4..DEFAULT_DAYS).
+        $dueSoonFrom = today()->subDays(TransactionExpiryService::DEFAULT_DAYS);
+        $dueSoonTo   = today()->subDays(TransactionExpiryService::DEFAULT_DAYS - 3);
+
         $pending = Transaction::query()
             ->where('status', 'pending')
+            ->whereDate('created_at', '>=', $dueSoonFrom)
+            ->whereDate('created_at', '<=', $dueSoonTo)
             ->with(['user', 'child', 'package'])
             ->get();
 

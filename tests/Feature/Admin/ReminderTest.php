@@ -52,10 +52,23 @@ it('command creates renewal reminder for expiring enrollment', function () {
     expect($note->data['enrollment_id'])->toBe($e->id);
 });
 
-it('command creates payment reminder for pending transaction', function () {
+it('does not remind a payment less than 4 days old (not due soon yet)', function () {
+    Transaction::factory()->create([
+        'package_id' => $this->package->id,
+        'amount'     => 200000,
+        'created_at' => today()->subDays(2),
+    ]);
+
+    $this->artisan('reminders:send')->assertSuccessful();
+
+    expect(Notification::where('type', ReminderService::PAYMENT)->count())->toBe(0);
+});
+
+it('reminds a payment 4-7 days old (within 3 days of the implicit due date)', function () {
     $t = Transaction::factory()->create([
         'package_id' => $this->package->id,
         'amount'     => 200000,
+        'created_at' => today()->subDays(5),
     ]);
 
     $this->artisan('reminders:send')->assertSuccessful();
@@ -64,6 +77,18 @@ it('command creates payment reminder for pending transaction', function () {
     expect($note)->not->toBeNull();
     expect($note->user_id)->toBe($t->user_id);
     expect($note->data['transaction_id'])->toBe($t->id);
+});
+
+it('does not remind a payment older than 7 days (already past the auto-expiry window)', function () {
+    Transaction::factory()->create([
+        'package_id' => $this->package->id,
+        'amount'     => 200000,
+        'created_at' => today()->subDays(9),
+    ]);
+
+    $this->artisan('reminders:send')->assertSuccessful();
+
+    expect(Notification::where('type', ReminderService::PAYMENT)->count())->toBe(0);
 });
 
 it('does not duplicate reminders within cooldown', function () {
