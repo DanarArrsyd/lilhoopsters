@@ -38,8 +38,9 @@
         <x-sidebar-link href="{{ route('admin.owner') }}" :active="request()->routeIs('admin.owner')">{{ __('messages.admin.nav.owner_insights') }}</x-sidebar-link>
     </x-nav-dropdown>
 
-    <x-nav-dropdown :label="__('messages.admin.section.reports')" :count="$navBadges['report_cards']" data-has-active="{{ $isActive('admin.report-cards','admin.news') ? 'true' : 'false' }}">
+    <x-nav-dropdown :label="__('messages.admin.section.reports')" :count="$navBadges['report_cards']" data-has-active="{{ $isActive('admin.report-cards','admin.news','admin.audit-log') ? 'true' : 'false' }}">
         <x-sidebar-link href="{{ route('admin.report-cards') }}" :active="request()->routeIs('admin.report-cards')" :badge="$navBadges['report_cards'] ?: null">{{ __('messages.admin.nav.report_cards') }}</x-sidebar-link>
         <x-sidebar-link href="{{ route('admin.news') }}" :active="request()->routeIs('admin.news')">{{ __('messages.admin.nav.news') }}</x-sidebar-link>
+        <x-sidebar-link href="{{ route('admin.audit-log') }}" :active="request()->routeIs('admin.audit-log')">Audit Log</x-sidebar-link>
     </x-nav-dropdown>
 </nav>

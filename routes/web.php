@@ -59,6 +59,7 @@ Route::middleware(['auth', 'role:admin,super_admin', 'registration.status'])
         Route::get('/members-import',   fn() => view('admin.members-import'))->name('members-import');
         Route::get('/members-template', [\App\Http\Controllers\Admin\MembersTemplateController::class, 'download'])->name('members.template');
         Route::get('/profile',          fn() => view('admin.profile'))->name('profile');
+        Route::get('/audit-log',        fn() => view('admin.audit-log'))->name('audit-log');
     });
 
 // ─── Super Admin routes ───────────────────────────────────────────────
