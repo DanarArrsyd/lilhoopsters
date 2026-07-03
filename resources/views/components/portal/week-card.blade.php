@@ -95,27 +95,37 @@
         @endif
     </div>
 
-    {{-- Rest of week --}}
+    {{-- Rest of week (collapsible on mobile, always open on desktop) --}}
     @if ($hasOther)
-        <div class="border-t border-line pt-4 mt-4 space-y-4">
-            <p class="text-[10px] font-bold uppercase tracking-widest text-faint">{{ __('messages.portal.home.rest_of_week') }}</p>
-            @foreach ($dayOrder as $dk)
-                @php $daySessions = $weekSessions->get($dk); @endphp
-                @if ($dk !== $todayKey && $daySessions?->isNotEmpty())
-                    <div>
-                        <p class="text-[10px] font-bold text-muted uppercase mb-1.5">{{ __('messages.coach.days.'.$dk) }}</p>
-                        <div class="space-y-1.5">
-                            @foreach ($daySessions as $sess)
-                                <div class="flex items-center gap-2">
-                                    <div class="w-1 h-1 rounded-full bg-navy/30 shrink-0"></div>
-                                    <p class="text-[10px] text-ink truncate flex-1">{{ $sess['program'] }}</p>
-                                    <p class="text-[9px] text-faint shrink-0">{{ \Illuminate\Support\Carbon::parse($sess['start'])->format('H:i') }}</p>
-                                </div>
-                            @endforeach
+        <div class="border-t border-line pt-4 mt-4" x-data="{ open: false }">
+            <button type="button" @click="open = !open" class="w-full flex items-center justify-between lg:pointer-events-none">
+                <p class="text-[10px] font-bold uppercase tracking-widest text-faint">{{ __('messages.portal.home.rest_of_week') }}</p>
+                <span class="flex items-center gap-1 text-[10px] font-semibold text-navy/70 lg:hidden">
+                    {{ __('messages.portal.home.see_details') }}
+                    <svg class="w-3 h-3 transition-transform" :class="open ? 'rotate-90' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </span>
+            </button>
+            <div x-show="open" x-collapse class="lg:!block space-y-4 mt-4">
+                @foreach ($dayOrder as $dk)
+                    @php $daySessions = $weekSessions->get($dk); @endphp
+                    @if ($dk !== $todayKey && $daySessions?->isNotEmpty())
+                        <div>
+                            <p class="text-[10px] font-bold text-muted uppercase mb-1.5">{{ __('messages.coach.days.'.$dk) }}</p>
+                            <div class="space-y-1.5">
+                                @foreach ($daySessions as $sess)
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-1 h-1 rounded-full bg-navy/30 shrink-0"></div>
+                                        <p class="text-[10px] text-ink truncate flex-1">{{ $sess['program'] }}</p>
+                                        <p class="text-[9px] text-faint shrink-0">{{ \Illuminate\Support\Carbon::parse($sess['start'])->format('H:i') }}</p>
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
-                    </div>
-                @endif
-            @endforeach
+                    @endif
+                @endforeach
+            </div>
         </div>
     @endif
 </x-card>
