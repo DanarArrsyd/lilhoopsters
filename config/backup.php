@@ -355,7 +355,7 @@ return [
              * After the "keep_monthly_backups_for_months" period is over, the most recent backup
              * of that year will be kept. Older backups within the same year will be removed.
              */
-            'keep_yearly_backups_for_years' => 2,
+            'keep_yearly_backups_for_years' => 0,
 
             /*
              * After cleaning up the backups remove the oldest backup until
