@@ -25,6 +25,19 @@ class CheckIn extends Component
             return;
         }
 
+        // Time gate: only allow check-in once near the schedule (30 min before)
+        // and never after it has already ended.
+        $state = $schedule->checkInState();
+        if ($state === 'early') {
+            [$opens] = $schedule->checkInWindow();
+            session()->flash('error', "Too early — check-in opens at {$opens->format('H:i')}.");
+            return;
+        }
+        if ($state === 'ended') {
+            session()->flash('error', 'This session has already ended — check-in is closed.');
+            return;
+        }
+
         // Prevent duplicate check-in
         $already = CoachSession::where('schedule_id', $scheduleId)
             ->where('coach_id', $coach->id)
@@ -42,7 +55,7 @@ class CheckIn extends Component
             ->where('role', 'primary')
             ->exists();
 
-        CoachSession::create([
+        $session = CoachSession::create([
             'schedule_id'   => $scheduleId,
             'coach_id'      => $coach->id,
             'session_date'  => today(),
@@ -53,7 +66,14 @@ class CheckIn extends Component
             'checked_in_at' => now(),
         ]);
 
-        session()->flash('success', 'Checked in successfully.');
+        // Soft geofence: the check-in still succeeds, but warn when the GPS
+        // position falls outside the venue radius so it can be reviewed.
+        $session->setRelation('schedule', $schedule);
+        if ($session->isLocationFlagged()) {
+            session()->flash('warning', "Checked in, but you appear to be {$session->distanceMeters()}m from the venue.");
+        } else {
+            session()->flash('success', 'Checked in successfully.');
+        }
     }
 
     public function checkOut(int $sessionId): void
@@ -74,6 +94,18 @@ class CheckIn extends Component
     {
         $coach = Auth::user()->coach;
         $today = strtolower(now()->format('l'));
+
+        // Close any sessions whose schedule has already ended (coach forgot to
+        // check out) at their scheduled end time.
+        CoachSession::autoCloseStale();
+
+        // Warn this coach if any of today's sessions were auto-closed.
+        $autoClosedCount = $coach
+            ? CoachSession::where('coach_id', $coach->id)
+                ->whereDate('session_date', today())
+                ->where('auto_closed', true)
+                ->count()
+            : 0;
 
         // Regular: all active schedules for today (any coach can join)
         $regularSchedules = Schedule::with(['location', 'program'])
@@ -152,7 +184,7 @@ class CheckIn extends Component
         return view('livewire.coach.check-in', compact(
             'regularSchedules', 'privateSchedules',
             'mySessions', 'sessionsBySchedule', 'activeSessions',
-            'upcomingDate', 'upcomingSchedules'
+            'upcomingDate', 'upcomingSchedules', 'autoClosedCount'
         ));
     }
 }

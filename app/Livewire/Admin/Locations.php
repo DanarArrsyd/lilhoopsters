@@ -19,15 +19,21 @@ class Locations extends Component
     public string $address   = '';
     public string $city      = 'Jakarta';
     public string $maps_url  = '';
+    public string $latitude  = '';
+    public string $longitude = '';
+    public int    $radius_m  = 200;
     public bool   $is_active = true;
 
     protected function rules(): array
     {
         return [
-            'name'     => 'required|string|max:255',
-            'address'  => 'required|string|max:500',
-            'city'     => 'required|string|max:100',
-            'maps_url' => 'nullable|url|max:500',
+            'name'      => 'required|string|max:255',
+            'address'   => 'required|string|max:500',
+            'city'      => 'required|string|max:100',
+            'maps_url'  => 'nullable|url|max:500',
+            'latitude'  => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
+            'radius_m'  => 'required|integer|min:20|max:5000',
         ];
     }
 
@@ -50,6 +56,9 @@ class Locations extends Component
         $this->address   = $loc->address;
         $this->city      = $loc->city;
         $this->maps_url  = $loc->maps_url ?? '';
+        $this->latitude  = $loc->latitude !== null ? (string) $loc->latitude : '';
+        $this->longitude = $loc->longitude !== null ? (string) $loc->longitude : '';
+        $this->radius_m  = $loc->radius_m ?? 200;
         $this->is_active = $loc->is_active;
         $this->step      = 1;
         $this->showModal = true;
@@ -78,6 +87,9 @@ class Locations extends Component
             'address'   => $this->address,
             'city'      => $this->city,
             'maps_url'  => $this->maps_url ?: null,
+            'latitude'  => $this->latitude !== '' ? (float) $this->latitude : null,
+            'longitude' => $this->longitude !== '' ? (float) $this->longitude : null,
+            'radius_m'  => $this->radius_m,
             'is_active' => $this->is_active,
         ];
 
@@ -113,6 +125,9 @@ class Locations extends Component
         $this->address   = '';
         $this->city      = 'Jakarta';
         $this->maps_url  = '';
+        $this->latitude  = '';
+        $this->longitude = '';
+        $this->radius_m  = 200;
         $this->is_active = true;
         $this->resetValidation();
     }

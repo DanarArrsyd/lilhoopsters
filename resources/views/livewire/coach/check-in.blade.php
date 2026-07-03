@@ -18,8 +18,14 @@
     @if (session('success'))
         <x-alert type="success" class="mb-4">{{ session('success') }}</x-alert>
     @endif
+    @if (session('warning'))
+        <x-alert type="warning" class="mb-4">{{ session('warning') }}</x-alert>
+    @endif
     @if (session('error'))
         <x-alert type="error" class="mb-4">{{ session('error') }}</x-alert>
+    @endif
+    @if (($autoClosedCount ?? 0) > 0)
+        <x-alert type="warning" class="mb-4">{{ __('messages.coach.checkin.auto_closed', ['n' => $autoClosedCount]) }}</x-alert>
     @endif
 
     {{-- All today's schedules (private + regular) --}}
@@ -48,7 +54,7 @@
                     @foreach ($upcomingSchedules as $sched)
                         <div class="flex items-center gap-3 px-4 py-3">
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-ink truncate">{{ $sched->program->name }}</p>
+                                <p class="text-sm font-semibold text-ink truncate">{{ $sched->program?->name ?? __('messages.admin.schedules.type_private') }}</p>
                                 <p class="text-xs text-faint">{{ $sched->location->name }} · {{ \Carbon\Carbon::parse($sched->start_time)->format('H:i') }}–{{ \Carbon\Carbon::parse($sched->end_time)->format('H:i') }}</p>
                             </div>
                             <span class="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full shrink-0
@@ -72,6 +78,8 @@
                         $mySession      = $activeSessions->firstWhere(fn($s) => $s->schedule_id === $sched->id);
                         $enrolled       = $sched->approvedEnrollmentsCount();
                         $isPrivate      = $sched->type === 'private';
+                        $checkInState   = $sched->checkInState();
+                        [$opensAt]      = $sched->checkInWindow();
                     @endphp
 
                     <div class="px-4 py-3 {{ $checkedIn ? 'bg-[#F0FDF4]' : '' }}">
@@ -85,7 +93,7 @@
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center gap-1.5 flex-wrap">
                                     <p class="text-sm font-bold {{ $checkedIn ? 'text-[#15803D]' : 'text-navy' }} truncate">
-                                        {{ $sched->program->name }}
+                                        {{ $sched->program?->name ?? __('messages.admin.schedules.type_private') }}
                                     </p>
                                     @if ($isPrivate)
                                         <span class="text-[9px] font-bold uppercase tracking-wide bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full shrink-0">{{ __('messages.coach.dashboard.private_badge') }}</span>
@@ -119,13 +127,13 @@
                                     @if ($mySession)
                                         <button type="button"
                                                 wire:click="checkOut({{ $mySession->id }})"
-                                                wire:confirm="Check out from {{ $sched->program->name }}?"
+                                                wire:confirm="Check out from {{ $sched->program?->name ?? __('messages.admin.schedules.type_private') }}?"
                                                 class="text-[10px] font-bold text-[#9B1C1C] bg-white border border-[#FECACA] px-2.5 py-1 rounded-full hover:bg-[#FEF2F2] transition-colors">
                                             {{ __('messages.coach.checkin.check_out') }}
                                         </button>
                                     @endif
                                 </div>
-                            @else
+                            @elseif ($checkInState === 'open')
                                 <button type="button"
                                         @click="getGps(() => $wire.checkIn({{ $sched->id }}))"
                                         wire:loading.attr="disabled"
@@ -133,6 +141,14 @@
                                                {{ $hasPrimary ? 'bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100' : 'bg-navy text-off hover:bg-navy/90' }}">
                                     {{ $hasPrimary ? __('messages.coach.checkin.join') : __('messages.coach.checkin.btn') }}
                                 </button>
+                            @elseif ($checkInState === 'early')
+                                <span class="shrink-0 text-[10px] font-bold text-faint bg-off border border-line px-2.5 py-1.5 rounded-full">
+                                    {{ __('messages.coach.checkin.opens_at', ['time' => $opensAt->format('H:i')]) }}
+                                </span>
+                            @else
+                                <span class="shrink-0 text-[10px] font-bold text-faint bg-off border border-line px-2.5 py-1.5 rounded-full">
+                                    {{ __('messages.coach.checkin.session_ended') }}
+                                </span>
                             @endif
                         </div>
                     </div>

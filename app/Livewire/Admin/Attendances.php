@@ -69,6 +69,9 @@ class Attendances extends Component
         $schedules = Schedule::where('is_active', true)->with(['program', 'location'])->get();
 
         if ($this->activeTab === 'coaches') {
+            // Close any sessions left open past their scheduled end time.
+            CoachSession::autoCloseStale();
+
             $coachSessions = CoachSession::with(['coach.user', 'schedule.program', 'schedule.location'])
                 ->when($this->search, fn($q) =>
                     $q->whereHas('coach.user', fn($u) => $u->where('name', 'like', "%{$this->search}%"))

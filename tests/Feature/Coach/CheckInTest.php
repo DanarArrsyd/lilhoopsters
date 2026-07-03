@@ -13,6 +13,9 @@ use Livewire\Livewire;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
+    // Freeze to a mid-morning moment so schedule windows never wrap midnight.
+    $this->travelTo(now()->setTime(10, 0, 0));
+
     Role::insert([
         ['name' => 'super_admin', 'created_at' => now(), 'updated_at' => now()],
         ['name' => 'admin',       'created_at' => now(), 'updated_at' => now()],
@@ -24,11 +27,13 @@ beforeEach(function () {
     $this->coach     = Coach::factory()->create(['user_id' => $this->coachUser->id]);
     $this->location  = Location::factory()->create(['is_active' => true]);
 
-    // A regular schedule that falls on today, so the coach can check in.
+    // A regular schedule happening right now, so the check-in window is open.
     $this->schedule = Schedule::factory()->create([
         'location_id' => $this->location->id,
         'type'        => 'regular',
         'day_of_week' => strtolower(now()->format('l')),
+        'start_time'  => now()->subMinutes(10)->format('H:i:s'),
+        'end_time'    => now()->addMinutes(50)->format('H:i:s'),
         'is_active'   => true,
     ]);
 });
@@ -97,6 +102,8 @@ it('cannot check in to another coachs private schedule', function () {
         'type'        => 'private',
         'coach_id'    => $otherCoach->id,
         'day_of_week' => strtolower(now()->format('l')),
+        'start_time'  => now()->subMinutes(10)->format('H:i:s'),
+        'end_time'    => now()->addMinutes(50)->format('H:i:s'),
         'is_active'   => true,
     ]);
 
@@ -105,4 +112,63 @@ it('cannot check in to another coachs private schedule', function () {
         ->call('checkIn', $private->id);
 
     expect(CoachSession::where('coach_id', $this->coach->id)->count())->toBe(0);
+});
+
+it('blocks check-in more than 30 minutes before the schedule starts', function () {
+    $early = Schedule::factory()->create([
+        'location_id' => $this->location->id,
+        'type'        => 'regular',
+        'day_of_week' => strtolower(now()->format('l')),
+        'start_time'  => now()->addHours(3)->format('H:i:s'),
+        'end_time'    => now()->addHours(4)->format('H:i:s'),
+        'is_active'   => true,
+    ]);
+
+    Livewire::actingAs($this->coachUser)
+        ->test(CheckIn::class)
+        ->call('checkIn', $early->id);
+
+    expect(CoachSession::where('schedule_id', $early->id)->count())->toBe(0);
+});
+
+it('blocks check-in after the schedule has ended', function () {
+    $ended = Schedule::factory()->create([
+        'location_id' => $this->location->id,
+        'type'        => 'regular',
+        'day_of_week' => strtolower(now()->format('l')),
+        'start_time'  => now()->subHours(3)->format('H:i:s'),
+        'end_time'    => now()->subHours(2)->format('H:i:s'),
+        'is_active'   => true,
+    ]);
+
+    Livewire::actingAs($this->coachUser)
+        ->test(CheckIn::class)
+        ->call('checkIn', $ended->id);
+
+    expect(CoachSession::where('schedule_id', $ended->id)->count())->toBe(0);
+});
+
+it('auto-closes a stale open session at its scheduled end time', function () {
+    $ended = Schedule::factory()->create([
+        'location_id' => $this->location->id,
+        'type'        => 'regular',
+        'day_of_week' => strtolower(now()->format('l')),
+        'start_time'  => now()->subHours(3)->format('H:i:s'),
+        'end_time'    => now()->subHours(2)->format('H:i:s'),
+        'is_active'   => true,
+    ]);
+
+    $session = CoachSession::create([
+        'schedule_id'   => $ended->id,
+        'coach_id'      => $this->coach->id,
+        'session_date'  => today(),
+        'role'          => 'primary',
+        'checked_in_at' => now()->subHours(3),
+    ]);
+
+    CoachSession::autoCloseStale();
+
+    $session->refresh();
+    expect($session->checked_out_at)->not->toBeNull();
+    expect($session->auto_closed)->toBeTrue();
 });

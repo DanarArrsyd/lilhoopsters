@@ -15,6 +15,9 @@ use Livewire\Livewire;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
+    // Freeze to mid-morning; live scanning is only allowed inside the window.
+    $this->travelTo(now()->setTime(10, 0, 0));
+
     Role::insert([
         ['name' => 'super_admin', 'created_at' => now(), 'updated_at' => now()],
         ['name' => 'admin',       'created_at' => now(), 'updated_at' => now()],
@@ -26,8 +29,11 @@ beforeEach(function () {
     $this->coach     = Coach::factory()->create(['user_id' => $this->coachUser->id]);
 
     $this->schedule = Schedule::factory()->create([
-        'coach_id'  => $this->coach->id,
-        'is_active' => true,
+        'coach_id'    => $this->coach->id,
+        'day_of_week' => strtolower(now()->format('l')),
+        'start_time'  => now()->subMinutes(10)->format('H:i:s'),
+        'end_time'    => now()->addMinutes(50)->format('H:i:s'),
+        'is_active'   => true,
     ]);
 
     $parentUser    = User::factory()->withRole('parent')->approved()->create();
@@ -62,6 +68,31 @@ it('can activate scanner with valid schedule', function () {
         ->set('scheduleId', $this->schedule->id)
         ->call('activateScanner')
         ->assertSet('scannerActive', true);
+});
+
+it('cannot activate the scanner after the session has ended today', function () {
+    $ended = Schedule::factory()->create([
+        'coach_id'    => $this->coach->id,
+        'day_of_week' => strtolower(now()->format('l')),
+        'start_time'  => now()->subHours(3)->format('H:i:s'),
+        'end_time'    => now()->subHours(2)->format('H:i:s'),
+        'is_active'   => true,
+    ]);
+
+    CoachSession::create([
+        'schedule_id'   => $ended->id,
+        'coach_id'      => $this->coach->id,
+        'session_date'  => today(),
+        'role'          => 'primary',
+        'checked_in_at' => now()->subHours(3),
+    ]);
+
+    Livewire::actingAs($this->coachUser)
+        ->test(QrScanner::class)
+        ->set('scanDate', now()->toDateString())
+        ->set('scheduleId', $ended->id)
+        ->call('activateScanner')
+        ->assertSet('scannerActive', false);
 });
 
 it('requires schedule to activate scanner', function () {

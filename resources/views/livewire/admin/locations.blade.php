@@ -108,6 +108,30 @@
                                      placeholder="https://maps.google.com/..."
                                      :error="$errors->first('maps_url')" />
 
+                            {{-- Geofence: venue coordinates + attendance radius --}}
+                            <div class="rounded-xl border border-line p-4 space-y-3">
+                                <div class="flex items-start gap-2">
+                                    <svg class="w-4 h-4 text-navy shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    </svg>
+                                    <p class="text-xs text-muted">{{ __('messages.admin.locations.geofence_hint') }}</p>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <x-input wire:model="latitude"
+                                             label="{{ __('messages.admin.locations.label_latitude') }}"
+                                             placeholder="-6.22500000"
+                                             :error="$errors->first('latitude')" />
+                                    <x-input wire:model="longitude"
+                                             label="{{ __('messages.admin.locations.label_longitude') }}"
+                                             placeholder="106.80000000"
+                                             :error="$errors->first('longitude')" />
+                                </div>
+                                <x-input type="number" wire:model="radius_m"
+                                         label="{{ __('messages.admin.locations.label_radius') }}"
+                                         :error="$errors->first('radius_m')" />
+                            </div>
+
                             {{-- Active toggle row --}}
                             <div class="flex items-center justify-between px-5 py-4 bg-off rounded-xl border border-line">
                                 <div>
@@ -161,12 +185,7 @@
 
         <x-admin.page-header :title="__('messages.admin.locations.title')" :subtitle="__('messages.admin.locations.subtitle')">
             <x-slot name="action">
-                <x-btn variant="add" wire:click="openCreate">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    {{ __('messages.admin.locations.new') }}
-                </x-btn>
+                <x-btn-add wire:click="openCreate" :label="__('messages.admin.locations.new')" />
             </x-slot>
         </x-admin.page-header>
 

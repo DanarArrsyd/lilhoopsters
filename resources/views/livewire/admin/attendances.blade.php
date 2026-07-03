@@ -70,6 +70,7 @@
                             <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.attendances.col_status') }}</th>
                             <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.attendances.col_source') }}</th>
                             <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.attendances.col_coach') }}</th>
+                            <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.attendances.col_ip') }}</th>
                             <th class="py-3 px-4"></th>
                         </tr>
                     </thead>
@@ -79,18 +80,28 @@
                                 <td class="py-3 px-4 font-semibold text-ink">{{ $a->child?->name ?? '—' }}</td>
                                 <td class="py-3 px-4">
                                     @if ($a->schedule)
-                                        <p class="text-ink">{{ $a->schedule->program->name }}</p>
+                                        <p class="text-ink">{{ $a->schedule->program?->name ?? __('messages.admin.schedules.type_private') }}</p>
                                         <p class="text-xs text-faint">{{ $a->schedule->location->name }} · {{ ucfirst($a->schedule->day_of_week) }}</p>
                                     @else
                                         <span class="text-muted">—</span>
                                     @endif
                                 </td>
-                                <td class="py-3 px-4 text-ink">{{ $a->attended_at?->format('d M Y') }}</td>
+                                <td class="py-3 px-4 text-ink">
+                                    {{ $a->attended_at?->format('d M Y') }}
+                                    <span class="block text-xs text-faint tabular-nums">{{ $a->created_at?->format('H:i') }} WIB</span>
+                                </td>
                                 <td class="py-3 px-4">
                                     <x-badge :status="$a->status">{{ ucfirst(str_replace('_', ' ', $a->status)) }}</x-badge>
+                                    @if ($a->isFlagged())
+                                        <span class="mt-1 inline-flex items-center gap-1 text-[10px] font-bold text-[#B45309] bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            @if ($a->isLocationFlagged()){{ __('messages.admin.attendances.flag_location', ['m' => $a->distanceMeters()]) }}@else{{ __('messages.admin.attendances.flag_time') }}@endif
+                                        </span>
+                                    @endif
                                 </td>
                                 <td class="py-3 px-4 text-muted capitalize text-xs">{{ $a->source }}</td>
                                 <td class="py-3 px-4 text-muted text-xs">{{ $a->coach?->user?->name ?? '—' }}</td>
+                                <td class="py-3 px-4 text-faint text-xs tabular-nums">{{ $a->ip_address ?? '—' }}</td>
                                 <td class="py-3 px-4 text-right">
                                     <x-btn variant="edit" size="sm" wire:click="openOverride({{ $a->id }})" wire:loading.attr="disabled">
                                         {{ __('messages.common.override') }}
@@ -98,7 +109,7 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="7" class="py-2">
+                            <tr><td colspan="8" class="py-2">
                                 <x-empty-state :title="__('messages.admin.attendances.empty_title')" :description="__('messages.admin.attendances.empty_desc')" />
                             </td></tr>
                         @endforelse
@@ -123,6 +134,7 @@
                             <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Check-in</th>
                             <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Check-out</th>
                             <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">Duration</th>
+                            <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.attendances.col_ip') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-line">
@@ -136,7 +148,7 @@
                                 <td class="py-3 px-4 font-semibold text-ink">{{ $cs->coach?->user?->name ?? '—' }}</td>
                                 <td class="py-3 px-4">
                                     @if ($cs->schedule)
-                                        <p class="text-ink">{{ $cs->schedule->program->name }}</p>
+                                        <p class="text-ink">{{ $cs->schedule->program?->name ?? __('messages.admin.schedules.type_private') }}</p>
                                         <p class="text-xs text-faint">{{ $cs->schedule->location->name }} · {{ ucfirst($cs->schedule->day_of_week) }}</p>
                                     @else
                                         <span class="text-muted">—</span>
@@ -144,19 +156,26 @@
                                 </td>
                                 <td class="py-3 px-4 text-ink">{{ $cs->session_date?->format('d M Y') }}</td>
                                 <td class="py-3 px-4 text-ink text-xs">
-                                    {{ $cs->checked_in_at?->format('H:i') ?? '—' }}
+                                    {{ $cs->checked_in_at?->format('H:i') ?? '—' }} <span class="text-faint">WIB</span>
+                                    @if ($cs->isFlagged())
+                                        <span class="mt-1 inline-flex items-center gap-1 text-[10px] font-bold text-[#B45309] bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            @if ($cs->isLocationFlagged()){{ __('messages.admin.attendances.flag_location', ['m' => $cs->distanceMeters()]) }}@else{{ __('messages.admin.attendances.flag_time') }}@endif
+                                        </span>
+                                    @endif
                                 </td>
                                 <td class="py-3 px-4 text-xs">
                                     @if ($cs->checked_out_at)
-                                        <span class="text-ink">{{ $cs->checked_out_at->format('H:i') }}</span>
+                                        <span class="text-ink">{{ $cs->checked_out_at->format('H:i') }} <span class="text-faint">WIB</span></span>
                                     @else
                                         <span class="text-amber-600 font-semibold">Active</span>
                                     @endif
                                 </td>
                                 <td class="py-3 px-4 text-muted text-xs">{{ $duration ?? '—' }}</td>
+                                <td class="py-3 px-4 text-faint text-xs tabular-nums">{{ $cs->ip_address ?? '—' }}</td>
                             </tr>
                         @empty
-                            <tr><td colspan="6" class="py-2">
+                            <tr><td colspan="7" class="py-2">
                                 <x-empty-state title="No coach sessions found" description="Coach check-in records appear here." />
                             </td></tr>
                         @endforelse

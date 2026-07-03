@@ -63,6 +63,24 @@ class QrScanner extends Component
         ]);
 
         $this->authorizeOwnsSchedule();
+
+        // For live (today) scanning, the schedule must be within its time window.
+        // Past dates stay open for backfilling missed records.
+        if ($this->scanDate === today()->toDateString()) {
+            $schedule = Schedule::find($this->scheduleId);
+            $state    = $schedule?->checkInState();
+
+            if ($state === 'early') {
+                [$opens] = $schedule->checkInWindow();
+                session()->flash('error', "Too early — this session opens at {$opens->format('H:i')}.");
+                return;
+            }
+            if ($state === 'ended') {
+                session()->flash('error', 'This session has already ended — scanning is closed.');
+                return;
+            }
+        }
+
         $this->scannerActive = true;
         $this->resetScanResult();
     }

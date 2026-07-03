@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasAttendanceGeofence;
 use App\Services\NotificationService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Attendance extends Model
 {
-    use HasFactory;
+    use HasFactory, HasAttendanceGeofence;
 
     protected static function booted(): void
     {
@@ -64,4 +65,10 @@ class Attendance extends Model
     public function coach(): BelongsTo        { return $this->belongsTo(Coach::class); }
     public function leaveRequest(): BelongsTo { return $this->belongsTo(LeaveRequest::class); }
     public function makeUpClass(): BelongsTo  { return $this->belongsTo(MakeUpClass::class); }
+
+    /** The real moment the scan happened (attended_at may be date-only). */
+    public function actionTimestamp(): ?Carbon
+    {
+        return $this->created_at;
+    }
 }
