@@ -21,3 +21,10 @@ Schedule::command('reminders:sessions')->dailyAt('19:00');
 
 // Auto-mark no_show for enrolled students who missed a coached session.
 Schedule::command('attendance:mark-no-shows')->dailyAt('03:00');
+
+// Nightly full backup (DB + storage/app), then prune anything past the
+// 14-day retention window. Requires the server cron already running
+// `php artisan schedule:run` every minute (same requirement as the
+// reminder jobs above).
+Schedule::command('backup:run')->dailyAt('01:00');
+Schedule::command('backup:clean')->dailyAt('01:30');
