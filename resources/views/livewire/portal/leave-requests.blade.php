@@ -291,12 +291,7 @@
                 <p class="text-sm text-muted">{{ __('messages.pages.leaves.subtitle') }}</p>
             </div>
             @if ($hasProgramEnrollments)
-                <x-btn variant="add" wire:click="openCreate">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    {{ __('messages.leaves.form_title') }}
-                </x-btn>
+                <x-btn-add wire:click="openCreate" :label="__('messages.leaves.form_title')" />
             @endif
         </div>
 

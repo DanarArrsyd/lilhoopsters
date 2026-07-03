@@ -191,12 +191,7 @@
 
         <x-admin.page-header :title="__('messages.admin.coaches.title')" :subtitle="__('messages.admin.coaches.subtitle')">
             <x-slot name="action">
-                <x-btn variant="add" wire:click="openCreate">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    {{ __('messages.admin.coaches.new') }}
-                </x-btn>
+                <x-btn-add wire:click="openCreate" :label="__('messages.admin.coaches.new')" />
             </x-slot>
         </x-admin.page-header>
 
