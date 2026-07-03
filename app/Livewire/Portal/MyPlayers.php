@@ -9,8 +9,10 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class MyPlayers extends Component
 {
-    public bool $showForm  = false;
-    public ?int $editingId = null;
+    public bool $showForm   = false;
+    public int  $step       = 1;
+    public int  $totalSteps = 1;
+    public ?int $editingId  = null;
 
     // QR code modal
     public bool $showQr    = false;
@@ -114,7 +116,7 @@ class MyPlayers extends Component
                 ->withCount('enrollments')
                 ->orderBy('name')
                 ->get(),
-        ]);
+        ])->layout('components.app', ['title' => 'My Players']);
     }
 
     private function resetForm(): void
