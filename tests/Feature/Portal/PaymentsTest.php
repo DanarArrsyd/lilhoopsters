@@ -131,3 +131,43 @@ it('can cancel upload modal', function () {
         ->call('cancelUpload')
         ->assertSet('uploadingId', null);
 });
+
+it('lets the owner download a receipt for a paid transaction', function () {
+    $trx = Transaction::factory()->paid()->create([
+        'user_id'    => $this->parent->id,
+        'child_id'   => $this->child->id,
+        'package_id' => $this->package->id,
+    ]);
+
+    $res = $this->actingAs($this->parent)
+        ->get(route('parent.payments.receipt', $trx));
+
+    $res->assertOk();
+    expect($res->headers->get('content-type'))->toContain('application/pdf');
+    expect($res->headers->get('content-disposition'))->toContain("Receipt-{$trx->transaction_code}.pdf");
+});
+
+it('blocks receipt download for a non-paid transaction', function () {
+    $trx = Transaction::factory()->create([
+        'user_id'    => $this->parent->id,
+        'child_id'   => $this->child->id,
+        'package_id' => $this->package->id,
+        'status'     => 'pending',
+    ]);
+
+    $this->actingAs($this->parent)
+        ->get(route('parent.payments.receipt', $trx))
+        ->assertNotFound();
+});
+
+it('blocks receipt download for another parents transaction', function () {
+    $other    = User::factory()->withRole('parent')->approved()->create();
+    $otherTrx = Transaction::factory()->paid()->create([
+        'user_id'    => $other->id,
+        'package_id' => $this->package->id,
+    ]);
+
+    $this->actingAs($this->parent)
+        ->get(route('parent.payments.receipt', $otherTrx))
+        ->assertForbidden();
+});

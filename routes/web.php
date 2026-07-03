@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PaymentReceiptController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\GoogleController;
@@ -47,6 +48,7 @@ Route::middleware(['auth', 'role:admin,super_admin', 'registration.status'])
         Route::get('/leads',       fn() => view('admin.leads'))->name('leads');
         Route::get('/enrollments',    fn() => view('admin.enrollments'))->name('enrollments');
         Route::get('/payments',       fn() => view('admin.payments'))->name('payments');
+        Route::get('/verify-payment',  fn() => view('admin.verify-payment'))->name('verify-payment');
         Route::get('/reports',        fn() => view('admin.reports'))->name('reports');
         Route::get('/owner',          fn() => view('admin.owner'))->name('owner');
         Route::get('/news',           fn() => view('admin.news'))->name('news');
@@ -95,12 +97,13 @@ Route::middleware(['auth', 'role:parent', 'registration.status'])
         Route::middleware('profile.complete')->group(function () {
         Route::get('/dashboard',  fn() => redirect()->route('parent.home'))->name('dashboard');
         Route::get('/home',       \App\Livewire\Portal\Home::class)->name('home');
-        Route::get('/players',    fn() => view('parent.players'))->name('players');
+        Route::get('/players',    \App\Livewire\Portal\MyPlayers::class)->name('players');
         Route::get('/enroll',     \App\Livewire\Portal\EnrollPlayer::class)->name('enroll');
         Route::get('/leaves',     \App\Livewire\Portal\LeaveRequests::class)->name('leaves');
         Route::get('/makeup',     \App\Livewire\Portal\MakeUpClasses::class)->name('makeup');
         Route::get('/private',    \App\Livewire\Portal\PrivateSessions::class)->name('private');
         Route::get('/payments',      fn() => view('parent.payments'))->name('payments');
+        Route::get('/payments/{transaction}/receipt', [PaymentReceiptController::class, 'download'])->name('payments.receipt');
         Route::get('/attendance',    fn() => view('parent.attendance'))->name('attendance');
         Route::get('/report-cards',  fn() => view('parent.report-cards'))->name('report-cards');
         Route::get('/news',       fn() => view('parent.news'))->name('news');

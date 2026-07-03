@@ -370,6 +370,16 @@
                                 {{ __('messages.payments.cancel_action') }}
                             </button>
                         </div>
+                    @elseif ($isPaid)
+                        <div class="bg-[#F0FDF4] border-t border-[#BBF7D0] px-4 py-2.5 flex items-center justify-end">
+                            <a href="{{ route('parent.payments.receipt', $trx) }}"
+                               class="inline-flex items-center gap-1.5 flex-shrink-0 bg-[#15803D] text-white text-[11px] font-bold px-3.5 py-1.5 rounded-full hover:bg-[#166534] transition-colors">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                </svg>
+                                {{ __('messages.receipt.download') }}
+                            </a>
+                        </div>
                     @endif
                 </div>
             @empty
