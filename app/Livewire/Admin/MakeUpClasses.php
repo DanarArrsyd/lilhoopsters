@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Models\AuditLog;
 use App\Models\MakeUpClass;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -38,12 +39,20 @@ class MakeUpClasses extends Component
 
         $status = $this->reviewAction === 'approve' ? 'approved' : 'rejected';
 
-        MakeUpClass::findOrFail($this->reviewId)->update([
+        $makeUpClass = MakeUpClass::findOrFail($this->reviewId);
+        $makeUpClass->update([
             'status'      => $status,
             'admin_notes' => $this->adminNotes ?: null,
             'approved_by' => Auth::id(),
             'approved_at' => now(),
         ]);
+
+        AuditLog::record(
+            "makeup_class.{$status}",
+            $makeUpClass,
+            ucfirst($status) . ' make-up class request for ' . ($makeUpClass->child?->name ?? 'unknown child'),
+            ['note' => $this->adminNotes ?: null],
+        );
 
         $this->showReview = false;
         $this->reviewId   = null;

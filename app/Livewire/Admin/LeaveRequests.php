@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Models\AuditLog;
 use App\Models\LeaveRequest;
 use App\Services\NotificationService;
 use Illuminate\Support\Facades\Auth;
@@ -47,6 +48,13 @@ class LeaveRequests extends Component
             'reviewed_by' => Auth::id(),
             'reviewed_at' => now(),
         ]);
+
+        AuditLog::record(
+            "leave_request.{$status}",
+            $leaveRequest,
+            ucfirst($status) . ' leave request for ' . ($leaveRequest->child?->name ?? 'unknown child'),
+            ['note' => $this->adminNotes ?: null],
+        );
 
         $parentUser = $leaveRequest->child?->user;
         if ($parentUser) {

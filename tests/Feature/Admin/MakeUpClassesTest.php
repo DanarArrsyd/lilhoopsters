@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Admin\MakeUpClasses;
+use App\Models\AuditLog;
 use App\Models\Child;
 use App\Models\Enrollment;
 use App\Models\MakeUpClass;
@@ -80,4 +81,30 @@ it('can search by child name', function () {
         ->set('search', 'Unique Child')
         ->assertSee('Unique Child XYZ')
         ->assertDontSee($this->child->name);
+});
+
+it('records an audit log when a make-up class is approved', function () {
+    $makeUpClass = MakeUpClass::factory()->create(['status' => 'pending']);
+
+    Livewire::actingAs($this->admin)
+        ->test(MakeUpClasses::class)
+        ->call('openReview', $makeUpClass->id, 'approve')
+        ->call('saveReview');
+
+    $log = AuditLog::where('action', 'makeup_class.approved')->first();
+    expect($log)->not->toBeNull();
+    expect($log->subject_id)->toBe($makeUpClass->id);
+});
+
+it('records an audit log when a make-up class is rejected', function () {
+    $makeUpClass = MakeUpClass::factory()->create(['status' => 'pending']);
+
+    Livewire::actingAs($this->admin)
+        ->test(MakeUpClasses::class)
+        ->call('openReview', $makeUpClass->id, 'reject')
+        ->call('saveReview');
+
+    $log = AuditLog::where('action', 'makeup_class.rejected')->first();
+    expect($log)->not->toBeNull();
+    expect($log->subject_id)->toBe($makeUpClass->id);
 });

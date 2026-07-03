@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Admin\LeaveRequests;
+use App\Models\AuditLog;
 use App\Models\Child;
 use App\Models\Enrollment;
 use App\Models\LeaveRequest;
@@ -92,4 +93,30 @@ it('can search by child name', function () {
         ->set('search', 'Budi')
         ->assertSee('Budi Santoso')
         ->assertDontSee($this->child->name);
+});
+
+it('records an audit log when a leave request is approved', function () {
+    $leaveRequest = LeaveRequest::factory()->create(['status' => 'pending']);
+
+    Livewire::actingAs($this->admin)
+        ->test(LeaveRequests::class)
+        ->call('openReview', $leaveRequest->id, 'approve')
+        ->call('saveReview');
+
+    $log = AuditLog::where('action', 'leave_request.approved')->first();
+    expect($log)->not->toBeNull();
+    expect($log->subject_id)->toBe($leaveRequest->id);
+});
+
+it('records an audit log when a leave request is rejected', function () {
+    $leaveRequest = LeaveRequest::factory()->create(['status' => 'pending']);
+
+    Livewire::actingAs($this->admin)
+        ->test(LeaveRequests::class)
+        ->call('openReview', $leaveRequest->id, 'reject')
+        ->call('saveReview');
+
+    $log = AuditLog::where('action', 'leave_request.rejected')->first();
+    expect($log)->not->toBeNull();
+    expect($log->subject_id)->toBe($leaveRequest->id);
 });
