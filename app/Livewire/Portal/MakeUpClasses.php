@@ -90,6 +90,14 @@ class MakeUpClasses extends Component
             return;
         }
 
+        // The replacement must be for the same program as the missed session.
+        $targetSchedule = Schedule::find($this->targetScheduleId);
+        if (! $targetSchedule || $targetSchedule->program_id !== $leaveRequest->schedule?->program_id) {
+            $this->step = 2;
+            $this->addError('targetScheduleId', 'Selected schedule does not match the missed program.');
+            return;
+        }
+
         MakeUpClass::create([
             'child_id'           => $leaveRequest->child_id,
             'enrollment_id'      => $leaveRequest->enrollment_id,
@@ -115,17 +123,24 @@ class MakeUpClasses extends Component
         $approvedLeaves = LeaveRequest::whereIn('child_id', $childIds)
             ->whereIn('status', ['approved', 'auto_approved'])
             ->whereDoesntHave('makeUpClass')
-            ->with('child')
-            ->get();
-
-        $schedules = Schedule::where('is_active', true)
-            ->with(['program', 'location'])
-            ->orderByRaw("FIELD(day_of_week,'monday','tuesday','wednesday','thursday','friday','saturday','sunday')")
+            ->with(['child', 'schedule.program'])
             ->get();
 
         $selectedLeave = $this->leaveRequestId
             ? $approvedLeaves->firstWhere('id', (int) $this->leaveRequestId)
             : null;
+
+        // Only offer replacement schedules for the SAME program as the missed
+        // session — a make-up must stay within the child's enrolled program.
+        $programId = $selectedLeave?->schedule?->program_id;
+
+        $schedules = $programId
+            ? Schedule::where('is_active', true)
+                ->where('program_id', $programId)
+                ->with(['program', 'location'])
+                ->orderByRaw("FIELD(day_of_week,'monday','tuesday','wednesday','thursday','friday','saturday','sunday')")
+                ->get()
+            : collect();
 
         $selectedSchedule = $this->targetScheduleId
             ? $schedules->firstWhere('id', (int) $this->targetScheduleId)
