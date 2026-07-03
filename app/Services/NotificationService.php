@@ -61,4 +61,14 @@ class NotificationService
             ->where('is_active', true)
             ->each(fn($u) => static::send($u->id, $type, $title, $body, $data));
     }
+
+    public static function toSuperAdmins(string $type, string $title, string $body, array $data = []): void
+    {
+        $roleId = Role::where('name', 'super_admin')->value('id');
+        if (!$roleId) return;
+
+        User::where('role_id', $roleId)
+            ->where('is_active', true)
+            ->each(fn($u) => static::send($u->id, $type, $title, $body, $data));
+    }
 }
