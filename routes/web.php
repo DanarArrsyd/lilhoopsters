@@ -70,6 +70,10 @@ Route::middleware(['auth', 'role:super_admin', 'registration.status'])
         Route::get('/dashboard',       fn() => view('superadmin.dashboard'))->name('dashboard');
         Route::get('/admins',          fn() => view('superadmin.admins'))->name('admins');
         Route::get('/system-settings', fn() => view('superadmin.system-settings'))->name('system-settings');
+        Route::get('/backups', fn() => view('superadmin.backups'))->name('backups');
+        Route::get('/backups/{filename}/download', \App\Http\Controllers\Superadmin\BackupDownloadController::class)
+            ->where('filename', '.*')
+            ->name('backups.download');
     });
 
 // ─── Coach routes ─────────────────────────────────────────────────────

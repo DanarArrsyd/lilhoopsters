@@ -27,4 +27,10 @@
         </svg>
         Audit Log
     </x-sidebar-link>
+    <x-sidebar-link href="{{ route('superadmin.backups') }}" :active="request()->routeIs('superadmin.backups')">
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0H4m8-9v9"/>
+        </svg>
+        Backups
+    </x-sidebar-link>
 </x-sidebar-section>

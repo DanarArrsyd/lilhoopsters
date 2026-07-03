@@ -64,6 +64,11 @@ return [
             ]) : [],
             'dump' => [
                 'dump_binary_path' => env('DB_DUMP_PATH', ''),
+                // Avoids mysqldump's default LOCK TABLES, which deadlocks against
+                // the open transaction that Illuminate\Foundation\Testing\RefreshDatabase
+                // holds for the duration of a test (e.g. tests/Feature/Superadmin/BackupsPageTest.php
+                // triggering a real `backup:run` from within a RefreshDatabase test).
+                'useSingleTransaction' => true,
             ],
         ],
 
