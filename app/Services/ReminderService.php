@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
+use App\Models\Child;
 use App\Models\Enrollment;
 use App\Models\Notification;
 use App\Models\Transaction;
 use App\Services\TransactionExpiryService;
+use App\Support\ChildSchedulePlanner;
 use Carbon\Carbon;
 
 /**
@@ -22,6 +24,7 @@ class ReminderService
 {
     public const RENEWAL  = 'renewal_reminder';
     public const PAYMENT  = 'payment_reminder';
+    public const SESSION  = 'session_reminder';
     public const COOLDOWN_DAYS = 3;
 
     // ─── Batch entrypoints (used by the scheduled command) ───────────
@@ -68,6 +71,69 @@ class ReminderService
             ->get();
 
         return $pending->reduce(fn($n, $t) => $n + (self::sendPayment($t) ? 1 : 0), 0);
+    }
+
+    public static function remindTomorrowSessions(): int
+    {
+        $tomorrow = today()->addDay();
+        $dateKey  = $tomorrow->toDateString();
+
+        $children = Child::query()
+            ->whereHas('enrollments', fn($q) => $q
+                ->where('status', 'approved')
+                ->where('type', 'program')
+                ->whereNotNull('schedule_id'))
+            ->get();
+
+        // Group each child's tomorrow-session line under their parent, so a
+        // parent with multiple kids training tomorrow gets one combined message.
+        $linesByParent = collect();
+
+        foreach ($children as $child) {
+            $enrollments = ChildSchedulePlanner::approvedEnrollments($child);
+            $sessions    = ChildSchedulePlanner::sessionsOn($enrollments, $tomorrow);
+
+            foreach ($sessions as $enrollment) {
+                $schedule = $enrollment->schedule;
+
+                $line = sprintf(
+                    '%s — %s, %s, %s',
+                    $child->name,
+                    $schedule->program?->name ?? 'Private Session',
+                    $schedule->location->name,
+                    Carbon::parse($schedule->start_time)->format('H:i'),
+                );
+
+                $linesByParent->put(
+                    $child->user_id,
+                    ($linesByParent->get($child->user_id) ?? collect())->push($line),
+                );
+            }
+        }
+
+        $sentCount = 0;
+
+        foreach ($linesByParent as $parentId => $lines) {
+            if (self::alreadySentForDate($parentId, self::SESSION, $dateKey)) {
+                continue;
+            }
+
+            NotificationService::send(
+                $parentId,
+                self::SESSION,
+                'Session Tomorrow',
+                $lines->implode('; '),
+                ['date' => $dateKey],
+                email: true,
+                emailDetails: $lines->values()->mapWithKeys(
+                    fn($line, $i) => ['Session ' . ($i + 1) => $line]
+                )->toArray(),
+            );
+
+            $sentCount++;
+        }
+
+        return $sentCount;
     }
 
     // ─── Single sends ────────────────────────────────────────────────
@@ -138,5 +204,14 @@ class ReminderService
             ->where('created_at', '>=', now()->subDays(self::COOLDOWN_DAYS))
             ->get(['data'])
             ->contains(fn($n) => ($n->data[$key] ?? null) === $id);
+    }
+
+    private static function alreadySentForDate(int $userId, string $type, string $dateKey): bool
+    {
+        return Notification::query()
+            ->where('user_id', $userId)
+            ->where('type', $type)
+            ->get(['data'])
+            ->contains(fn($n) => ($n->data['date'] ?? null) === $dateKey);
     }
 }
