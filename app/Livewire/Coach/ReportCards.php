@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Coach;
 
+use App\Models\AuditLog;
 use App\Models\ReportCard;
 use App\Models\ReportCardScore;
 use Illuminate\Support\Facades\Auth;
@@ -67,6 +68,12 @@ class ReportCards extends Component
         if ($card->status === 'draft') {
             $card->update(['status' => 'submitted']);
         }
+
+        AuditLog::record(
+            'report_card.scored',
+            $card,
+            'Saved report card scores for ' . ($card->child?->name ?? 'unknown child'),
+        );
 
         $this->showScoreModal = false;
         session()->flash('success', 'Scores saved.');

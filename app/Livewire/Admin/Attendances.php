@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Attendance;
+use App\Models\AuditLog;
 use App\Models\Child;
 use App\Models\CoachSession;
 use App\Models\Schedule;
@@ -47,11 +48,21 @@ class Attendances extends Component
             'overrideNotes'  => 'nullable|string|max:500',
         ]);
 
-        Attendance::findOrFail($this->overrideId)->update([
+        $attendance = Attendance::findOrFail($this->overrideId);
+        $oldStatus  = $attendance->status;
+
+        $attendance->update([
             'status' => $this->overrideStatus,
             'notes'  => $this->overrideNotes ?: null,
             'source' => 'manual',
         ]);
+
+        AuditLog::record(
+            'attendance.overridden',
+            $attendance,
+            'Overrode attendance for ' . ($attendance->child?->name ?? 'unknown child') . " to {$this->overrideStatus}",
+            ['old_status' => $oldStatus, 'new_status' => $this->overrideStatus],
+        );
 
         $this->showOverride = false;
         $this->overrideId   = null;

@@ -2,6 +2,7 @@
 
 use App\Livewire\Admin\Attendances;
 use App\Models\Attendance;
+use App\Models\AuditLog;
 use App\Models\Child;
 use App\Models\Coach;
 use App\Models\Enrollment;
@@ -100,4 +101,20 @@ it('closes override modal on cancel', function () {
         ->assertSet('showOverride', true)
         ->call('closeOverride')
         ->assertSet('showOverride', false);
+});
+
+it('records an audit log when an attendance record is overridden', function () {
+    $attendance = Attendance::factory()->create(['status' => 'present']);
+
+    Livewire::actingAs($this->admin)
+        ->test(Attendances::class)
+        ->call('openOverride', $attendance->id)
+        ->set('overrideStatus', 'no_show')
+        ->call('saveOverride');
+
+    $log = AuditLog::where('action', 'attendance.overridden')->first();
+    expect($log)->not->toBeNull();
+    expect($log->subject_id)->toBe($attendance->id);
+    expect($log->meta['old_status'])->toBe('present');
+    expect($log->meta['new_status'])->toBe('no_show');
 });

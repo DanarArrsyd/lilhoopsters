@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Coach\ReportCards;
+use App\Models\AuditLog;
 use App\Models\Child;
 use App\Models\Coach;
 use App\Models\ReportCard;
@@ -86,4 +87,23 @@ it('cannot see another coachs report card in list', function () {
         ->test(ReportCards::class)
         ->assertSee($this->child->name)
         ->assertDontSee($otherCard->child->name);
+});
+
+it('records an audit log when a coach saves report card scores', function () {
+    $card = ReportCard::factory()->create(['coach_id' => $this->coach->id, 'status' => 'draft']);
+
+    Livewire::actingAs($this->coachUser)
+        ->test(ReportCards::class)
+        ->call('openScoreModal', $card->id)
+        ->set('scores.dribbling.score', 4)
+        ->set('scores.passing.score', 3)
+        ->set('scores.shooting.score', 5)
+        ->set('scores.defense.score', 4)
+        ->set('scores.attitude.score', 5)
+        ->set('scores.discipline.score', 4)
+        ->call('saveScores');
+
+    $log = AuditLog::where('action', 'report_card.scored')->first();
+    expect($log)->not->toBeNull();
+    expect($log->subject_id)->toBe($card->id);
 });
