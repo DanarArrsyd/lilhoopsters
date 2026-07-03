@@ -1,59 +1,122 @@
-@props(['nextSession', 'weekSessions', 'showCalendar' => false, 'calendar' => null, 'selectedDate' => null, 'selectedSessions' => null])
+@props([
+    'weekStrip',
+    'weekSessions',
+    'showCalendar' => false,
+    'calendar' => null,
+    'selectedDate' => null,
+    'selectedSessions' => null,
+])
 
-<x-card class="mb-4">
-    <div class="flex items-center justify-between mb-3">
-        <div class="flex items-center gap-2">
-            <span class="w-7 h-7 rounded-lg bg-navy/8 text-navy flex items-center justify-center shrink-0">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-            </span>
-            <p class="text-xs font-bold uppercase tracking-wide text-muted">{{ __('messages.portal.home.next_session') }}</p>
-        </div>
+@php
+    $dayOrder  = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+    $todayKey  = strtolower(now()->format('l'));
+    $todaySessions = $weekSessions->get($todayKey) ?? collect();
+    $hasOther  = collect($dayOrder)->filter(fn ($d) => $d !== $todayKey && ($weekSessions->get($d)?->isNotEmpty() ?? false))->isNotEmpty();
+
+    // Next upcoming day this week that has sessions (for the day-off hint).
+    $todayIdx  = array_search($todayKey, $dayOrder);
+    $nextDay   = null; $nextDaySessions = collect();
+    for ($i = 1; $i <= 7; $i++) {
+        $dk = $dayOrder[($todayIdx + $i) % 7];
+        if ($weekSessions->get($dk)?->isNotEmpty()) {
+            $nextDay = __('messages.coach.days.'.$dk);
+            break;
+        }
+    }
+@endphp
+
+<x-card padding="p-5">
+    {{-- Header --}}
+    <div class="flex items-center justify-between mb-4">
+        <p class="text-sm font-extrabold text-navy uppercase tracking-tight">{{ __('messages.portal.home.this_week') }}</p>
+        <p class="text-[11px] text-faint font-semibold">{{ now()->format('d M Y') }}</p>
+    </div>
+
+    {{-- Day strip --}}
+    <div class="grid grid-cols-7 gap-0.5 mb-5">
+        @foreach ($weekStrip as $d)
+            <button wire:click="selectDate('{{ $d['date'] }}')"
+                    class="flex flex-col items-center gap-1 group">
+                <span class="text-[9px] font-bold text-faint uppercase">{{ $d['label'] }}</span>
+                <span @class([
+                    'w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold',
+                    'bg-navy text-white shadow-sm' => $d['isToday'],
+                    'text-ink group-hover:bg-off'  => !$d['isToday'],
+                ])>{{ $d['day'] }}</span>
+                <span @class([
+                    'w-1.5 h-1.5 rounded-full transition-all',
+                    'bg-navy'    => $d['count'] > 0 && $d['isToday'],
+                    'bg-navy/35' => $d['count'] > 0 && !$d['isToday'],
+                    'invisible'  => $d['count'] === 0,
+                ])></span>
+            </button>
+        @endforeach
+    </div>
+
+    {{-- See full calendar --}}
+    <div class="mb-4 text-center">
         <button wire:click="openCalendar" wire:loading.attr="disabled"
-                class="lg:hidden inline-flex items-center gap-1.5 text-xs font-semibold text-navy bg-navy/8 px-2.5 py-1 rounded-lg hover:bg-navy/15 transition-colors shrink-0">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                class="inline-flex items-center gap-1 text-[11px] font-semibold text-navy/70 hover:text-navy hover:underline underline-offset-2 transition-colors">
+            {{ __('messages.portal.home.see_details') }}
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
             </svg>
-            {{ __('messages.portal.home.calendar') }}
         </button>
     </div>
 
-    @if ($nextSession)
-        <div class="flex items-start justify-between"
-             x-data="{ open: false }">
-            <div>
-                <p class="text-base font-semibold text-ink">{{ $nextSession['program'] }}</p>
-                <p class="text-sm text-muted">
-                    {{ $nextSession['coach'] ?? __('messages.portal.home.no_coach') }} · {{ $nextSession['location'] }}
-                </p>
-                <p class="text-xs text-faint mt-1">{{ $nextSession['date']->translatedFormat('l, d M') }}</p>
-            </div>
-            <span class="font-mono text-sm text-navy font-medium shrink-0">
-                {{ \Illuminate\Support\Carbon::parse($nextSession['start'])->format('H:i') }}
-            </span>
-        </div>
+    {{-- Today's sessions --}}
+    <div class="border-t border-line pt-4">
+        <p class="text-[10px] font-bold uppercase tracking-widest text-faint mb-3">
+            {{ __('messages.portal.home.todays_sessions') }}
+        </p>
 
-        @if ($weekSessions->isNotEmpty())
-            <div x-data="{ open: false }" class="mt-3 pt-3 border-t border-line">
-                <button @click="open = !open" class="text-xs font-semibold text-navy">
-                    <span x-show="!open">{{ __('messages.portal.home.view_week') }}</span>
-                    <span x-show="open" x-cloak>{{ __('messages.portal.home.hide_week') }}</span>
-                </button>
-                <div x-show="open" x-collapse x-cloak class="mt-3 space-y-2">
-                    @foreach ($weekSessions as $day => $sessions)
-                        @foreach ($sessions as $session)
-                            <div class="flex items-center justify-between text-sm">
-                                <span class="text-ink capitalize">{{ ucfirst($day) }} — {{ $session['program'] }}</span>
-                                <span class="font-mono text-muted">{{ \Illuminate\Support\Carbon::parse($session['start'])->format('H:i') }}</span>
-                            </div>
-                        @endforeach
-                    @endforeach
-                </div>
+        @if ($todaySessions->isEmpty())
+            <div class="text-center py-3">
+                <p class="text-xs text-faint">{{ __('messages.portal.home.no_session') }}</p>
+                @if ($nextDay)
+                    <p class="text-[10px] text-navy/60 mt-1">{{ __('messages.portal.home.next') }} <span class="font-semibold">{{ $nextDay }}</span></p>
+                @endif
+            </div>
+        @else
+            <div class="space-y-3">
+                @foreach ($todaySessions as $sess)
+                    <div class="flex items-start gap-2.5">
+                        <div class="w-1.5 h-1.5 rounded-full bg-navy shrink-0 mt-1.5"></div>
+                        <div class="min-w-0 flex-1">
+                            <p class="text-xs font-bold text-ink truncate">{{ $sess['program'] }}</p>
+                            <p class="text-[10px] text-faint truncate">{{ $sess['location'] }}</p>
+                            <p class="text-[10px] text-muted font-semibold">
+                                {{ \Illuminate\Support\Carbon::parse($sess['start'])->format('H:i') }}–{{ \Illuminate\Support\Carbon::parse($sess['end'])->format('H:i') }}
+                            </p>
+                        </div>
+                    </div>
+                @endforeach
             </div>
         @endif
-    @else
-        <p class="text-sm text-muted">{{ __('messages.portal.home.no_session') }}</p>
+    </div>
+
+    {{-- Rest of week --}}
+    @if ($hasOther)
+        <div class="border-t border-line pt-4 mt-4 space-y-4">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-faint">{{ __('messages.portal.home.rest_of_week') }}</p>
+            @foreach ($dayOrder as $dk)
+                @php $daySessions = $weekSessions->get($dk); @endphp
+                @if ($dk !== $todayKey && $daySessions?->isNotEmpty())
+                    <div>
+                        <p class="text-[10px] font-bold text-muted uppercase mb-1.5">{{ __('messages.coach.days.'.$dk) }}</p>
+                        <div class="space-y-1.5">
+                            @foreach ($daySessions as $sess)
+                                <div class="flex items-center gap-2">
+                                    <div class="w-1 h-1 rounded-full bg-navy/30 shrink-0"></div>
+                                    <p class="text-[10px] text-ink truncate flex-1">{{ $sess['program'] }}</p>
+                                    <p class="text-[9px] text-faint shrink-0">{{ \Illuminate\Support\Carbon::parse($sess['start'])->format('H:i') }}</p>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+            @endforeach
+        </div>
     @endif
 </x-card>
 

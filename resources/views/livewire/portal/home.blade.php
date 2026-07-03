@@ -26,6 +26,10 @@
                     </x-slot>
                 </x-empty-state>
             @else
+                <x-admin.page-header
+                    :title="__('messages.dashboard.title')"
+                    :subtitle="__('messages.portal.home.greeting', ['name' => auth()->user()->name])" />
+
                 @if ($sectionFailed ?? false)
                     <div class="mb-4 px-4 py-3 rounded-xl bg-[#B91C1C]/10 text-[#B91C1C] text-sm flex items-center justify-between lg:max-w-2xl">
                         <span>{{ __('messages.portal.home.section_error') }}</span>
@@ -33,30 +37,26 @@
                     </div>
                 @endif
 
-                <div class="lg:grid lg:grid-cols-3 lg:gap-6 lg:items-start">
-                    <div class="lg:col-span-2">
-                        <x-portal.child-switcher :children="$children" :active-child-id="$activeChildId" />
-                        <div class="lg:hidden">
-                            <x-portal.week-strip :week-strip="$weekStrip" :selected-date="$selectedDate" />
-                        </div>
-                        <x-portal.event-banner :active-event="$activeEvent" />
-                        <x-portal.schedule-card
-                            :next-session="$nextSession"
+                <x-portal.child-switcher :children="$children" :active-child-id="$activeChildId" />
+
+                <div class="flex flex-col lg:flex-row gap-6 items-start">
+
+                    {{-- LEFT: Weekly calendar --}}
+                    <div class="w-full lg:w-72 shrink-0 lg:sticky lg:top-20">
+                        <x-portal.week-card
+                            :week-strip="$weekStrip"
                             :week-sessions="$weekSessions"
                             :show-calendar="$showCalendar"
                             :calendar="$calendar"
                             :selected-date="$selectedDate"
                             :selected-sessions="$selectedSessions" />
-                        <x-portal.class-list :classes="$classes" :classes-tab="$classesTab" />
-                        <x-portal.quick-actions :show-qr="$showQr" :qr-svg="$qrSvg" :active-child="$child" />
                     </div>
 
-                    <div class="hidden lg:block lg:sticky lg:top-20">
-                        <x-portal.week-strip :week-strip="$weekStrip" :selected-date="$selectedDate" />
-                        <x-portal.calendar-panel
-                            :calendar="$calendar"
-                            :selected-date="$selectedDate"
-                            :selected-sessions="$selectedSessions" />
+                    {{-- RIGHT: Main content --}}
+                    <div class="flex-1 min-w-0">
+                        <x-portal.event-banner :active-event="$activeEvent" />
+                        <x-portal.quick-actions :show-qr="$showQr" :qr-svg="$qrSvg" :active-child="$child" />
+                        <x-portal.class-list :classes="$classes" :classes-tab="$classesTab" />
                     </div>
                 </div>
             @endif

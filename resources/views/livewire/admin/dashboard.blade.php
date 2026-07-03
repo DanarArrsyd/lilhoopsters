@@ -1,20 +1,18 @@
 <div class="max-w-6xl mx-auto">
 
-    {{-- Page header --}}
-    <div class="mb-6">
-        <h2 class="text-2xl font-extrabold uppercase tracking-tight text-navy">{{ __('messages.admin.dashboard.title') }}</h2>
-        <p class="text-sm text-muted">{{ __('messages.admin.dashboard.subtitle') }}</p>
+    <x-admin.page-header
+        :title="__('messages.admin.dashboard.title')"
+        :subtitle="__('messages.admin.dashboard.subtitle')" />
+
+<div class="flex flex-col lg:flex-row gap-6 items-start">
+
+    {{-- LEFT: Weekly Calendar --}}
+    <div class="w-full lg:w-72 shrink-0 lg:sticky lg:top-20">
+        <x-admin.week-calendar :week-days="$weekDays" :schedules-by-day="$schedulesByDay" :today-schedules="$todaySchedules" />
     </div>
 
-<div class="lg:grid lg:grid-cols-3 lg:gap-6 lg:items-start">
-
-    {{-- LEFT: Main content --}}
-    <div class="lg:col-span-2 min-w-0 space-y-6">
-
-        {{-- Weekly Calendar (mobile only — desktop shows it in the right column) --}}
-        <div class="lg:hidden">
-            <x-admin.week-calendar :week-days="$weekDays" :schedules-by-day="$schedulesByDay" :today-schedules="$todaySchedules" />
-        </div>
+    {{-- RIGHT: Main content --}}
+    <div class="flex-1 min-w-0 space-y-6">
 
         {{-- Quick Actions --}}
         <x-card>
@@ -28,18 +26,18 @@
             </div>
             <div class="grid grid-cols-4 gap-2">
                 @foreach ([
+                    ['route' => 'admin.payments',      'label' => __('messages.admin.nav.payments'),       'icon' => 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z'],
+                    ['route' => 'admin.enrollments',   'label' => __('messages.admin.nav.enrollments'),    'icon' => 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'],
+                    ['route' => 'admin.leave-requests','label' => __('messages.admin.nav.leave_requests'), 'icon' => 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'],
+                    ['route' => 'admin.makeup-classes','label' => __('messages.admin.nav.makeup_classes'), 'icon' => 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15'],
+                    ['route' => 'admin.attendances',   'label' => __('messages.admin.nav.attendances'),    'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4'],
                     ['route' => 'admin.parents',       'label' => __('messages.admin.nav.parents'),        'icon' => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z'],
                     ['route' => 'admin.players',       'label' => __('messages.admin.nav.players'),        'icon' => 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'],
                     ['route' => 'admin.coaches',       'label' => __('messages.admin.nav.coaches'),        'icon' => 'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z'],
-                    ['route' => 'admin.enrollments',   'label' => __('messages.admin.nav.enrollments'),    'icon' => 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'],
-                    ['route' => 'admin.payments',      'label' => __('messages.admin.nav.payments'),       'icon' => 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z'],
-                    ['route' => 'admin.attendances',   'label' => __('messages.admin.nav.attendances'),    'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4'],
-                    ['route' => 'admin.leave-requests','label' => __('messages.admin.nav.leave_requests'), 'icon' => 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'],
                     ['route' => 'admin.schedules',     'label' => __('messages.admin.nav.schedules'),      'icon' => 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'],
                     ['route' => 'admin.locations',     'label' => __('messages.admin.nav.locations'),      'icon' => 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M14.121 11.879a3 3 0 10-4.242-4.242 3 3 0 004.242 4.242z'],
                     ['route' => 'admin.programs',      'label' => __('messages.admin.nav.programs'),       'icon' => 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z'],
                     ['route' => 'admin.packages',      'label' => __('messages.admin.nav.packages'),       'icon' => 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4'],
-                    ['route' => 'admin.makeup-classes','label' => __('messages.admin.nav.makeup_classes'), 'icon' => 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15'],
                 ] as $item)
                     <a href="{{ route($item['route']) }}" class="flex flex-col items-center gap-1.5 text-center group">
                         <span class="w-12 h-12 rounded-2xl bg-navy/8 text-navy flex items-center justify-center group-hover:bg-navy/15 transition-colors">
@@ -105,12 +103,7 @@
         </x-card>
 
     </div>
-
-    {{-- RIGHT: Weekly Calendar (desktop only) --}}
-    <div class="hidden lg:block lg:sticky lg:top-20">
-        <x-admin.week-calendar :week-days="$weekDays" :schedules-by-day="$schedulesByDay" :today-schedules="$todaySchedules" />
-    </div>
-</div>{{-- end grid --}}
+</div>{{-- end flex --}}
 
     {{-- ════════ Month Calendar modal ════════ --}}
     @if ($showCalendar && $calendar)
