@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Models\AuditLog;
 use App\Models\Enrollment;
 use App\Services\NotificationService;
 use Carbon\Carbon;
@@ -56,6 +57,13 @@ class Enrollments extends Component
         });
 
         $enrollment = Enrollment::with(['child.user'])->findOrFail($id);
+
+        AuditLog::record(
+            'enrollment.approved',
+            $enrollment,
+            'Approved enrollment for ' . ($enrollment->child?->name ?? 'unknown child'),
+        );
+
         $parentUser = $enrollment->child?->user;
         if ($parentUser) {
             NotificationService::send(
@@ -73,6 +81,12 @@ class Enrollments extends Component
     {
         $enrollment = Enrollment::with(['child.user'])->findOrFail($id);
         $enrollment->update(['status' => 'rejected']);
+
+        AuditLog::record(
+            'enrollment.rejected',
+            $enrollment,
+            'Rejected enrollment for ' . ($enrollment->child?->name ?? 'unknown child'),
+        );
 
         $parentUser = $enrollment->child?->user;
         if ($parentUser) {

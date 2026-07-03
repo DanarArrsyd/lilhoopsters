@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Admin\Payments;
+use App\Models\AuditLog;
 use App\Models\Location;
 use App\Models\Package;
 use App\Models\Role;
@@ -102,4 +103,30 @@ it('can add admin notes when rejecting', function () {
 
     expect($trx->fresh()->status)->toBe('rejected');
     expect($trx->fresh()->admin_notes)->toBe('Bukti transfer tidak valid');
+});
+
+it('records an audit log when a payment is verified', function () {
+    $transaction = Transaction::factory()->create(['status' => 'pending']);
+
+    Livewire::actingAs($this->admin)
+        ->test(Payments::class)
+        ->call('verify', $transaction->id);
+
+    $log = AuditLog::where('action', 'payment.verified')->first();
+    expect($log)->not->toBeNull();
+    expect($log->actor_id)->toBe($this->admin->id);
+    expect($log->subject_id)->toBe($transaction->id);
+});
+
+it('records an audit log when a payment is rejected', function () {
+    $transaction = Transaction::factory()->create(['status' => 'pending']);
+
+    Livewire::actingAs($this->admin)
+        ->test(Payments::class)
+        ->call('reject', $transaction->id)
+        ->call('confirmReject');
+
+    $log = AuditLog::where('action', 'payment.rejected')->first();
+    expect($log)->not->toBeNull();
+    expect($log->subject_id)->toBe($transaction->id);
 });

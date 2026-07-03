@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Models\AuditLog;
 use App\Models\Transaction;
 use App\Services\NotificationService;
 use Illuminate\Support\Facades\Auth;
@@ -30,6 +31,13 @@ class Payments extends Component
             'verified_by' => Auth::id(),
             'paid_at'     => now(),
         ]);
+
+        AuditLog::record(
+            'payment.verified',
+            $transaction,
+            "Verified payment {$transaction->transaction_code} for " . ($transaction->user?->name ?? 'unknown user'),
+            ['amount' => $transaction->amount],
+        );
 
         if ($transaction->enrollment) {
             $transaction->enrollment->update([
@@ -82,10 +90,18 @@ class Payments extends Component
 
     public function confirmReject(): void
     {
-        Transaction::findOrFail($this->rejectingId)->update([
+        $transaction = Transaction::findOrFail($this->rejectingId);
+        $transaction->update([
             'status'      => 'rejected',
             'admin_notes' => $this->adminNote ?: null,
         ]);
+
+        AuditLog::record(
+            'payment.rejected',
+            $transaction,
+            "Rejected payment {$transaction->transaction_code} for " . ($transaction->user?->name ?? 'unknown user'),
+            ['note' => $this->adminNote ?: null],
+        );
 
         // Event registration paid for by this transaction → cancel it.
         \App\Models\EventRegistration::where('transaction_id', $this->rejectingId)

@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Admin\Enrollments;
+use App\Models\AuditLog;
 use App\Models\Child;
 use App\Models\Enrollment;
 use App\Models\Location;
@@ -120,4 +121,28 @@ it('can reject an enrollment', function () {
         ->call('reject', $enrollment->id);
 
     expect($enrollment->fresh()->status)->toBe('rejected');
+});
+
+it('records an audit log when an enrollment is approved', function () {
+    $enrollment = Enrollment::factory()->create(['status' => 'pending']);
+
+    Livewire::actingAs($this->admin)
+        ->test(Enrollments::class)
+        ->call('approve', $enrollment->id);
+
+    $log = AuditLog::where('action', 'enrollment.approved')->first();
+    expect($log)->not->toBeNull();
+    expect($log->subject_id)->toBe($enrollment->id);
+});
+
+it('records an audit log when an enrollment is rejected', function () {
+    $enrollment = Enrollment::factory()->create(['status' => 'pending']);
+
+    Livewire::actingAs($this->admin)
+        ->test(Enrollments::class)
+        ->call('reject', $enrollment->id);
+
+    $log = AuditLog::where('action', 'enrollment.rejected')->first();
+    expect($log)->not->toBeNull();
+    expect($log->subject_id)->toBe($enrollment->id);
 });
