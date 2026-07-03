@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Superadmin;
 
+use App\Models\AuditLog;
 use App\Models\Setting;
 use Livewire\Component;
 
@@ -43,7 +44,7 @@ class SystemSettings extends Component
             'timezone'     => 'required|string|max:50',
         ]);
 
-        Setting::setMany([
+        $settings = [
             'academy_name'    => $this->academyName,
             'academy_email'   => $this->academyEmail,
             'academy_phone'   => $this->academyPhone,
@@ -51,7 +52,11 @@ class SystemSettings extends Component
             'academy_website' => $this->academyWebsite,
             'currency'        => $this->currency,
             'timezone'        => $this->timezone,
-        ]);
+        ];
+
+        Setting::setMany($settings);
+
+        AuditLog::record('system_settings.updated', null, 'Updated system settings', $settings);
 
         session()->flash('success', 'Settings saved.');
     }

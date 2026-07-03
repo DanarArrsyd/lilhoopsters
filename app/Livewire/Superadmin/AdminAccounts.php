@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Superadmin;
 
+use App\Models\AuditLog;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -49,7 +50,7 @@ class AdminAccounts extends Component
 
         $adminRole = Role::where('name', 'admin')->firstOrFail();
 
-        User::create([
+        $newAdmin = User::create([
             'role_id'             => $adminRole->id,
             'name'                => $this->name,
             'email'               => $this->email,
@@ -58,14 +59,27 @@ class AdminAccounts extends Component
             'registration_status' => 'approved',
         ]);
 
+        AuditLog::record(
+            'admin_account.created',
+            $newAdmin,
+            "Created admin account for {$newAdmin->name} ({$newAdmin->email})",
+        );
+
         $this->showForm = false;
         session()->flash('success', 'Admin account created.');
     }
 
     public function toggleActive(int $id): void
     {
-        $admin = $this->findAdmin($id);
-        $admin->update(['is_active' => !$admin->is_active]);
+        $admin    = $this->findAdmin($id);
+        $newState = !$admin->is_active;
+        $admin->update(['is_active' => $newState]);
+
+        AuditLog::record(
+            $newState ? 'admin_account.activated' : 'admin_account.deactivated',
+            $admin,
+            ($newState ? 'Activated' : 'Deactivated') . " admin account for {$admin->name}",
+        );
     }
 
     public function confirmDeactivate(int $id): void
@@ -78,6 +92,12 @@ class AdminAccounts extends Component
     {
         $admin = $this->findAdmin($this->deactivatingId);
         $admin->update(['is_active' => false]);
+
+        AuditLog::record(
+            'admin_account.deactivated',
+            $admin,
+            "Deactivated admin account for {$admin->name}",
+        );
 
         $this->showDeactivate = false;
         $this->deactivatingId = null;

@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Superadmin\SystemSettings;
+use App\Models\AuditLog;
 use App\Models\Role;
 use App\Models\Setting;
 use App\Models\User;
@@ -65,4 +66,18 @@ it('validates email format', function () {
         ->set('academyEmail', 'not-an-email')
         ->call('save')
         ->assertHasErrors(['academyEmail']);
+});
+
+it('records an audit log when settings are saved', function () {
+    Livewire::actingAs($this->superAdmin)
+        ->test(SystemSettings::class)
+        ->set('academyName', 'Updated Academy Name')
+        ->set('currency', 'IDR')
+        ->set('timezone', 'Asia/Jakarta')
+        ->call('save');
+
+    $log = AuditLog::where('action', 'system_settings.updated')->first();
+    expect($log)->not->toBeNull();
+    expect($log->subject_type)->toBeNull();
+    expect($log->meta['academy_name'])->toBe('Updated Academy Name');
 });

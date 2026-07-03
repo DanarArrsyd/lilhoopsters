@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Superadmin\AdminAccounts;
+use App\Models\AuditLog;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -101,4 +102,53 @@ it('lists existing admins', function () {
     Livewire::actingAs($this->superAdmin)
         ->test(AdminAccounts::class)
         ->assertSee('Visible Admin');
+});
+
+it('records an audit log when an admin account is created', function () {
+    Livewire::actingAs($this->superAdmin)
+        ->test(AdminAccounts::class)
+        ->set('name', 'New Admin')
+        ->set('email', 'newadmin@example.com')
+        ->set('password', 'password123')
+        ->set('passwordConfirmation', 'password123')
+        ->call('create');
+
+    $log = AuditLog::where('action', 'admin_account.created')->first();
+    expect($log)->not->toBeNull();
+    expect($log->description)->toContain('New Admin');
+});
+
+it('records an audit log when an admin account is deactivated via toggle', function () {
+    $admin = User::factory()->withRole('admin')->approved()->create(['is_active' => true]);
+
+    Livewire::actingAs($this->superAdmin)
+        ->test(AdminAccounts::class)
+        ->call('toggleActive', $admin->id);
+
+    $log = AuditLog::where('action', 'admin_account.deactivated')->first();
+    expect($log)->not->toBeNull();
+    expect($log->subject_id)->toBe($admin->id);
+});
+
+it('records an audit log when an admin account is reactivated via toggle', function () {
+    $admin = User::factory()->withRole('admin')->approved()->create(['is_active' => false]);
+
+    Livewire::actingAs($this->superAdmin)
+        ->test(AdminAccounts::class)
+        ->call('toggleActive', $admin->id);
+
+    $log = AuditLog::where('action', 'admin_account.activated')->first();
+    expect($log)->not->toBeNull();
+    expect($log->subject_id)->toBe($admin->id);
+});
+
+it('records an audit log when an admin account is deactivated via the confirm dialog', function () {
+    $admin = User::factory()->withRole('admin')->approved()->create(['is_active' => true]);
+
+    Livewire::actingAs($this->superAdmin)
+        ->test(AdminAccounts::class)
+        ->call('confirmDeactivate', $admin->id)
+        ->call('deactivate');
+
+    expect(AuditLog::where('action', 'admin_account.deactivated')->where('subject_id', $admin->id)->exists())->toBeTrue();
 });
