@@ -96,6 +96,7 @@ class PrivateSessions extends Component
     {
         $this->validate([
             'selectedChildId'    => 'required|integer|exists:children,id',
+            'selectedCoachId'    => 'required|integer|exists:coaches,id',
             'selectedScheduleId' => 'required|integer|exists:schedules,id',
             'selectedPackageId'  => 'required|integer|exists:packages,id',
         ]);
@@ -109,13 +110,37 @@ class PrivateSessions extends Component
         $this->validate([
             'selectedScheduleId' => 'required|integer|exists:schedules,id',
             'selectedChildId'    => 'required|integer|exists:children,id',
+            'selectedCoachId'    => 'required|integer|exists:coaches,id',
             'selectedPackageId'  => 'required|integer|exists:packages,id',
         ]);
 
         $user     = Auth::user();
         $child    = $user->children()->findOrFail($this->selectedChildId);
         $package  = Package::where('is_active', true)->findOrFail($this->selectedPackageId);
-        $schedule = Schedule::findOrFail($this->selectedScheduleId);
+        $coach    = Coach::where('is_active', true)->findOrFail($this->selectedCoachId);
+
+        // The chosen slot is a coach-agnostic template. Materialise (or reuse) the
+        // concrete coach-bound schedule for the picked coach so all coach-side
+        // features keep reading schedule.coach_id as before.
+        $template = Schedule::where('type', 'private')
+            ->whereNull('coach_id')
+            ->findOrFail($this->selectedScheduleId);
+
+        $schedule = Schedule::firstOrCreate(
+            [
+                'type'        => 'private',
+                'location_id' => $template->location_id,
+                'coach_id'    => $coach->id,
+                'day_of_week' => $template->day_of_week,
+                'start_time'  => $template->start_time,
+                'end_time'    => $template->end_time,
+            ],
+            [
+                'program_id'   => null,
+                'max_capacity' => $template->max_capacity,
+                'is_active'    => true,
+            ],
+        );
 
         // H-1 enforcement
         $nextOcc = $this->nextOccurrence($schedule->day_of_week);
@@ -185,9 +210,12 @@ class PrivateSessions extends Component
         // The parent's active players (chosen first).
         $children = $user->children()->where('status', 'active')->get();
 
-        // Only locations that have active private schedules.
+        // Only locations that offer private slot templates (coach-agnostic).
         $locations = Location::where('is_active', true)
-            ->whereHas('schedules', fn($q) => $q->where('type', 'private')->where('is_active', true))
+            ->whereHas('schedules', fn($q) => $q
+                ->where('type', 'private')
+                ->whereNull('coach_id')
+                ->where('is_active', true))
             ->orderBy('name')
             ->get();
 
@@ -202,12 +230,8 @@ class PrivateSessions extends Component
         if ($this->selectedLocationId) {
             $selectedLocation = $locations->firstWhere('id', $this->selectedLocationId);
 
-            // Coaches running private sessions at this location.
+            // Every active coach is offered — the parent chooses who runs the session.
             $coaches = Coach::where('is_active', true)
-                ->whereHas('schedules', fn($q) => $q
-                    ->where('type', 'private')
-                    ->where('is_active', true)
-                    ->where('location_id', $this->selectedLocationId))
                 ->with('user')
                 ->get()
                 ->sortBy(fn($c) => $c->user?->name)
@@ -217,11 +241,11 @@ class PrivateSessions extends Component
         if ($this->selectedLocationId && $this->selectedCoachId) {
             $selectedCoach = $coaches->firstWhere('id', $this->selectedCoachId);
 
+            // Slot templates at this location (coach-agnostic).
             $scheduleSlots = Schedule::where('type', 'private')
                 ->where('is_active', true)
                 ->where('location_id', $this->selectedLocationId)
-                ->where('coach_id', $this->selectedCoachId)
-                ->with(['coach.user'])
+                ->whereNull('coach_id')
                 ->orderByRaw("FIELD(day_of_week,'monday','tuesday','wednesday','thursday','friday','saturday','sunday')")
                 ->orderBy('start_time')
                 ->get()

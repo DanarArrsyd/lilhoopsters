@@ -129,16 +129,14 @@
                                 </x-select>
                             @endif
 
-                            {{-- Coach: only for Private --}}
+                            {{-- Private = coach-agnostic slot template; parent picks the coach --}}
                             @if ($type === 'private')
-                                <x-select wire:model="coach_id"
-                                          label="{{ __('messages.admin.schedules.label_coach') }}"
-                                          required :error="$errors->first('coach_id')">
-                                    <option value="">{{ __('messages.admin.schedules.select_coach') }}</option>
-                                    @foreach ($coaches as $coach)
-                                        <option value="{{ $coach->id }}">{{ $coach->user->name }}</option>
-                                    @endforeach
-                                </x-select>
+                                <div class="flex items-start gap-2.5 p-3.5 rounded-xl bg-[#7C3AED]/5 border border-[#7C3AED]/20">
+                                    <svg class="w-4 h-4 text-[#7C3AED] shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    <p class="text-xs text-[#5B21B6] leading-relaxed">{{ __('messages.admin.schedules.private_coach_note') }}</p>
+                                </div>
                             @endif
 
                         </div>
@@ -283,12 +281,7 @@
 
         <x-admin.page-header :title="__('messages.admin.schedules.title')" :subtitle="__('messages.admin.schedules.subtitle')">
             <x-slot name="action">
-                <x-btn variant="add" wire:click="openCreate">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    {{ __('messages.admin.schedules.new') }}
-                </x-btn>
+                <x-btn-add wire:click="openCreate" :label="__('messages.admin.schedules.new')" />
             </x-slot>
         </x-admin.page-header>
 
@@ -418,7 +411,7 @@
                                     </td>
                                     <td class="py-3 px-4 text-muted">
                                         @if ($isPrivate)
-                                            {{ $schedule->coach?->user->name ?? '—' }}
+                                            <span class="text-[#7C3AED] italic text-xs">{{ __('messages.admin.schedules.parent_picks_coach') }}</span>
                                         @else
                                             <span class="text-faint italic text-xs">{{ __('messages.admin.schedules.any_coach') }}</span>
                                         @endif

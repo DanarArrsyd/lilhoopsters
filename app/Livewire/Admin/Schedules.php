@@ -56,9 +56,9 @@ class Schedules extends Component
                                 ? 'nullable|integer|exists:programs,id'
                                 : 'required|integer|exists:programs,id',
             'type'         => 'required|in:regular,private',
-            'coach_id'     => $this->type === 'private'
-                                ? 'required|integer|exists:coaches,id'
-                                : 'nullable|integer|exists:coaches,id',
+            // Private schedules are coach-agnostic "slot templates" — the parent
+            // picks the coach at booking time, so no coach is assigned here.
+            'coach_id'     => 'nullable|integer|exists:coaches,id',
             'day_of_week'  => 'required|in:' . implode(',', array_keys(self::DAYS)),
             'start_time'   => 'required|date_format:H:i',
             'end_time'     => ['required', 'date_format:H:i', function ($attr, $value, $fail) {
@@ -73,10 +73,6 @@ class Schedules extends Component
             'max_capacity' => 'required|integer|min:1|max:100',
         ];
     }
-
-    protected $messages = [
-        'coach_id.required' => 'A coach must be assigned for Private schedules.',
-    ];
 
     public function updatingSearch(): void         { $this->resetPage(); }
     public function updatingFilterLocation(): void { $this->resetPage(); }
@@ -127,9 +123,8 @@ class Schedules extends Component
 
     public function updatedType(): void
     {
-        if ($this->type === 'regular') {
-            $this->coach_id = null;
-        }
+        // Regular has no coach; private (slot template) has neither coach nor program.
+        $this->coach_id = null;
         if ($this->type === 'private') {
             $this->program_id = null;
         }
@@ -169,9 +164,7 @@ class Schedules extends Component
             'program_id'  => $this->type === 'private'
                                 ? 'nullable|integer|exists:programs,id'
                                 : 'required|integer|exists:programs,id',
-            'coach_id'    => $this->type === 'private'
-                                ? 'required|integer|exists:coaches,id'
-                                : 'nullable|integer|exists:coaches,id',
+            'coach_id'    => 'nullable|integer|exists:coaches,id',
         ]);
         $this->step = 2;
     }
@@ -189,7 +182,9 @@ class Schedules extends Component
             'location_id'  => $this->location_id,
             'program_id'   => $this->program_id,
             'type'         => $this->type,
-            'coach_id'     => $this->type === 'private' ? $this->coach_id : null,
+            // Admin-managed schedules never carry a coach: regular = any coach,
+            // private = coach-agnostic slot template (coach chosen at booking).
+            'coach_id'     => null,
             'day_of_week'  => $this->day_of_week,
             'start_time'   => $this->start_time,
             'end_time'     => $this->end_time,
@@ -242,6 +237,10 @@ class Schedules extends Component
     public function render()
     {
         $schedules = Schedule::with(['location', 'program', 'coach.user'])
+            // Hide coach-bound private rows: those are concrete bookings auto-created
+            // from a slot template when a parent picks a coach. The list shows the
+            // manageable rows only — regular schedules and private slot templates.
+            ->where(fn($q) => $q->where('type', 'regular')->orWhereNull('coach_id'))
             ->when($this->filterLocation, fn($q) => $q->where('location_id', $this->filterLocation))
             ->when($this->filterType, fn($q) => $q->where('type', $this->filterType))
             ->when($this->search, fn($q) => $q
