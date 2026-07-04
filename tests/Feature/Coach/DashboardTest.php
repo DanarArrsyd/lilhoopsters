@@ -91,3 +91,16 @@ it('shows no sessions message when no schedules today', function () {
         ->test(Dashboard::class)
         ->assertSee('No sessions today.');
 });
+
+it('shows a maps button for a schedule location that has a maps url', function () {
+    $location = \App\Models\Location::factory()->create(['maps_url' => 'https://maps.google.com/?q=coach-test']);
+    $schedule = \App\Models\Schedule::factory()->create([
+        'coach_id'    => $this->coach->id,
+        'location_id' => $location->id,
+        'day_of_week' => strtolower(now()->format('l')),
+    ]);
+
+    Livewire::actingAs($this->coachUser)
+        ->test(\App\Livewire\Coach\Dashboard::class)
+        ->assertSee('https://maps.google.com/?q=coach-test', false);
+});

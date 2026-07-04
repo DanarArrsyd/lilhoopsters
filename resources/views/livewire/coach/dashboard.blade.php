@@ -80,7 +80,10 @@
                                 <div class="w-1.5 h-1.5 rounded-full bg-navy shrink-0 mt-1.5"></div>
                                 <div class="min-w-0 flex-1">
                                     <p class="text-xs font-bold text-ink truncate">{{ $sched->program->name }}</p>
-                                    <p class="text-[10px] text-faint truncate">{{ $sched->location->name }}</p>
+                                    <p class="text-[10px] text-faint truncate flex items-center gap-1">
+                                        <span class="truncate">{{ $sched->location->name }}</span>
+                                        <x-maps-button :url="$sched->location->maps_url" />
+                                    </p>
                                     <p class="text-[10px] text-muted font-semibold">
                                         {{ \Carbon\Carbon::parse($sched->start_time)->format('H:i') }}–{{ \Carbon\Carbon::parse($sched->end_time)->format('H:i') }}
                                     </p>
@@ -195,7 +198,10 @@
                                             <span class="text-[9px] font-bold uppercase bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-full">{{ __('messages.coach.dashboard.regular_badge') }}</span>
                                         @endif
                                     </div>
-                                    <p class="text-xs text-faint">{{ $schedule->location->name }}</p>
+                                    <p class="text-xs text-faint flex items-center gap-1">
+                                        <span class="truncate">{{ $schedule->location->name }}</span>
+                                        <x-maps-button :url="$schedule->location->maps_url" />
+                                    </p>
                                 </div>
                             </div>
                             <div class="text-right shrink-0">
@@ -303,7 +309,10 @@
                                                 {{ $sched->type === 'private' ? __('messages.coach.dashboard.private_badge') : __('messages.coach.dashboard.regular_badge') }}
                                             </span>
                                         </div>
-                                        <p class="text-[11px] text-faint truncate">{{ $sched->location->name }}</p>
+                                        <p class="text-[11px] text-faint truncate flex items-center gap-1">
+                                            <span class="truncate">{{ $sched->location->name }}</span>
+                                            <x-maps-button :url="$sched->location->maps_url" />
+                                        </p>
                                     </div>
                                     <p class="text-[11px] font-semibold text-muted tabular-nums shrink-0">
                                         {{ \Carbon\Carbon::parse($sched->start_time)->format('H:i') }}–{{ \Carbon\Carbon::parse($sched->end_time)->format('H:i') }}

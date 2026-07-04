@@ -75,7 +75,10 @@
                         <div class="w-1.5 h-1.5 rounded-full bg-navy shrink-0 mt-1.5"></div>
                         <div class="min-w-0 flex-1">
                             <p class="text-xs font-bold text-ink truncate">{{ $sched->program->name }}</p>
-                            <p class="text-[10px] text-faint truncate">{{ $sched->location->name }}</p>
+                            <p class="text-[10px] text-faint truncate flex items-center gap-1">
+                                <span class="truncate">{{ $sched->location->name }}</span>
+                                <x-maps-button :url="$sched->location->maps_url" />
+                            </p>
                             <p class="text-[10px] text-muted font-semibold">
                                 {{ \Carbon\Carbon::parse($sched->start_time)->format('H:i') }}–{{ \Carbon\Carbon::parse($sched->end_time)->format('H:i') }}
                             </p>

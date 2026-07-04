@@ -72,3 +72,18 @@ it('shows correct pending payments count', function () {
 
     expect($component->get('stats')['pending_payments'])->toBe(1);
 });
+
+it('shows a maps button for a schedule location that has a maps url on the week calendar', function () {
+    $location = \App\Models\Location::factory()->create(['maps_url' => 'https://maps.google.com/?q=admin-test']);
+    $program  = \App\Models\Program::factory()->create();
+    \App\Models\Schedule::factory()->create([
+        'location_id' => $location->id,
+        'program_id'  => $program->id,
+        'day_of_week' => strtolower(now()->format('l')),
+        'is_active'   => true,
+    ]);
+
+    $this->actingAs($this->admin)
+        ->get(route('admin.dashboard'))
+        ->assertSee('https://maps.google.com/?q=admin-test', false);
+});

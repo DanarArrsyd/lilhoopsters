@@ -55,7 +55,10 @@
                         <div class="flex items-center gap-3 px-4 py-3">
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-semibold text-ink truncate">{{ $sched->program?->name ?? __('messages.admin.schedules.type_private') }}</p>
-                                <p class="text-xs text-faint">{{ $sched->location->name }} · {{ \Carbon\Carbon::parse($sched->start_time)->format('H:i') }}–{{ \Carbon\Carbon::parse($sched->end_time)->format('H:i') }}</p>
+                                <p class="text-xs text-faint flex items-center gap-1">
+                                    <span>{{ $sched->location->name }} · {{ \Carbon\Carbon::parse($sched->start_time)->format('H:i') }}–{{ \Carbon\Carbon::parse($sched->end_time)->format('H:i') }}</span>
+                                    <x-maps-button :url="$sched->location->maps_url" />
+                                </p>
                             </div>
                             <span class="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full shrink-0
                                 {{ $sched->type === 'private' ? 'bg-purple-100 text-purple-700' : 'bg-blue-50 text-blue-600' }}">
@@ -99,10 +102,13 @@
                                         <span class="text-[9px] font-bold uppercase tracking-wide bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full shrink-0">{{ __('messages.coach.dashboard.private_badge') }}</span>
                                     @endif
                                 </div>
-                                <p class="text-xs text-faint">
-                                    {{ $sched->location->name }}
-                                    · {{ \Carbon\Carbon::parse($sched->start_time)->format('g:i A') }}–{{ \Carbon\Carbon::parse($sched->end_time)->format('g:i A') }}
-                                    · {{ $enrolled }} enrolled
+                                <p class="text-xs text-faint flex items-center gap-1">
+                                    <span>
+                                        {{ $sched->location->name }}
+                                        · {{ \Carbon\Carbon::parse($sched->start_time)->format('g:i A') }}–{{ \Carbon\Carbon::parse($sched->end_time)->format('g:i A') }}
+                                        · {{ $enrolled }} enrolled
+                                    </span>
+                                    <x-maps-button :url="$sched->location->maps_url" />
                                 </p>
                                 {{-- Coaches in session --}}
                                 @if ($sessionCoaches->isNotEmpty())

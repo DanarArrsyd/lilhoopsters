@@ -28,7 +28,10 @@
                                         </div>
                                         <div>
                                             <p class="font-semibold text-ink text-sm">{{ $schedule->program->name }}</p>
-                                            <p class="text-xs text-faint">{{ $schedule->location->name }}</p>
+                                            <p class="text-xs text-faint flex items-center gap-1">
+                                                <span class="truncate">{{ $schedule->location->name }}</span>
+                                                <x-maps-button :url="$schedule->location->maps_url" />
+                                            </p>
                                         </div>
                                     </div>
                                     <div class="text-right shrink-0">
