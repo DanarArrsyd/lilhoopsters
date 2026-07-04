@@ -67,6 +67,7 @@ return [
         'creating'   => 'Creating...',
         'next'       => 'Next',
         'back'       => 'Back',
+        'open_in_maps' => 'Open in Maps',
     ],
     'status' => [
         'pending'      => 'Pending',

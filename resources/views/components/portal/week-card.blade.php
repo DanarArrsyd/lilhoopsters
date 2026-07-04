@@ -84,7 +84,10 @@
                         <div class="w-1.5 h-1.5 rounded-full bg-navy shrink-0 mt-1.5"></div>
                         <div class="min-w-0 flex-1">
                             <p class="text-xs font-bold text-ink truncate">{{ $sess['program'] }}</p>
-                            <p class="text-[10px] text-faint truncate">{{ $sess['location'] }}</p>
+                            <p class="text-[10px] text-faint truncate flex items-center gap-1">
+                                <span class="truncate">{{ $sess['location'] }}</span>
+                                <x-maps-button :url="$sess['location_maps_url']" />
+                            </p>
                             <p class="text-[10px] text-muted font-semibold">
                                 {{ \Illuminate\Support\Carbon::parse($sess['start'])->format('H:i') }}–{{ \Illuminate\Support\Carbon::parse($sess['end'])->format('H:i') }}
                             </p>
@@ -215,7 +218,10 @@
                                             {{ $enr->schedule->type === 'private' ? 'Private' : 'Regular' }}
                                         </span>
                                     </div>
-                                    <p class="text-[11px] text-faint truncate">{{ $enr->schedule->location->name }}</p>
+                                    <p class="text-[11px] text-faint truncate flex items-center gap-1">
+                                        <span class="truncate">{{ $enr->schedule->location->name }}</span>
+                                        <x-maps-button :url="$enr->schedule->location->maps_url" />
+                                    </p>
                                 </div>
                                 <p class="text-[11px] font-semibold text-muted tabular-nums shrink-0">
                                     {{ \Illuminate\Support\Carbon::parse($enr->schedule->start_time)->format('H:i') }}

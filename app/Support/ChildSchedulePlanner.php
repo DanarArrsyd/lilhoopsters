@@ -74,12 +74,13 @@ class ChildSchedulePlanner
                 $enrollment = $sessions->first();
 
                 return [
-                    'program'  => $enrollment->schedule->program->name,
-                    'location' => $enrollment->schedule->location->name,
-                    'coach'    => $enrollment->schedule->coach?->user?->name,
-                    'date'     => $date,
-                    'start'    => $enrollment->schedule->start_time,
-                    'end'      => $enrollment->schedule->end_time,
+                    'program'           => $enrollment->schedule->program->name,
+                    'location'          => $enrollment->schedule->location->name,
+                    'location_maps_url' => $enrollment->schedule->location->maps_url,
+                    'coach'             => $enrollment->schedule->coach?->user?->name,
+                    'date'              => $date,
+                    'start'             => $enrollment->schedule->start_time,
+                    'end'               => $enrollment->schedule->end_time,
                 ];
             }
         }
@@ -96,10 +97,11 @@ class ChildSchedulePlanner
         return $days
             ->mapWithKeys(function (Carbon $date) use ($enrollments) {
                 $sessions = self::sessionsOn($enrollments, $date)->map(fn (Enrollment $e) => [
-                    'program'  => $e->schedule->program->name,
-                    'location' => $e->schedule->location->name,
-                    'start'    => $e->schedule->start_time,
-                    'end'      => $e->schedule->end_time,
+                    'program'           => $e->schedule->program->name,
+                    'location'          => $e->schedule->location->name,
+                    'location_maps_url' => $e->schedule->location->maps_url,
+                    'start'             => $e->schedule->start_time,
+                    'end'               => $e->schedule->end_time,
                 ]);
 
                 return [strtolower($date->format('l')) => $sessions];

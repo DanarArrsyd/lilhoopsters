@@ -67,6 +67,7 @@ return [
         'creating'   => 'Membuat...',
         'next'       => 'Lanjut',
         'back'       => 'Kembali',
+        'open_in_maps' => 'Buka di Maps',
     ],
     'status' => [
         'pending'      => 'Menunggu',

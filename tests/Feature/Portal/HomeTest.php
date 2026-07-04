@@ -143,3 +143,45 @@ it('shows a banner when an event is open for registration', function () {
         ->test(Home::class)
         ->assertSee('Summer Camp 2026');
 });
+
+it('shows a maps button next to the next session location when the location has a maps url', function () {
+    $child = Child::factory()->create(['user_id' => $this->parent->id, 'status' => 'active']);
+    $location = \App\Models\Location::factory()->create(['maps_url' => 'https://maps.google.com/?q=test-location']);
+    $program  = \App\Models\Program::factory()->create();
+    $schedule = \App\Models\Schedule::factory()->create([
+        'location_id' => $location->id,
+        'program_id'  => $program->id,
+        'day_of_week' => strtolower(now()->format('l')),
+        'is_active'   => true,
+    ]);
+    \App\Models\Enrollment::factory()->create([
+        'child_id' => $child->id, 'schedule_id' => $schedule->id,
+        'type' => 'program', 'status' => 'approved',
+        'started_at' => now()->subMonth(), 'expires_at' => now()->addMonth(),
+    ]);
+
+    Livewire::actingAs($this->parent)
+        ->test(Home::class)
+        ->assertSee('https://maps.google.com/?q=test-location', false);
+});
+
+it('shows no maps button when the location has no maps url', function () {
+    $child = Child::factory()->create(['user_id' => $this->parent->id, 'status' => 'active']);
+    $location = \App\Models\Location::factory()->create(['maps_url' => null]);
+    $program  = \App\Models\Program::factory()->create();
+    $schedule = \App\Models\Schedule::factory()->create([
+        'location_id' => $location->id,
+        'program_id'  => $program->id,
+        'day_of_week' => strtolower(now()->format('l')),
+        'is_active'   => true,
+    ]);
+    \App\Models\Enrollment::factory()->create([
+        'child_id' => $child->id, 'schedule_id' => $schedule->id,
+        'type' => 'program', 'status' => 'approved',
+        'started_at' => now()->subMonth(), 'expires_at' => now()->addMonth(),
+    ]);
+
+    Livewire::actingAs($this->parent)
+        ->test(Home::class)
+        ->assertDontSee(__('messages.common.open_in_maps'));
+});
