@@ -229,9 +229,10 @@ it('excludes make-up attendances from the attendance rate', function () {
     Attendance::factory()->present()->create(['schedule_id' => $schedule->id, 'attended_at' => now()]);
     Attendance::factory()->create(['schedule_id' => $schedule->id, 'attended_at' => now(), 'status' => 'make_up']);
 
-    Livewire::actingAs($this->admin)
-        ->test(Owner::class)
-        ->assertSee('100%'); // 1 present / 1 total, make_up excluded from both sides
+    $attendance = Livewire::actingAs($this->admin)->test(Owner::class)->viewData('attendance');
+
+    expect($attendance['overall'])->toBe(100.0); // 1 present / 1 total, make_up excluded from both sides
+    expect($attendance['total'])->toBe(1);
 });
 
 it('shows an empty state when there is no attendance in the last 30 days', function () {
