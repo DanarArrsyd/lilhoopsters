@@ -2,12 +2,14 @@
 // tests/Feature/Admin/OwnerTest.php
 
 use App\Livewire\Admin\Owner;
+use App\Models\Attendance;
 use App\Models\Child;
 use App\Models\Coach;
 use App\Models\CoachSession;
 use App\Models\Enrollment;
 use App\Models\Location;
 use App\Models\Package;
+use App\Models\Program;
 use App\Models\Role;
 use App\Models\Schedule;
 use App\Models\Transaction;
@@ -199,4 +201,41 @@ it('shows no actions when everything is clear', function () {
     $insights = Livewire::actingAs($this->admin)->test(Owner::class)->viewData('insights');
 
     expect($insights['actions'])->toBeEmpty();
+});
+
+it('shows the attendance tab with overall rate and breakdowns', function () {
+    $program  = Program::factory()->create(['name' => 'Junior League']);
+    $location = Location::factory()->create(['name' => 'Cikarang Court']);
+    $schedule = Schedule::factory()->create([
+        'program_id'  => $program->id,
+        'location_id' => $location->id,
+    ]);
+
+    Attendance::factory()->present()->create(['schedule_id' => $schedule->id, 'attended_at' => now()]);
+    Attendance::factory()->present()->create(['schedule_id' => $schedule->id, 'attended_at' => now()]);
+    Attendance::factory()->present()->create(['schedule_id' => $schedule->id, 'attended_at' => now()]);
+    Attendance::factory()->absent()->create(['schedule_id' => $schedule->id, 'attended_at' => now()]);
+
+    Livewire::actingAs($this->admin)
+        ->test(Owner::class)
+        ->assertSee('Junior League')
+        ->assertSee('Cikarang Court')
+        ->assertSee('75%'); // 3 present / 4 total
+});
+
+it('excludes make-up attendances from the attendance rate', function () {
+    $schedule = Schedule::factory()->create();
+
+    Attendance::factory()->present()->create(['schedule_id' => $schedule->id, 'attended_at' => now()]);
+    Attendance::factory()->create(['schedule_id' => $schedule->id, 'attended_at' => now(), 'status' => 'make_up']);
+
+    Livewire::actingAs($this->admin)
+        ->test(Owner::class)
+        ->assertSee('100%'); // 1 present / 1 total, make_up excluded from both sides
+});
+
+it('shows an empty state when there is no attendance in the last 30 days', function () {
+    Livewire::actingAs($this->admin)
+        ->test(Owner::class)
+        ->assertSee('No attendance records in the last 30 days');
 });

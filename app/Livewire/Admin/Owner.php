@@ -277,6 +277,40 @@ class Owner extends Component
         ];
     }
 
+    // ─── H. Attendance rate by program & location ────────────────────
+
+    private function attendanceData(): array
+    {
+        $since = now()->subDays(30)->toDateString();
+
+        $rows = Attendance::whereIn('status', ['present', 'no_show', 'sick', 'permit'])
+            ->where('attended_at', '>=', $since)
+            ->with(['schedule.program', 'schedule.location'])
+            ->get();
+
+        $rate = fn($items) => $items->count() > 0
+            ? round($items->where('status', 'present')->count() / $items->count() * 100, 1)
+            : null;
+
+        $overall = $rate($rows);
+
+        $byProgram = $rows->groupBy(fn($a) => $a->schedule?->program?->name ?? 'Private / Unassigned')
+            ->map(fn($items) => ['rate' => $rate($items), 'total' => $items->count()])
+            ->sortByDesc('total');
+
+        $byLocation = $rows->groupBy(fn($a) => $a->schedule?->location?->name ?? 'Unknown')
+            ->map(fn($items) => ['rate' => $rate($items), 'total' => $items->count()])
+            ->sortByDesc('total');
+
+        return [
+            'overall'     => $overall,
+            'present'     => $rows->where('status', 'present')->count(),
+            'total'       => $rows->count(),
+            'by_program'  => $byProgram,
+            'by_location' => $byLocation,
+        ];
+    }
+
     // ─── Insights: health strip, 30-day movement, action center ──────
 
     private function pctDelta(float $current, float $previous): ?array
@@ -536,6 +570,7 @@ class Owner extends Component
             'events'      => $this->eventsData(),
             'insights'    => $this->insightsData($renewal, $ar, $capacity, $leads),
             'leaderboard' => $this->leaderboardData(),
+            'attendance'  => $this->attendanceData(),
         ]);
     }
 }

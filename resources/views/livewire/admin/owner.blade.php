@@ -146,6 +146,15 @@
                 </svg>
                 Pipeline
             </button>
+
+            <button @click="tab='attendance'"
+                    :class="tab === 'attendance' ? 'bg-navy text-off shadow-sm' : 'text-muted hover:text-ink hover:bg-off'"
+                    class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-150 text-sm font-bold">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Attendance
+            </button>
         </div>
 
         {{-- ══════════════════════════════════════════════
@@ -721,6 +730,109 @@
             </section>
 
         </div>{{-- /pipeline tab --}}
+
+        {{-- ══════════════════════════════════════════════
+             TAB: ATTENDANCE — 30-day attendance rate by program & location
+        ══════════════════════════════════════════════ --}}
+        <div x-show="tab === 'attendance'"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 translate-y-1"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             class="mt-5 space-y-5">
+
+            <section>
+                <div class="flex items-center gap-2 mb-3">
+                    <h2 class="text-sm font-extrabold text-navy uppercase tracking-wide">Attendance Rate</h2>
+                    <span class="text-[11px] text-faint">Last 30 days</span>
+                </div>
+
+                @if ($attendance['total'] === 0)
+                    <div class="bg-surface border border-line rounded-xl">
+                        <p class="px-5 py-8 text-center text-sm text-muted">No attendance records in the last 30 days</p>
+                    </div>
+                @else
+                    <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
+                        <div class="bg-surface border border-line rounded-xl px-4 pt-4 pb-3 flex flex-col gap-3">
+                            <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">Overall Attendance Rate</p>
+                            <div>
+                                <p class="text-xl font-extrabold text-navy leading-none tracking-tight">{{ $attendance['overall'] }}%</p>
+                                <p class="text-[11px] text-muted mt-1.5">{{ $attendance['present'] }}/{{ $attendance['total'] }} sessions</p>
+                            </div>
+                            <div class="h-0.5 w-10 bg-navy rounded-full"></div>
+                        </div>
+                        <div class="bg-surface border border-line rounded-xl px-4 pt-4 pb-3 flex flex-col gap-3">
+                            <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">Present</p>
+                            <div>
+                                <p class="text-xl font-extrabold text-navy leading-none tracking-tight">{{ $attendance['present'] }}</p>
+                                <p class="text-[11px] text-muted mt-1.5">of {{ $attendance['total'] }} tracked</p>
+                            </div>
+                            <div class="h-0.5 w-10 bg-[#15803D] rounded-full"></div>
+                        </div>
+                        <div class="bg-surface border border-line rounded-xl px-4 pt-4 pb-3 flex flex-col gap-3">
+                            <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">Absent / Sick / Permit</p>
+                            <div>
+                                <p class="text-xl font-extrabold text-navy leading-none tracking-tight">{{ $attendance['total'] - $attendance['present'] }}</p>
+                                <p class="text-[11px] text-muted mt-1.5">of {{ $attendance['total'] }} tracked</p>
+                            </div>
+                            <div class="h-0.5 w-10 bg-[#B45309] rounded-full"></div>
+                        </div>
+                    </div>
+
+                    <p class="text-[10px] font-bold uppercase tracking-widest text-faint mb-2 mt-4">By Program</p>
+                    <div class="bg-surface border border-line rounded-xl overflow-hidden mb-3">
+                        <div class="divide-y divide-line">
+                            @foreach ($attendance['by_program'] as $label => $row)
+                                @php
+                                    $rate = $row['rate'] ?? 0;
+                                    $barColor = $rate >= 80 ? 'bg-[#15803D]' : ($rate >= 50 ? 'bg-[#B45309]' : 'bg-[#B91C1C]');
+                                @endphp
+                                <div class="px-5 py-3 flex items-center gap-4">
+                                    <div class="min-w-0 flex-1">
+                                        <p class="text-sm font-semibold text-ink truncate">{{ $label }}</p>
+                                    </div>
+                                    <div class="w-40 shrink-0 hidden sm:block">
+                                        <div class="h-2 bg-off rounded-full overflow-hidden">
+                                            <div class="h-full {{ $barColor }} rounded-full" style="width: {{ min($rate, 100) }}%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="text-right shrink-0 w-24">
+                                        <p class="text-sm font-bold text-navy">{{ $row['rate'] }}%</p>
+                                        <p class="text-[11px] text-muted">({{ $row['total'] }} sessions)</p>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <p class="text-[10px] font-bold uppercase tracking-widest text-faint mb-2">By Location</p>
+                    <div class="bg-surface border border-line rounded-xl overflow-hidden">
+                        <div class="divide-y divide-line">
+                            @foreach ($attendance['by_location'] as $label => $row)
+                                @php
+                                    $rate = $row['rate'] ?? 0;
+                                    $barColor = $rate >= 80 ? 'bg-[#15803D]' : ($rate >= 50 ? 'bg-[#B45309]' : 'bg-[#B91C1C]');
+                                @endphp
+                                <div class="px-5 py-3 flex items-center gap-4">
+                                    <div class="min-w-0 flex-1">
+                                        <p class="text-sm font-semibold text-ink truncate">{{ $label }}</p>
+                                    </div>
+                                    <div class="w-40 shrink-0 hidden sm:block">
+                                        <div class="h-2 bg-off rounded-full overflow-hidden">
+                                            <div class="h-full {{ $barColor }} rounded-full" style="width: {{ min($rate, 100) }}%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="text-right shrink-0 w-24">
+                                        <p class="text-sm font-bold text-navy">{{ $row['rate'] }}%</p>
+                                        <p class="text-[11px] text-muted">({{ $row['total'] }} sessions)</p>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+            </section>
+
+        </div>{{-- /attendance tab --}}
 
     </div>{{-- /tab controller --}}
 
