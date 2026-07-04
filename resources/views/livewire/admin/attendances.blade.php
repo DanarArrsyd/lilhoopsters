@@ -45,7 +45,7 @@
     @endif
 
     {{-- Shared filters --}}
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-4">
         <x-input wire:model.live.debounce.300ms="search"
                  :placeholder="$activeTab === 'coaches' ? 'Search by coach name...' : 'Search by child name...'" />
         <div class="flex items-center gap-2">
@@ -59,6 +59,9 @@
                 <option value="{{ $s->id }}">{{ $s->program->name }} – {{ ucfirst($s->day_of_week) }}</option>
             @endforeach
         </x-select>
+        <x-btn variant="secondary" wire:click="export" wire:loading.attr="disabled" wire:target="export">
+            {{ __('messages.common.export_excel') }}
+        </x-btn>
     </div>
 
     @if ($activeTab === 'students')

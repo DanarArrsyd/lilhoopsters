@@ -186,3 +186,27 @@ it('filters coach sessions by date range', function () {
         ->assertSee('In Range Coach')
         ->assertDontSee('Out Range Coach');
 });
+
+it('exports students attendance as xlsx with the correct filename', function () {
+    Livewire::actingAs($this->admin)
+        ->test(Attendances::class)
+        ->set('filterDateFrom', '2026-06-01')
+        ->set('filterDateTo', '2026-06-30')
+        ->call('export')
+        ->assertFileDownloaded('attendances_siswa_2026-06-01_2026-06-30.xlsx');
+});
+
+it('exports students attendance with default filename when no date range set', function () {
+    Livewire::actingAs($this->admin)
+        ->test(Attendances::class)
+        ->call('export')
+        ->assertFileDownloaded('attendances_siswa_semua_semua.xlsx');
+});
+
+it('exports coach sessions as xlsx when the coaches tab is active', function () {
+    Livewire::actingAs($this->admin)
+        ->test(Attendances::class)
+        ->set('activeTab', 'coaches')
+        ->call('export')
+        ->assertFileDownloaded('attendances_coach_semua_semua.xlsx');
+});

@@ -59,6 +59,7 @@ return [
         'new'        => 'Baru',
         'import'     => 'Impor',
         'export'     => 'Ekspor',
+        'export_excel' => 'Export Excel',
         'all'        => 'Semua',
         'loading'    => 'Memuat…',
         'search'     => 'Cari',

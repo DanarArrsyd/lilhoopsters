@@ -59,6 +59,7 @@ return [
         'new'        => 'New',
         'import'     => 'Import',
         'export'     => 'Export',
+        'export_excel' => 'Export Excel',
         'all'        => 'All',
         'loading'    => 'Loading…',
         'search'     => 'Search',
