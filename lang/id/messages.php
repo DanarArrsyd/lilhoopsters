@@ -1233,6 +1233,7 @@ return [
             'report_cards'           => 'Rapor',
             'qr_code'                => 'QR Code Presensi',
             'event_open'             => 'Pendaftaran dibuka',
+            'qr_no_package'          => 'Anak ini belum punya paket aktif — daftar paket dulu untuk dapat QR code absensi.',
         ],
         'guide' => [
             'title'    => 'Panduan Pengguna',

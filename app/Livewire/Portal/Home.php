@@ -83,6 +83,16 @@ class Home extends Component
             return;
         }
 
+        $hasActiveEnrollment = $child->enrollments()
+            ->where('status', 'approved')
+            ->whereNotNull('schedule_id')
+            ->exists();
+
+        if (! $hasActiveEnrollment) {
+            session()->flash('error', __('messages.portal.home.qr_no_package'));
+            return;
+        }
+
         $this->qrSvg  = (string) QrCode::format('svg')->size(200)->generate($child->qr_identifier);
         $this->showQr = true;
     }

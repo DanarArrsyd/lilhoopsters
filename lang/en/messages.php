@@ -1233,6 +1233,7 @@ return [
             'report_cards'           => 'Report Cards',
             'qr_code'                => 'Presence QR Code',
             'event_open'             => 'Registration is open',
+            'qr_no_package'          => 'This child has no active package yet — enroll a package to get an attendance QR code.',
         ],
         'guide' => [
             'title'    => 'User Guide',

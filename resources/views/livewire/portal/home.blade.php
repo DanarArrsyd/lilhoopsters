@@ -30,6 +30,10 @@
                     :title="__('messages.dashboard.title')"
                     :subtitle="__('messages.portal.home.greeting', ['name' => auth()->user()->name])" />
 
+                @if (session('error'))
+                    <x-alert type="danger" class="mb-4">{{ session('error') }}</x-alert>
+                @endif
+
                 @if ($sectionFailed ?? false)
                     <div class="mb-4 px-4 py-3 rounded-xl bg-[#B91C1C]/10 text-[#B91C1C] text-sm flex items-center justify-between lg:max-w-2xl">
                         <span>{{ __('messages.portal.home.section_error') }}</span>

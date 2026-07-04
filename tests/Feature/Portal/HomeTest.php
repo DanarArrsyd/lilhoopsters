@@ -91,14 +91,29 @@ it('shows the next session for the active child', function () {
         ->assertSee('GOR Senayan');
 });
 
-it('opens the active childs QR code', function () {
+it('opens the active childs QR code when the child has an active enrollment', function () {
     $child = Child::factory()->create(['user_id' => $this->parent->id, 'status' => 'active']);
+    $schedule = \App\Models\Schedule::factory()->create();
+    \App\Models\Enrollment::factory()->create([
+        'child_id' => $child->id, 'schedule_id' => $schedule->id,
+        'type' => 'program', 'status' => 'approved',
+    ]);
 
     Livewire::actingAs($this->parent)
         ->test(Home::class)
         ->call('openQr')
         ->assertSet('showQr', true)
         ->assertSee($child->name);
+});
+
+it('does not open the QR code when the child has no active enrollment', function () {
+    Child::factory()->create(['user_id' => $this->parent->id, 'status' => 'active']);
+
+    Livewire::actingAs($this->parent)
+        ->test(Home::class)
+        ->call('openQr')
+        ->assertSet('showQr', false)
+        ->assertSee(__('messages.portal.home.qr_no_package'));
 });
 
 it('shows quick action links to all portal pages', function () {
