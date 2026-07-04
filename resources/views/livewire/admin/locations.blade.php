@@ -215,9 +215,15 @@
                     <tbody class="divide-y divide-line">
                         @forelse ($locations as $location)
                             <tr class="hover:bg-off transition-colors">
-                                <td class="py-3 px-4 font-semibold text-ink">{{ $location->name }}</td>
-                                <td class="py-3 px-4 text-muted max-w-xs truncate">{{ $location->address }}</td>
-                                <td class="py-3 px-4 text-muted">{{ $location->city }}</td>
+                                <td class="py-3 px-4 font-semibold text-ink">
+                                    <div class="max-w-[180px] truncate" title="{{ $location->name }}">{{ $location->name }}</div>
+                                </td>
+                                <td class="py-3 px-4 text-muted">
+                                    <div class="max-w-xs truncate" title="{{ $location->address }}">{{ $location->address }}</div>
+                                </td>
+                                <td class="py-3 px-4 text-muted">
+                                    <div class="max-w-[140px] truncate" title="{{ $location->city }}">{{ $location->city }}</div>
+                                </td>
                                 <td class="py-3 px-4">
                                     <x-badge :status="$location->is_active ? 'active' : 'inactive'">
                                         {{ $location->is_active ? __('messages.status.active') : __('messages.status.inactive') }}
