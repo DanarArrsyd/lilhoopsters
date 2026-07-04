@@ -17,7 +17,8 @@
         <p class="text-xs text-gray-400 mb-5">{{ __('messages.pages.players.subtitle') }}</p>
 
         <div class="space-y-4">
-            <x-input wire:model="name" :label="__('messages.players.full_name')" placeholder="{{ __('messages.players.name_ph') }}"
+            <x-input wire:model="name" name="fld_{{ uniqid() }}" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly')"
+                     :label="__('messages.players.full_name')" placeholder="{{ __('messages.players.name_ph') }}"
                      required :error="$errors->first('name')" />
             <x-input type="date" wire:model="birthDate" :label="__('messages.players.dob')"
                      required :error="$errors->first('birthDate')" />
@@ -26,7 +27,8 @@
                 <option value="male">{{ __('messages.players.gender_male') }}</option>
                 <option value="female">{{ __('messages.players.gender_female') }}</option>
             </x-select>
-            <x-input wire:model="school" :label="__('messages.players.school')" placeholder="{{ __('messages.players.school_ph') }}" />
+            <x-input wire:model="school" name="fld_{{ uniqid() }}" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly')"
+                     :label="__('messages.players.school')" placeholder="{{ __('messages.players.school_ph') }}" />
             <div class="space-y-1.5">
                 <label class="block text-xs font-semibold uppercase tracking-wide text-navy">{{ __('messages.players.medical') }}</label>
                 <textarea wire:model="medicalNotes" rows="2" aria-label="Medical notes"
