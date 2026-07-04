@@ -5,6 +5,7 @@ use App\Models\Attendance;
 use App\Models\AuditLog;
 use App\Models\Child;
 use App\Models\Coach;
+use App\Models\CoachSession;
 use App\Models\Enrollment;
 use App\Models\Role;
 use App\Models\Schedule;
@@ -152,4 +153,36 @@ it('filters students with only a from-date bound', function () {
         ->set('filterDateFrom', '2026-06-01')
         ->assertSee('Recent Child')
         ->assertDontSee('Old Child');
+});
+
+it('filters coach sessions by date range', function () {
+    $inRangeCoachUser = User::factory()->withRole('coach')->approved()->create(['name' => 'In Range Coach']);
+    $inRangeCoach = Coach::factory()->create(['user_id' => $inRangeCoachUser->id]);
+
+    $outRangeCoachUser = User::factory()->withRole('coach')->approved()->create(['name' => 'Out Range Coach']);
+    $outRangeCoach = Coach::factory()->create(['user_id' => $outRangeCoachUser->id]);
+
+    CoachSession::create([
+        'schedule_id'   => $this->schedule->id,
+        'coach_id'      => $inRangeCoach->id,
+        'session_date'  => '2026-06-15',
+        'role'          => 'primary',
+        'checked_in_at' => now(),
+    ]);
+
+    CoachSession::create([
+        'schedule_id'   => $this->schedule->id,
+        'coach_id'      => $outRangeCoach->id,
+        'session_date'  => '2026-05-01',
+        'role'          => 'primary',
+        'checked_in_at' => now(),
+    ]);
+
+    Livewire::actingAs($this->admin)
+        ->test(Attendances::class)
+        ->set('activeTab', 'coaches')
+        ->set('filterDateFrom', '2026-06-01')
+        ->set('filterDateTo', '2026-06-30')
+        ->assertSee('In Range Coach')
+        ->assertDontSee('Out Range Coach');
 });
