@@ -71,11 +71,11 @@
                     {{-- ── Step 1: Name + City ── --}}
                     @if ($step === 1)
                         <div class="space-y-5">
-                            <x-input wire:model="name" autocomplete="off"
+                            <x-input wire:model="name" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')"
                                      label="{{ __('messages.admin.locations.label_name') }}"
                                      placeholder="e.g. Pakubuwono Court"
                                      required :error="$errors->first('name')" />
-                            <x-input wire:model="city" autocomplete="off"
+                            <x-input wire:model="city" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')"
                                      label="{{ __('messages.admin.locations.label_city') }}"
                                      placeholder="Jakarta"
                                      required :error="$errors->first('city')" />
@@ -99,11 +99,11 @@
                     {{-- ── Step 2: Address + Maps + Status ── --}}
                     @elseif ($step === 2)
                         <div class="space-y-5">
-                            <x-input wire:model="address" autocomplete="off"
+                            <x-input wire:model="address" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')"
                                      label="{{ __('messages.admin.locations.label_address') }}"
                                      placeholder="Full street address"
                                      required :error="$errors->first('address')" />
-                            <x-input wire:model="maps_url" autocomplete="off"
+                            <x-input wire:model="maps_url" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')"
                                      label="{{ __('messages.admin.locations.label_maps') }}"
                                      placeholder="https://maps.google.com/..."
                                      :error="$errors->first('maps_url')" />
