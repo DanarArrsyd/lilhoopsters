@@ -139,6 +139,8 @@ class Attendances extends Component
 
     private function exportCoaches()
     {
+        CoachSession::autoCloseStale();
+
         $rows = CoachSession::with(['coach.user', 'schedule.program', 'schedule.location'])
             ->when($this->search, fn($q) => $q->whereHas('coach.user', fn($u) => $u->where('name', 'like', "%{$this->search}%")))
             ->when($this->filterDateFrom, fn($q) => $q->whereDate('session_date', '>=', $this->filterDateFrom))
