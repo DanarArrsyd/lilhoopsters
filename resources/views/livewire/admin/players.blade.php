@@ -33,6 +33,7 @@
                         <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.players.col_gender') }}</th>
                         <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.players.col_jersey') }}</th>
                         <th class="text-left py-3 px-4 text-xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.players.col_status') }}</th>
+                        <th class="py-3 px-4"></th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-line">
@@ -69,10 +70,15 @@
                             <td class="py-3 px-4">
                                 <x-badge :status="$player->status">{{ __('messages.status.'.$player->status) }}</x-badge>
                             </td>
+                            <td class="py-3 px-4 text-right">
+                                <x-btn variant="secondary" size="sm" wire:click="openLtv({{ $player->id }})">
+                                    View
+                                </x-btn>
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="py-2">
+                            <td colspan="7" class="py-2">
                                 <x-empty-state :title="__('messages.admin.players.empty_title')" :description="__('messages.admin.players.empty_desc')" />
                             </td>
                         </tr>
@@ -86,6 +92,48 @@
             </div>
         @endif
     </x-card>
+
+    @if ($showLtv)
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-navy/40" wire:click="closeLtv"></div>
+        <div class="relative bg-surface rounded-2xl border border-line shadow-xl w-full max-w-2xl max-h-[85vh] overflow-y-auto">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-line">
+                <div>
+                    <h3 class="text-lg font-extrabold uppercase tracking-tight text-navy">{{ $ltvChild?->name }}</h3>
+                    <p class="text-xs text-muted">{{ $ltvChild?->parent?->name }}</p>
+                </div>
+                <button wire:click="closeLtv" class="text-muted hover:text-navy p-1 leading-none">&#x2715;</button>
+            </div>
+
+            <div class="px-6 py-4 border-b border-line">
+                <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">Total Lifetime Spend</p>
+                <p class="text-xl font-extrabold text-navy leading-none tracking-tight mt-1.5">Rp {{ number_format($ltvTotal, 0, ',', '.') }}</p>
+            </div>
+
+            <div class="p-6">
+                <p class="text-[10px] font-bold uppercase tracking-widest text-faint mb-3">Transaction History</p>
+                @if ($ltvTransactions->isEmpty())
+                    <p class="text-center text-sm text-muted py-6">No transactions yet</p>
+                @else
+                    <div class="divide-y divide-line">
+                        @foreach ($ltvTransactions as $t)
+                            <div class="py-3 flex items-center justify-between gap-3">
+                                <div class="min-w-0">
+                                    <p class="text-sm font-semibold text-ink truncate">{{ $t->package?->name ?? '—' }}</p>
+                                    <p class="text-[11px] text-faint">{{ $t->created_at->format('d M Y') }}</p>
+                                </div>
+                                <div class="text-right shrink-0">
+                                    <p class="text-sm font-bold text-navy">Rp {{ number_format($t->amount, 0, ',', '.') }}</p>
+                                    <x-badge :status="$t->status">{{ ucfirst($t->status) }}</x-badge>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+    @endif
 
     </div>{{-- /max-w-6xl --}}
 </div>

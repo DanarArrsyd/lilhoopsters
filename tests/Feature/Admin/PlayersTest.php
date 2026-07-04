@@ -2,7 +2,9 @@
 
 use App\Livewire\Admin\Players;
 use App\Models\Child;
+use App\Models\Package;
 use App\Models\Role;
+use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -71,4 +73,57 @@ it('shows player status badge', function () {
         ->test(Players::class)
         ->assertSee('Active Kid')
         ->assertSee('active');
+});
+
+it('opens the ltv modal and shows total lifetime spend', function () {
+    $child = Child::factory()->create(['name' => 'LTV Test Child']);
+    $package = Package::factory()->regular()->create();
+
+    Transaction::factory()->create([
+        'child_id'   => $child->id,
+        'package_id' => $package->id,
+        'amount'     => 500000,
+        'status'     => 'paid',
+    ]);
+    Transaction::factory()->create([
+        'child_id'   => $child->id,
+        'package_id' => $package->id,
+        'amount'     => 300000,
+        'status'     => 'paid',
+    ]);
+    Transaction::factory()->create([
+        'child_id'   => $child->id,
+        'package_id' => $package->id,
+        'amount'     => 200000,
+        'status'     => 'pending',
+    ]);
+
+    Livewire::actingAs($this->admin)
+        ->test(Players::class)
+        ->call('openLtv', $child->id)
+        ->assertSet('showLtv', true)
+        ->assertSet('ltvChildId', $child->id)
+        ->assertSee('Rp 800.000') // 500,000 + 300,000 paid only, pending excluded
+        ->assertSee($package->name);
+});
+
+it('shows empty state when a child has no transactions', function () {
+    $child = Child::factory()->create(['name' => 'No Transactions Child']);
+
+    Livewire::actingAs($this->admin)
+        ->test(Players::class)
+        ->call('openLtv', $child->id)
+        ->assertSee('No transactions yet');
+});
+
+it('closes the ltv modal', function () {
+    $child = Child::factory()->create();
+
+    Livewire::actingAs($this->admin)
+        ->test(Players::class)
+        ->call('openLtv', $child->id)
+        ->assertSet('showLtv', true)
+        ->call('closeLtv')
+        ->assertSet('showLtv', false)
+        ->assertSet('ltvChildId', null);
 });
