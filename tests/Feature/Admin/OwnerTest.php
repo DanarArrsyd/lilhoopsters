@@ -216,11 +216,12 @@ it('shows the attendance tab with overall rate and breakdowns', function () {
     Attendance::factory()->present()->create(['schedule_id' => $schedule->id, 'attended_at' => now()]);
     Attendance::factory()->absent()->create(['schedule_id' => $schedule->id, 'attended_at' => now()]);
 
-    Livewire::actingAs($this->admin)
+    $component = Livewire::actingAs($this->admin)
         ->test(Owner::class)
         ->assertSee('Junior League')
-        ->assertSee('Cikarang Court')
-        ->assertSee('75%'); // 3 present / 4 total
+        ->assertSee('Cikarang Court');
+
+    expect($component->viewData('attendance')['overall'])->toBe(75.0); // 3 present / 4 total
 });
 
 it('excludes make-up attendances from the attendance rate', function () {
