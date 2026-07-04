@@ -45,22 +45,27 @@
     @endif
 
     {{-- Shared filters --}}
-    <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-4">
-        <x-input wire:model.live.debounce.300ms="search"
-                 :placeholder="$activeTab === 'coaches' ? 'Search by coach name...' : 'Search by child name...'" />
-        <div class="flex items-center gap-2">
-            <x-input type="date" wire:model.live="filterDateFrom" class="flex-1" />
-            <span class="text-faint text-xs shrink-0">–</span>
-            <x-input type="date" wire:model.live="filterDateTo" class="flex-1" />
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+            <x-input wire:model.live.debounce.300ms="search" class="sm:w-64"
+                     :placeholder="$activeTab === 'coaches' ? 'Search by coach name...' : 'Search by child name...'" />
+            <div class="flex items-center gap-2">
+                <x-input type="date" wire:model.live="filterDateFrom" class="sm:w-40" />
+                <span class="text-faint text-xs shrink-0">–</span>
+                <x-input type="date" wire:model.live="filterDateTo" class="sm:w-40" />
+                <x-select wire:model.live="filterSchedule" class="sm:w-44">
+                    <option value="">{{ __('messages.admin.attendances.all_schedules') }}</option>
+                    @foreach ($schedules as $s)
+                        <option value="{{ $s->id }}">{{ $s->program->name }} – {{ ucfirst($s->day_of_week) }}</option>
+                    @endforeach
+                </x-select>
+            </div>
         </div>
-        <x-select wire:model.live="filterSchedule">
-            <option value="">{{ __('messages.admin.attendances.all_schedules') }}</option>
-            @foreach ($schedules as $s)
-                <option value="{{ $s->id }}">{{ $s->program->name }} – {{ ucfirst($s->day_of_week) }}</option>
-            @endforeach
-        </x-select>
-        <x-btn variant="secondary" wire:click="export" wire:loading.attr="disabled" wire:target="export">
-            {{ __('messages.common.export_excel') }}
+        <x-btn variant="secondary" wire:click="export" wire:loading.attr="disabled" wire:target="export"
+               class="!px-2.5 shrink-0" title="{{ __('messages.common.export_excel') }}" aria-label="{{ __('messages.common.export_excel') }}">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
+            </svg>
         </x-btn>
     </div>
 
