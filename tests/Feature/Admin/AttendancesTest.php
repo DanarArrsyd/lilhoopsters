@@ -118,3 +118,38 @@ it('records an audit log when an attendance record is overridden', function () {
     expect($log->meta['old_status'])->toBe('present');
     expect($log->meta['new_status'])->toBe('no_show');
 });
+
+it('filters students by date range', function () {
+    $inRange  = Child::factory()->create(['name' => 'In Range Child']);
+    $outRange = Child::factory()->create(['name' => 'Out Range Child']);
+
+    Attendance::factory()->present()->create([
+        'child_id'    => $inRange->id,
+        'attended_at' => '2026-06-15',
+    ]);
+    Attendance::factory()->present()->create([
+        'child_id'    => $outRange->id,
+        'attended_at' => '2026-05-01',
+    ]);
+
+    Livewire::actingAs($this->admin)
+        ->test(Attendances::class)
+        ->set('filterDateFrom', '2026-06-01')
+        ->set('filterDateTo', '2026-06-30')
+        ->assertSee('In Range Child')
+        ->assertDontSee('Out Range Child');
+});
+
+it('filters students with only a from-date bound', function () {
+    $recent = Child::factory()->create(['name' => 'Recent Child']);
+    $old    = Child::factory()->create(['name' => 'Old Child']);
+
+    Attendance::factory()->present()->create(['child_id' => $recent->id, 'attended_at' => '2026-06-15']);
+    Attendance::factory()->present()->create(['child_id' => $old->id, 'attended_at' => '2026-01-01']);
+
+    Livewire::actingAs($this->admin)
+        ->test(Attendances::class)
+        ->set('filterDateFrom', '2026-06-01')
+        ->assertSee('Recent Child')
+        ->assertDontSee('Old Child');
+});

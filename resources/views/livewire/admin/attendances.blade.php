@@ -48,7 +48,11 @@
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
         <x-input wire:model.live.debounce.300ms="search"
                  :placeholder="$activeTab === 'coaches' ? 'Search by coach name...' : 'Search by child name...'" />
-        <x-input type="date" wire:model.live="filterDate" />
+        <div class="flex items-center gap-2">
+            <x-input type="date" wire:model.live="filterDateFrom" class="flex-1" />
+            <span class="text-faint text-xs shrink-0">–</span>
+            <x-input type="date" wire:model.live="filterDateTo" class="flex-1" />
+        </div>
         <x-select wire:model.live="filterSchedule">
             <option value="">{{ __('messages.admin.attendances.all_schedules') }}</option>
             @foreach ($schedules as $s)

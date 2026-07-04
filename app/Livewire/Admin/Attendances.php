@@ -16,7 +16,8 @@ class Attendances extends Component
 
     public string $activeTab    = 'students';
     public string $search      = '';
-    public string $filterDate  = '';
+    public string $filterDateFrom = '';
+    public string $filterDateTo   = '';
     public string $filterStatus = '';
     public int|string $filterSchedule = '';
 
@@ -28,7 +29,8 @@ class Attendances extends Component
 
     public function updatedActiveTab(): void    { $this->resetPage(); $this->search = ''; }
     public function updatedSearch(): void       { $this->resetPage(); }
-    public function updatedFilterDate(): void   { $this->resetPage(); }
+    public function updatedFilterDateFrom(): void { $this->resetPage(); }
+    public function updatedFilterDateTo(): void   { $this->resetPage(); }
     public function updatedFilterStatus(): void { $this->resetPage(); }
     public function updatedFilterSchedule(): void { $this->resetPage(); }
 
@@ -87,7 +89,8 @@ class Attendances extends Component
                 ->when($this->search, fn($q) =>
                     $q->whereHas('coach.user', fn($u) => $u->where('name', 'like', "%{$this->search}%"))
                 )
-                ->when($this->filterDate, fn($q) => $q->whereDate('session_date', $this->filterDate))
+                ->when($this->filterDateFrom, fn($q) => $q->whereDate('session_date', '>=', $this->filterDateFrom))
+                ->when($this->filterDateTo,   fn($q) => $q->whereDate('session_date', '<=', $this->filterDateTo))
                 ->when($this->filterSchedule, fn($q) => $q->where('schedule_id', $this->filterSchedule))
                 ->latest('session_date')
                 ->paginate(20);
@@ -104,16 +107,21 @@ class Attendances extends Component
             ->when($this->search, function ($q) {
                 $q->whereHas('child', fn($c) => $c->where('name', 'like', "%{$this->search}%"));
             })
-            ->when($this->filterDate, fn($q) => $q->whereDate('attended_at', $this->filterDate))
+            ->when($this->filterDateFrom, fn($q) => $q->whereDate('attended_at', '>=', $this->filterDateFrom))
+            ->when($this->filterDateTo,   fn($q) => $q->whereDate('attended_at', '<=', $this->filterDateTo))
             ->when($this->filterStatus, fn($q) => $q->where('status', $this->filterStatus))
             ->when($this->filterSchedule, fn($q) => $q->where('schedule_id', $this->filterSchedule))
             ->latest('attended_at');
 
+        $dateScope = fn ($q) => $q
+            ->when($this->filterDateFrom, fn($q) => $q->whereDate('attended_at', '>=', $this->filterDateFrom))
+            ->when($this->filterDateTo,   fn($q) => $q->whereDate('attended_at', '<=', $this->filterDateTo));
+
         $stats = [
-            'total'   => Attendance::when($this->filterDate, fn($q) => $q->whereDate('attended_at', $this->filterDate))->count(),
-            'present' => Attendance::when($this->filterDate, fn($q) => $q->whereDate('attended_at', $this->filterDate))->where('status', 'present')->count(),
-            'absent'  => Attendance::when($this->filterDate, fn($q) => $q->whereDate('attended_at', $this->filterDate))->where('status', 'no_show')->count(),
-            'sick'    => Attendance::when($this->filterDate, fn($q) => $q->whereDate('attended_at', $this->filterDate))->whereIn('status', ['sick', 'permit'])->count(),
+            'total'   => $dateScope(Attendance::query())->count(),
+            'present' => $dateScope(Attendance::query())->where('status', 'present')->count(),
+            'absent'  => $dateScope(Attendance::query())->where('status', 'no_show')->count(),
+            'sick'    => $dateScope(Attendance::query())->whereIn('status', ['sick', 'permit'])->count(),
         ];
 
         return view('livewire.admin.attendances', [
