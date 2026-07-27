@@ -24,17 +24,28 @@ document.addEventListener('alpine:init', () => {
         // location out of 30 by scrolling is the thing admins complain about.
         searchThreshold: config.searchThreshold ?? 8,
 
-        init() {
-            // Progressive enhancement switch: CSS keeps the native select visible
-            // and the custom trigger hidden until this flag lands, so a JS failure
-            // degrades to a plain working <select> instead of an unusable field.
-            this.$root.dataset.enhanced = 'true';
+        // x-ref bindings are registered while Alpine walks the subtree, so during
+        // init() they may not exist yet — the ordering differs between pages and
+        // between first render and a Livewire morph. Querying the DOM works at
+        // any point in the walk, so the refs are only ever a fast path.
+        get nativeEl() {
+            return this.$refs.native || this.$root.querySelector('select.hoop-native');
+        },
 
-            // x-ref registration happens during the subtree walk, so on some
-            // init orderings the ref isn't there yet. Bail rather than throw —
-            // the sweep below re-inits anything left unflagged.
-            if (!this.$refs.native) {
-                delete this.$root.dataset.enhanced;
+        get triggerEl() {
+            return this.$refs.trigger || this.$root.querySelector('.hoop-trigger');
+        },
+
+        init() {
+            // Re-entrant: the sweep below can call this again on a component
+            // Alpine already built, and a second observer would double every
+            // refresh.
+            this.observer?.disconnect();
+
+            const native = this.nativeEl;
+
+            if (!native) {
+                console.error('[hoopSelect] no native <select> inside the wrapper; leaving it unenhanced', this.$root);
                 return;
             }
 
@@ -44,12 +55,17 @@ document.addEventListener('alpine:init', () => {
             // type, locations by search…). Mirror those edits instead of caching
             // a stale list from init.
             this.observer = new MutationObserver(() => this.refresh());
-            this.observer.observe(this.$refs.native, {
+            this.observer.observe(native, {
                 childList: true, subtree: true, characterData: true,
                 attributes: true, attributeFilter: ['value', 'disabled'],
             });
 
-            this.$refs.native.addEventListener('change', () => this.refresh());
+            native.addEventListener('change', () => this.refresh());
+
+            // Progressive enhancement switch, set last: CSS shows the native
+            // select until this lands, so it flips only once the listbox is
+            // actually wired up. A failure above leaves a plain working <select>.
+            this.$root.dataset.enhanced = 'true';
         },
 
         destroy() {
@@ -58,7 +74,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         refresh() {
-            const native = this.$refs.native;
+            const native = this.nativeEl;
             if (!native) return;
 
             this.options = Array.from(native.options).map((o, i) => ({
@@ -74,7 +90,7 @@ document.addEventListener('alpine:init', () => {
             this.value = native.value;
         },
 
-        get isDisabled() { return this.$refs.native?.disabled || config.loading === true; },
+        get isDisabled() { return this.nativeEl?.disabled || config.loading === true; },
 
         get selected() { return this.options.find(o => o.value === this.value) || null; },
 
@@ -131,13 +147,14 @@ document.addEventListener('alpine:init', () => {
             this.open = false;
             this.activeIndex = -1;
             this.detachReposition();
-            if (refocus) this.$refs.trigger?.focus();
+            if (refocus) this.triggerEl?.focus();
         },
 
         choose(option) {
             if (!option || option.disabled) return;
 
-            const native = this.$refs.native;
+            const native = this.nativeEl;
+            if (!native) return;
             native.value = option.value;
             this.value = option.value;
 
@@ -196,7 +213,7 @@ document.addEventListener('alpine:init', () => {
         // <body> because several of these selects live inside modal cards with
         // `overflow-hidden`, which would otherwise clip the popup.
         position() {
-            const trigger = this.$refs.trigger;
+            const trigger = this.triggerEl;
             const panel   = this.$refs.panel;
             if (!trigger || !panel) return;
 
@@ -238,7 +255,7 @@ document.addEventListener('alpine:init', () => {
         onDocumentPointer(event) {
             if (!this.open) return;
             const t = event.target;
-            if (this.$refs.trigger?.contains(t) || this.$refs.panel?.contains(t)) return;
+            if (this.triggerEl?.contains(t) || this.$refs.panel?.contains(t)) return;
             this.close(false);
         },
     }));
@@ -254,20 +271,29 @@ document.addEventListener('alpine:init', () => {
 // explain it. This re-walks anything still unflagged after the page settles and
 // after every Livewire update, and says so in the console when it has to.
 document.addEventListener('DOMContentLoaded', () => {
+    let warned = false;
+
     const sweep = () => {
         const pending = document.querySelectorAll('[x-data^="hoopSelect"]:not([data-enhanced])');
         if (!pending.length || !window.Alpine) return;
 
         pending.forEach((el) => {
             try {
-                window.Alpine.initTree(el);
+                // Alpine may have built the component already and had init bail
+                // out — initTree would be a no-op there, so re-run init directly.
+                if (el._x_dataStack) {
+                    window.Alpine.$data(el).init?.();
+                } else {
+                    window.Alpine.initTree(el);
+                }
             } catch (error) {
                 console.error('[hoopSelect] could not initialise a select; it stays a native <select>', el, error);
             }
         });
 
         const stillPending = document.querySelectorAll('[x-data^="hoopSelect"]:not([data-enhanced])').length;
-        if (stillPending) {
+        if (stillPending && !warned) {
+            warned = true;   // once per page — this used to fire on every commit
             console.warn(`[hoopSelect] ${stillPending} select(s) left un-enhanced after sweep`);
         }
     };
