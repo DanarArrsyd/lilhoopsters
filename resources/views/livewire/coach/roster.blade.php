@@ -3,16 +3,16 @@
 
     {{-- Compact filters --}}
     <div class="flex flex-col sm:flex-row gap-2 mb-4">
-        <select wire:model.live="scheduleId"
-                class="flex-1 rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-navy/15 focus:border-navy appearance-none bg-no-repeat"
-                style="background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E\");background-position:right 0.75rem center;background-size:1rem;">
-            <option value="">{{ __('messages.coach.roster.select_schedule') }}</option>
-            @foreach ($schedules as $s)
-                <option value="{{ $s->id }}">
-                    {{ ucfirst($s->day_of_week) }} · {{ \Carbon\Carbon::parse($s->start_time)->format('H:i') }} · {{ $s->program->name }}
-                </option>
-            @endforeach
-        </select>
+        <div class="flex-1">
+            <x-select wire:model.live="scheduleId">
+                <option value="">{{ __('messages.coach.roster.select_schedule') }}</option>
+                @foreach ($schedules as $s)
+                    <option value="{{ $s->id }}">
+                        {{ ucfirst($s->day_of_week) }} · {{ \Carbon\Carbon::parse($s->start_time)->format('H:i') }} · {{ $s->program->name }}
+                    </option>
+                @endforeach
+            </x-select>
+        </div>
         <input type="date" wire:model.live="date"
                class="sm:w-44 rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-navy/15 focus:border-navy">
     </div>

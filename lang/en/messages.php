@@ -63,6 +63,8 @@ return [
         'all'        => 'All',
         'loading'    => 'Loading…',
         'search'     => 'Search',
+        'filter_options' => 'Filter options…',
+        'no_options'     => 'No matching options',
         'create'     => 'Create',
         'creating'   => 'Creating...',
         'next'       => 'Next',

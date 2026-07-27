@@ -343,12 +343,16 @@
                                     {{ $lead->trial_date ? $lead->trial_date->format('d M Y') : '—' }}
                                 </td>
                                 <td class="py-3 px-4">
-                                    <select wire:change="setStatus({{ $lead->id }}, $event.target.value)"
-                                            class="text-xs font-semibold rounded-lg border-0 py-1 pl-2 pr-7 cursor-pointer focus:ring-2 focus:ring-navy/20 {{ $statusMeta[$lead->status]['cls'] }}">
+                                    <x-select variant="chip"
+                                              wire:key="lead-status-{{ $lead->id }}"
+                                              wire:change="setStatus({{ $lead->id }}, $event.target.value)"
+                                              :trigger-class="$statusMeta[$lead->status]['cls']"
+                                              :searchable="false"
+                                              aria-label="{{ __('messages.admin.leads.label_status') }}">
                                         @foreach ($statusMeta as $key => $meta)
                                             <option value="{{ $key }}" @selected($lead->status === $key)>{{ $meta['label'] }}</option>
                                         @endforeach
-                                    </select>
+                                    </x-select>
                                 </td>
                                 <td class="py-3 px-4">
                                     <div class="flex items-center gap-2 justify-end">

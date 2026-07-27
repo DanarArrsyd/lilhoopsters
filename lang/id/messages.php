@@ -63,6 +63,8 @@ return [
         'all'        => 'Semua',
         'loading'    => 'Memuat…',
         'search'     => 'Cari',
+        'filter_options' => 'Saring pilihan…',
+        'no_options'     => 'Tidak ada pilihan yang cocok',
         'create'     => 'Buat',
         'creating'   => 'Membuat...',
         'next'       => 'Lanjut',

@@ -28,15 +28,13 @@
 
                 <div class="grid grid-cols-2 gap-4">
                     {{-- Type --}}
-                    <div class="space-y-1.5 col-span-2 sm:col-span-1">
-                        <label class="block text-xs font-semibold uppercase tracking-wide text-navy">{{ __('messages.admin.payment_accounts.label_type') }} <span class="text-[#B91C1C]">*</span></label>
-                        <select wire:model="type"
-                                class="block w-full rounded-xl border border-line bg-surface px-3.5 py-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-navy/15 focus:border-navy appearance-none bg-no-repeat"
-                                style="background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E\");background-position:right 0.75rem center;background-size:1rem;">
+                    <div class="col-span-2 sm:col-span-1">
+                        <x-select wire:model="type" required
+                                  label="{{ __('messages.admin.payment_accounts.label_type') }}"
+                                  :error="$errors->first('type')">
                             <option value="bank">{{ __('messages.admin.payment_accounts.type_bank') }}</option>
                             <option value="ewallet">{{ __('messages.admin.payment_accounts.type_ewallet') }}</option>
-                        </select>
-                        @error('type') <p class="text-xs text-[#B91C1C]">{{ $message }}</p> @enderror
+                        </x-select>
                     </div>
 
                     {{-- Bank / Wallet Name --}}
