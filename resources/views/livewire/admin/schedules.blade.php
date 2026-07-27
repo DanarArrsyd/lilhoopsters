@@ -70,9 +70,9 @@
 
                     {{-- ── Step 1: Location + Type + Program/Coach ── --}}
                     @if ($step === 1)
-                        <div class="space-y-5">
+                        <div class="space-y-5" wire:key="schedule-step-1">
 
-                            <x-select wire:model="location_id"
+                            <x-select wire:key="schedule-location" wire:model="location_id"
                                       label="{{ __('messages.admin.schedules.label_location') }}"
                                       :error="$errors->first('location_id')">
                                 <option value="">{{ __('messages.admin.schedules.select_location') }}</option>
@@ -119,7 +119,7 @@
 
                             {{-- Program: only for Regular --}}
                             @if ($type !== 'private')
-                                <x-select wire:model="program_id"
+                                <x-select wire:key="schedule-program" wire:model="program_id"
                                           label="{{ __('messages.admin.schedules.label_program') }}"
                                           :error="$errors->first('program_id')">
                                     <option value="">{{ __('messages.admin.schedules.select_program') }}</option>
@@ -158,9 +158,9 @@
 
                     {{-- ── Step 2: Day + Time + Capacity + Active ── --}}
                     @elseif ($step === 2)
-                        <div class="space-y-5">
+                        <div class="space-y-5" wire:key="schedule-step-2">
 
-                            <x-select wire:model="day_of_week"
+                            <x-select wire:key="schedule-day" wire:model="day_of_week"
                                       label="{{ __('messages.admin.schedules.label_day') }}"
                                       :error="$errors->first('day_of_week')">
                                 <option value="">{{ __('messages.admin.schedules.select_day') }}</option>

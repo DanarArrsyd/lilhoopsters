@@ -70,7 +70,7 @@
 
                     {{-- ── Step 1: Name + Age Range ── --}}
                     @if ($step === 1)
-                        <div class="space-y-5">
+                        <div class="space-y-5" wire:key="program-step-1">
                             <x-input wire:model="name"
                                      label="{{ __('messages.admin.programs.label_name') }}"
                                      placeholder="e.g. Junior, Rookie, MVP"
@@ -103,7 +103,7 @@
 
                     {{-- ── Step 2: Description + Active ── --}}
                     @elseif ($step === 2)
-                        <div class="space-y-5">
+                        <div class="space-y-5" wire:key="program-step-2">
                             <div class="space-y-1.5">
                                 <label class="block text-xs font-semibold uppercase tracking-wide text-navy">{{ __('messages.admin.programs.label_desc') }}</label>
                                 <textarea wire:model="description" rows="4"

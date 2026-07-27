@@ -42,7 +42,7 @@
                     What's your full name?
                 </h1>
 
-                <input
+                <input wire:key="rw-name"
                     wire:model="name"
                     type="text"
                     placeholder="e.g. Budi Santoso"
@@ -101,7 +101,7 @@
                     What's your email address?
                 </h1>
 
-                <input
+                <input wire:key="rw-email"
                     wire:model="email"
                     type="email"
                     placeholder="you@example.com"
@@ -150,7 +150,7 @@
                     {{-- Password --}}
                     <div x-data="{ show: false }">
                         <div class="relative">
-                            <input
+                            <input wire:key="rw-password"
                                 wire:model="password"
                                 :type="show ? 'text' : 'password'"
                                 placeholder="Password"
@@ -180,7 +180,7 @@
                     {{-- Confirm Password --}}
                     <div x-data="{ show: false }">
                         <div class="relative">
-                            <input
+                            <input wire:key="rw-password-confirm"
                                 wire:model="password_confirmation"
                                 :type="show ? 'text' : 'password'"
                                 placeholder="Confirm password"
@@ -236,7 +236,7 @@
                 </h1>
                 <p class="text-sm text-gray-400 mb-8">Start with country code, no + or leading 0.</p>
 
-                <input
+                <input wire:key="rw-whatsapp"
                     wire:model="whatsapp_number"
                     type="tel"
                     placeholder="e.g. 628123456789"
@@ -280,7 +280,7 @@
                     What's your home address?
                 </h1>
 
-                <textarea
+                <textarea wire:key="rw-address"
                     wire:model="address"
                     rows="2"
                     placeholder="e.g. Jl. Sudirman No. 1, Jakarta"
@@ -324,7 +324,7 @@
                     What's your occupation?
                 </h1>
 
-                <input
+                <input wire:key="rw-occupation"
                     wire:model="occupation"
                     type="text"
                     placeholder="e.g. Business Owner, Teacher..."
@@ -377,7 +377,7 @@
             </svg>
         </button>
         <button
-            wire:click="{{ $step < $totalSteps ? 'nextStep' : 'submit' }}"
+            wire:key="rw-primary-{{ $step < $totalSteps ? 'next' : 'submit' }}" wire:click="{{ $step < $totalSteps ? 'nextStep' : 'submit' }}"
             class="w-8 h-8 flex items-center justify-center rounded-lg border border-navy text-navy hover:bg-navy hover:text-white transition-colors duration-150"
         >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

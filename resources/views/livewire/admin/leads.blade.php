@@ -89,7 +89,7 @@
 
                     {{-- ── Step 1: Contact + Source ── --}}
                     @if ($step === 1)
-                        <div class="space-y-5">
+                        <div class="space-y-5" wire:key="lead-step-1">
                             <div class="grid grid-cols-2 gap-4">
                                 <x-input wire:model="parent_name"
                                          label="{{ __('messages.admin.leads.label_parent_name') }}"
@@ -146,7 +146,7 @@
 
                     {{-- ── Step 2: Interest & Status ── --}}
                     @if ($step === 2)
-                        <div class="space-y-5">
+                        <div class="space-y-5" wire:key="lead-step-2">
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="space-y-1.5">
                                     <label class="block text-xs font-semibold uppercase tracking-wide text-navy">
@@ -239,11 +239,11 @@
                 {{-- Footer --}}
                 <div class="px-6 py-4 border-t border-line flex gap-3">
                     @if ($step === 1)
-                        <button wire:click="$set('showModal', false)"
+                        <button wire:key="lead-footer-cancel" wire:click="$set('showModal', false)"
                                 class="px-5 py-2.5 text-sm font-semibold text-muted bg-off border border-line rounded-xl hover:bg-line/40 transition-colors">
                             {{ __('messages.common.cancel') }}
                         </button>
-                        <button wire:click="nextStep"
+                        <button wire:key="lead-footer-next" wire:click="nextStep"
                                 class="flex-1 flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold text-off bg-navy rounded-xl hover:bg-navy/90 transition-colors">
                             {{ __('messages.common.next') }}
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -251,14 +251,14 @@
                             </svg>
                         </button>
                     @else
-                        <button wire:click="prevStep"
+                        <button wire:key="lead-footer-prev" wire:click="prevStep"
                                 class="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-muted bg-off border border-line rounded-xl hover:bg-line/40 transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                             </svg>
                             {{ __('messages.common.back') }}
                         </button>
-                        <button wire:click="save" wire:loading.attr="disabled"
+                        <button wire:key="lead-footer-save" wire:click="save" wire:loading.attr="disabled"
                                 class="flex-1 flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold text-off bg-navy rounded-xl hover:bg-navy/90 disabled:opacity-50 transition-colors">
                             <svg wire:loading.remove wire:target="save" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>

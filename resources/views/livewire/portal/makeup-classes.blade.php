@@ -59,7 +59,7 @@
                 <div class="space-y-2">
                     @foreach ($approvedLeaves as $lr)
                         <button type="button"
-                                wire:click="$set('leaveRequestId', {{ $lr->id }})"
+                                wire:key="mk-leave-{{ $lr->id }}" wire:click="$set('leaveRequestId', {{ $lr->id }})"
                                 @class([
                                     'w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all text-left',
                                     'border-navy bg-navy/5'    => $leaveRequestId == $lr->id,
@@ -99,7 +99,7 @@
                     <div class="space-y-2">
                         @foreach ($schedules as $s)
                             <button type="button"
-                                    wire:click="$set('targetScheduleId', {{ $s->id }})"
+                                    wire:key="mk-sched-{{ $s->id }}" wire:click="$set('targetScheduleId', {{ $s->id }})"
                                     @class([
                                         'w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all text-left',
                                         'border-navy bg-navy/5'    => $targetScheduleId == $s->id,
@@ -127,7 +127,7 @@
 
                 <div>
                     <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">{{ __('messages.makeup.col_date') }}</p>
-                    <x-input type="date" wire:model="targetDate"
+                    <x-input wire:key="mk-target-date" type="date" wire:model="targetDate"
                              min="{{ now()->toDateString() }}"
                              :error="$errors->first('targetDate')" />
                 </div>
@@ -183,7 +183,7 @@
         {{-- ── Footer nav ── --}}
         <div class="mt-6">
             @if ($step < 3)
-                <button wire:click="nextStep"
+                <button wire:key="mk-footer-nextstep" wire:click="nextStep"
                         class="inline-flex items-center gap-2 bg-navy text-white text-xs font-bold uppercase tracking-widest px-6 py-2.5 rounded-xl hover:bg-navy/90 active:scale-[0.97] transition-all duration-150">
                     {{ __('messages.common.next') }}
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -191,7 +191,7 @@
                     </svg>
                 </button>
             @else
-                <button wire:click="submit" wire:loading.attr="disabled"
+                <button wire:key="mk-footer-submit" wire:click="submit" wire:loading.attr="disabled"
                         class="inline-flex items-center gap-2 bg-[#15803D] text-white text-xs font-bold uppercase tracking-widest px-6 py-2.5 rounded-xl hover:bg-[#166534] active:scale-[0.97] transition-all duration-150 disabled:opacity-50">
                     <svg wire:loading.remove wire:target="submit" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>

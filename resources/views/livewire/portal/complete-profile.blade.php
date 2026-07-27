@@ -42,7 +42,7 @@
                     What's your full name?
                 </h1>
 
-                <input
+                <input wire:key="cp-name"
                     wire:model="name"
                     type="text"
                     placeholder="e.g. Budi Santoso"
@@ -87,7 +87,7 @@
                 </h1>
                 <p class="text-sm text-gray-400 mb-8">Start with country code, no + or leading 0.</p>
 
-                <input
+                <input wire:key="cp-whatsapp"
                     wire:model="whatsappNumber"
                     type="tel"
                     placeholder="e.g. 628123456789"
@@ -131,7 +131,7 @@
                     What's your home address?
                 </h1>
 
-                <textarea
+                <textarea wire:key="cp-address"
                     wire:model="address"
                     rows="2"
                     placeholder="e.g. Jl. Sudirman No. 1, Jakarta"
@@ -175,7 +175,7 @@
                     What's your occupation?
                 </h1>
 
-                <input
+                <input wire:key="cp-occupation"
                     wire:model="occupation"
                     type="text"
                     placeholder="e.g. Business Owner, Teacher..."
@@ -224,7 +224,7 @@
             </svg>
         </button>
         <button
-            wire:click="{{ $step < $totalSteps ? 'nextStep' : 'save' }}"
+            wire:key="cp-primary-{{ $step < $totalSteps ? 'next' : 'save' }}" wire:click="{{ $step < $totalSteps ? 'nextStep' : 'save' }}"
             class="w-8 h-8 flex items-center justify-center rounded-lg border border-navy text-navy hover:bg-navy hover:text-white transition-colors duration-150"
         >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

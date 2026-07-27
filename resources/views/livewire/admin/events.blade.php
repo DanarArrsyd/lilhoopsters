@@ -70,7 +70,7 @@
 
                     {{-- ── Step 1: Name + Dates + Location + Program ── --}}
                     @if ($step === 1)
-                        <div class="space-y-5">
+                        <div class="space-y-5" wire:key="event-step-1">
                             <x-input wire:model="name"
                                      label="{{ __('messages.admin.events.label_name') }}"
                                      placeholder="e.g. Summer Championship"
@@ -124,7 +124,7 @@
 
                     {{-- ── Step 2: Description + Active + Registration ── --}}
                     @elseif ($step === 2)
-                        <div class="space-y-5">
+                        <div class="space-y-5" wire:key="event-step-2">
 
                             {{-- Description --}}
                             <div class="space-y-1.5">

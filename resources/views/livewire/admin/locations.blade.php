@@ -70,7 +70,7 @@
 
                     {{-- ── Step 1: Name + City ── --}}
                     @if ($step === 1)
-                        <div class="space-y-5">
+                        <div class="space-y-5" wire:key="location-step-1">
                             <x-input wire:model="name" name="fld_{{ uniqid() }}" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly')"
                                      label="{{ __('messages.admin.locations.label_name') }}"
                                      placeholder="e.g. Pakubuwono Court"
@@ -98,7 +98,7 @@
 
                     {{-- ── Step 2: Address + Maps + Status ── --}}
                     @elseif ($step === 2)
-                        <div class="space-y-5">
+                        <div class="space-y-5" wire:key="location-step-2">
                             <x-input wire:model="address" name="fld_{{ uniqid() }}" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly')"
                                      label="{{ __('messages.admin.locations.label_address') }}"
                                      placeholder="Full street address"

@@ -56,7 +56,7 @@
             <div class="space-y-2">
                 @foreach ($children as $child)
                     <button type="button"
-                            wire:click="$set('selectedChildId', {{ $child->id }})"
+                            wire:key="lv-child-{{ $child->id }}" wire:click="$set('selectedChildId', {{ $child->id }})"
                             @class([
                                 'w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all text-left',
                                 'border-navy bg-navy/5'    => $selectedChildId == $child->id,
@@ -99,7 +99,7 @@
                         <div class="space-y-2">
                             @foreach ($enrollmentsByChild as $en)
                                 <button type="button"
-                                        wire:click="$set('enrollmentId', {{ $en->id }})"
+                                        wire:key="lv-enroll-{{ $en->id }}" wire:click="$set('enrollmentId', {{ $en->id }})"
                                         @class([
                                             'w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all text-left',
                                             'border-navy bg-navy/5'    => $enrollmentId == $en->id,
@@ -129,7 +129,7 @@
                 {{-- Date --}}
                 <div>
                     <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Leave Date</p>
-                    <x-input type="date" wire:model="leaveDate"
+                    <x-input wire:key="lv-date" type="date" wire:model="leaveDate"
                              min="{{ now()->subDays(7)->toDateString() }}"
                              max="{{ now()->toDateString() }}"
                              :error="$errors->first('leaveDate')" />
@@ -140,7 +140,7 @@
                 <div>
                     <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">Leave Type <span class="text-[#B91C1C]">*</span></p>
                     <div class="grid grid-cols-2 gap-3">
-                        <button type="button" wire:click="$set('type','sick')"
+                        <button type="button" wire:key="lv-type-sick" wire:click="$set('type','sick')"
                                 @class([
                                     'flex flex-col items-center gap-2 py-4 px-4 rounded-xl border-2 transition-all',
                                     'border-amber-500 bg-amber-50'       => $type === 'sick',
@@ -151,7 +151,7 @@
                             </svg>
                             <span class="text-sm font-semibold {{ $type === 'sick' ? 'text-amber-700' : 'text-muted' }}">{{ __('messages.leaves.type_sick') }}</span>
                         </button>
-                        <button type="button" wire:click="$set('type','permit')"
+                        <button type="button" wire:key="lv-type-permit" wire:click="$set('type','permit')"
                                 @class([
                                     'flex flex-col items-center gap-2 py-4 px-4 rounded-xl border-2 transition-all',
                                     'border-navy bg-navy/5'            => $type === 'permit',
@@ -234,7 +234,7 @@
                         {{ __('messages.leaves.reason') }}
                         <span class="text-faint font-normal normal-case tracking-normal">(optional)</span>
                     </label>
-                    <textarea wire:model="reason" rows="3"
+                    <textarea wire:key="lv-reason" wire:model="reason" rows="3"
                               class="block w-full rounded-xl border border-line bg-surface px-3.5 py-3 text-sm text-ink placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-navy/15 focus:border-navy resize-none"
                               placeholder="{{ __('messages.leaves.reason_ph') }}"></textarea>
                 </div>
@@ -255,7 +255,7 @@
         {{-- ── Footer nav ── --}}
         <div class="mt-6">
             @if ($step < 3)
-                <button wire:click="nextStep"
+                <button wire:key="lv-footer-nextstep" wire:click="nextStep"
                         class="inline-flex items-center gap-2 bg-navy text-white text-xs font-bold uppercase tracking-widest px-6 py-2.5 rounded-xl hover:bg-navy/90 active:scale-[0.97] transition-all duration-150">
                     {{ __('messages.common.next') }}
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -263,7 +263,7 @@
                     </svg>
                 </button>
             @else
-                <button wire:click="submit" wire:loading.attr="disabled"
+                <button wire:key="lv-footer-submit" wire:click="submit" wire:loading.attr="disabled"
                         class="inline-flex items-center gap-2 bg-[#15803D] text-white text-xs font-bold uppercase tracking-widest px-6 py-2.5 rounded-xl hover:bg-[#166534] active:scale-[0.97] transition-all duration-150 disabled:opacity-50">
                     <svg wire:loading.remove wire:target="submit" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>

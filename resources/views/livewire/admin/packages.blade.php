@@ -79,7 +79,7 @@
 
                     {{-- ── Step 1: Location + Name + Type + Price ── --}}
                     @if ($step === 1)
-                        <div class="space-y-5">
+                        <div class="space-y-5" wire:key="package-step-1">
                             <x-select wire:model="location_id"
                                       label="{{ __('messages.admin.packages.label_location') }}"
                                       :error="$errors->first('location_id')">
@@ -125,7 +125,7 @@
 
                     {{-- ── Step 2: Details (conditional by type) ── --}}
                     @elseif ($step === 2)
-                        <div class="space-y-5">
+                        <div class="space-y-5" wire:key="package-step-2">
 
                             {{-- Conditional fields by type --}}
                             @if ($type === 'regular')

@@ -74,7 +74,7 @@
                     @else
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                             @foreach ($children as $child)
-                                <button wire:click="selectChild({{ $child->id }})" wire:loading.attr="disabled"
+                                <button wire:key="ps-child-{{ $child->id }}" wire:click="selectChild({{ $child->id }})" wire:loading.attr="disabled"
                                         class="group block text-left w-full h-full">
                                     <div @class([
                                         'bg-white border-2 rounded-xl p-3.5 flex items-center gap-3 transition-all duration-200 h-full',
@@ -119,7 +119,7 @@
                     @else
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                             @foreach ($locations as $loc)
-                                <button wire:click="selectLocation({{ $loc->id }})" wire:loading.attr="disabled"
+                                <button wire:key="ps-loc-{{ $loc->id }}" wire:click="selectLocation({{ $loc->id }})" wire:loading.attr="disabled"
                                         class="group block text-left w-full h-full">
                                     <div class="bg-white border-2 border-gray-100 rounded-xl p-3.5 flex items-center gap-3 transition-all duration-200 hover:border-navy/40 hover:shadow-sm h-full">
                                         <div class="w-10 h-10 rounded-xl bg-navy/8 text-navy flex items-center justify-center shrink-0 group-hover:bg-navy group-hover:text-white transition-colors duration-200">
@@ -162,7 +162,7 @@
                     @else
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                             @foreach ($coaches as $coach)
-                                <button wire:click="selectCoach({{ $coach->id }})" wire:loading.attr="disabled"
+                                <button wire:key="ps-coach-{{ $coach->id }}" wire:click="selectCoach({{ $coach->id }})" wire:loading.attr="disabled"
                                         class="group block text-left w-full h-full">
                                     <div @class([
                                         'bg-white border-2 rounded-xl p-3.5 flex items-center gap-3 transition-all duration-200 h-full',
@@ -214,7 +214,7 @@
                                     $availCnt  = $daySlots->where('available', true)->count();
                                     $totalCnt  = $daySlots->count();
                                 @endphp
-                                <button wire:click="selectDay('{{ $day }}')" wire:loading.attr="disabled"
+                                <button wire:key="ps-day-{{ $day }}" wire:click="selectDay('{{ $day }}')" wire:loading.attr="disabled"
                                         class="group block text-left w-full">
                                     <div class="bg-white border-2 border-gray-100 rounded-xl p-4 flex items-center gap-3 transition-all duration-200 hover:border-navy/40 hover:shadow-sm">
                                         <div class="w-10 h-10 rounded-xl bg-navy/8 text-navy flex items-center justify-center shrink-0 group-hover:bg-navy group-hover:text-white transition-colors duration-200">
@@ -264,7 +264,7 @@
                             <div class="space-y-2.5">
                                 @foreach ($timeSlotsForDay as $slot)
                                     @php $s = $slot['schedule']; $sel = $selectedScheduleId === $s->id; @endphp
-                                    <button
+                                    <button wire:key="ps-sched-{{ $s->id }}"
                                         @if ($slot['available']) wire:click="selectSchedule({{ $s->id }})" wire:loading.attr="disabled" @endif
                                         class="group block text-left w-full {{ !$slot['available'] ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer' }}">
                                         <div @class([
@@ -338,7 +338,7 @@
                             <div class="space-y-2">
                                 @foreach ($packages as $pkg)
                                     @php $sel = $selectedPackageId === $pkg->id; @endphp
-                                    <button wire:click="$set('selectedPackageId', {{ $pkg->id }})" class="block w-full text-left group">
+                                    <button wire:key="ps-pkg-{{ $pkg->id }}" wire:click="$set('selectedPackageId', {{ $pkg->id }})" class="block w-full text-left group">
                                         <div class="border-2 rounded-xl px-4 py-3 flex items-center gap-3 transition-all duration-200
                                             {{ $sel ? 'border-navy bg-navy/[0.03] shadow-sm' : 'border-gray-100 hover:border-navy/30 hover:shadow-sm' }}">
                                             <div class="w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors duration-200
@@ -373,7 +373,7 @@
                         @enderror
                     </div>
 
-                    <button wire:click="confirmDetails" wire:loading.attr="disabled"
+                    <button wire:key="ps-confirm" wire:click="confirmDetails" wire:loading.attr="disabled"
                         class="inline-flex items-center gap-2 bg-navy text-white text-xs font-bold uppercase tracking-widest px-6 py-2.5 rounded-xl hover:bg-navy/90 active:scale-[0.97] transition-all duration-150 disabled:opacity-50">
                         <svg wire:loading.remove wire:target="confirmDetails" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
@@ -459,7 +459,7 @@
                                 Rp {{ number_format($selectedPackage?->price ?? 0, 0, ',', '.') }}
                             </p>
                         </div>
-                        <button wire:click="submit" wire:loading.attr="disabled"
+                        <button wire:key="ps-submit" wire:click="submit" wire:loading.attr="disabled"
                             class="inline-flex items-center gap-2 bg-[#15803D] text-white text-xs font-bold uppercase tracking-widest px-4 py-2.5 rounded-xl hover:bg-[#166534] active:scale-[0.97] transition-all duration-150 disabled:opacity-50 whitespace-nowrap shrink-0">
                             <svg wire:loading.remove wire:target="submit" class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
