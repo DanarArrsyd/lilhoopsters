@@ -30,6 +30,14 @@ document.addEventListener('alpine:init', () => {
             // degrades to a plain working <select> instead of an unusable field.
             this.$root.dataset.enhanced = 'true';
 
+            // x-ref registration happens during the subtree walk, so on some
+            // init orderings the ref isn't there yet. Bail rather than throw —
+            // the sweep below re-inits anything left unflagged.
+            if (!this.$refs.native) {
+                delete this.$root.dataset.enhanced;
+                return;
+            }
+
             this.refresh();
 
             // Livewire re-renders rewrite the <option> list (programs filtered by
@@ -234,6 +242,45 @@ document.addEventListener('alpine:init', () => {
             this.close(false);
         },
     }));
+});
+
+// Safety net for the enhancement swap.
+//
+// A select only becomes the styled listbox once Alpine runs its init and sets
+// data-enhanced; until then CSS shows the raw <select>. If Alpine never reaches
+// a node — an exception thrown by an unrelated component earlier in the same
+// x-data root aborts that root's walk, or a morph inserts markup at an awkward
+// moment — the field silently falls back to the OS popup with no error to
+// explain it. This re-walks anything still unflagged after the page settles and
+// after every Livewire update, and says so in the console when it has to.
+document.addEventListener('DOMContentLoaded', () => {
+    const sweep = () => {
+        const pending = document.querySelectorAll('[x-data^="hoopSelect"]:not([data-enhanced])');
+        if (!pending.length || !window.Alpine) return;
+
+        pending.forEach((el) => {
+            try {
+                window.Alpine.initTree(el);
+            } catch (error) {
+                console.error('[hoopSelect] could not initialise a select; it stays a native <select>', el, error);
+            }
+        });
+
+        const stillPending = document.querySelectorAll('[x-data^="hoopSelect"]:not([data-enhanced])').length;
+        if (stillPending) {
+            console.warn(`[hoopSelect] ${stillPending} select(s) left un-enhanced after sweep`);
+        }
+    };
+
+    setTimeout(sweep, 0);
+    document.addEventListener('livewire:navigated', () => setTimeout(sweep, 0));
+    if (window.Livewire?.hook) {
+        window.Livewire.hook('morph.updated', () => setTimeout(sweep, 0));
+        window.Livewire.hook('commit', ({ respond }) => respond(() => setTimeout(sweep, 0)));
+    }
+});
+
+document.addEventListener('alpine:init', () => {
 
     Alpine.data('revenueChart', (initialLabels = [], initialAmounts = [], initialAvg = 0) => ({
         chartInstance: null,
