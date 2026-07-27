@@ -80,23 +80,6 @@
        is absent. Once Alpine sets data-enhanced on the wrapper, they trade
        places. The native element is never removed — it stays the source of
        truth for wire:model, validation and form submission. */
-    .hoop-trigger { display: none; }
-
-    [data-enhanced] .hoop-trigger { display: flex; }
-    [data-enhanced] .hoop-trigger--chip { display: inline-flex; }
-
-    [data-enhanced] .hoop-native {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip-path: inset(50%);
-        white-space: nowrap;
-        border: 0;
-    }
-
     /* Panel is teleported to <body>, so it sits outside the wrapper's cascade
        and needs its own width guard on small screens. */
     .hoop-panel {
@@ -110,6 +93,29 @@
         border: 3px solid var(--color-surface);
         border-radius: 9999px;
     }
+}
+
+/* The enhancement swap lives OUTSIDE @layer on purpose. Both elements carry
+   Tailwind utilities (`w-full`, `flex`, `block`) that sit in the utilities
+   layer, and in Tailwind v4 every layer beats an earlier one regardless of
+   specificity — a rule inside @layer components loses to `w-full` and the
+   native select stays visible next to its own replacement. Unlayered rules
+   outrank all layers, so these are the ones that win. */
+.hoop-trigger { display: none; }
+
+[data-enhanced] .hoop-trigger { display: flex; }
+[data-enhanced] .hoop-trigger--chip { display: inline-flex; }
+
+[data-enhanced] .hoop-native {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {

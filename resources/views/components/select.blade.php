@@ -65,6 +65,10 @@
     };
 
     $wrapperClass = $variant === 'chip' ? 'inline-block' : 'space-y-1.5';
+
+    // Numeric pickers centre their value in the trigger, so the list has to
+    // centre too or the digits jump sideways when the panel opens.
+    $centreOptions = $variant === 'bare';
 @endphp
 
 <div class="{{ $wrapperClass }}"
@@ -198,7 +202,7 @@
                         :aria-selected="option.value === value"
                         :aria-disabled="option.disabled"
                         :data-active="i === activeIndex"
-                        class="mx-1 flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 text-sm transition-colors duration-100"
+                        class="mx-1 flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 text-sm transition-colors duration-100 {{ $centreOptions ? 'justify-center font-numeric' : '' }}"
                         :class="{
                             'bg-navy/[0.06] text-navy font-semibold': option.value === value,
                             'text-ink': option.value !== value && !option.disabled,
@@ -209,9 +213,10 @@
                         @click="choose(option)"
                         @mousemove="activeIndex = i">
 
-                        <span class="flex-1 min-w-0 truncate" x-text="option.label"></span>
+                        <span class="min-w-0 truncate {{ $centreOptions ? '' : 'flex-1' }}" x-text="option.label"></span>
 
-                        <svg x-show="option.value === value" class="w-4 h-4 shrink-0 text-navy"
+                        {{-- Redundant next to a centred two-digit value; aria-selected still carries it --}}
+                        <svg x-show="option.value === value" class="w-4 h-4 shrink-0 text-navy {{ $centreOptions ? 'hidden' : '' }}"
                              fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
                         </svg>

@@ -85,15 +85,17 @@ class Schedules extends Component
     public function updatedEndMinute(): void   { $this->end_time   = $this->to24h($this->endHour,   $this->endMinute,   $this->endPeriod); }
     public function updatedEndPeriod(): void   { $this->end_time   = $this->to24h($this->endHour,   $this->endMinute,   $this->endPeriod); }
 
-    public function toggleStartPeriod(): void
+    // The meridiem is a segmented AM/PM pair, so the view sets a value rather
+    // than flipping whatever is currently stored.
+    public function setStartPeriod(string $period): void
     {
-        $this->startPeriod = $this->startPeriod === 'AM' ? 'PM' : 'AM';
+        $this->startPeriod = $period === 'PM' ? 'PM' : 'AM';
         $this->start_time  = $this->to24h($this->startHour, $this->startMinute, $this->startPeriod);
     }
 
-    public function toggleEndPeriod(): void
+    public function setEndPeriod(string $period): void
     {
-        $this->endPeriod = $this->endPeriod === 'AM' ? 'PM' : 'AM';
+        $this->endPeriod = $period === 'PM' ? 'PM' : 'AM';
         $this->end_time  = $this->to24h($this->endHour, $this->endMinute, $this->endPeriod);
     }
 

@@ -170,74 +170,16 @@
                             </x-select>
 
                             {{-- Start / End time pickers --}}
-                            <div class="grid grid-cols-2 gap-4">
-                                {{-- Start Time --}}
-                                <div class="space-y-1.5">
-                                    <label class="block text-xs font-semibold uppercase tracking-wide text-navy">
-                                        {{ __('messages.admin.schedules.label_start') }} <span class="text-[#DC2626] ml-0.5">*</span>
-                                    </label>
-                                    <div class="flex items-center gap-1 rounded-xl border bg-surface px-2 py-2 {{ $errors->first('start_time') ? 'border-[#DC2626]' : 'border-line' }}">
-                                        <div class="flex-1">
-                                            <x-select variant="bare" :searchable="false"
-                                                      wire:key="start-hour" wire:model.live="startHour"
-                                                      aria-label="{{ __('messages.admin.schedules.label_start') }} hour">
-                                                @foreach(range(1,12) as $h)
-                                                    <option value="{{ $h }}">{{ str_pad($h, 2, '0', STR_PAD_LEFT) }}</option>
-                                                @endforeach
-                                            </x-select>
-                                        </div>
-                                        <span class="text-muted font-bold text-sm shrink-0">:</span>
-                                        <div class="flex-1">
-                                            <x-select variant="bare" :searchable="false"
-                                                      wire:key="start-minute" wire:model.live="startMinute"
-                                                      aria-label="{{ __('messages.admin.schedules.label_start') }} minute">
-                                                @foreach(['00','05','10','15','20','25','30','35','40','45','50','55'] as $m)
-                                                    <option value="{{ $m }}">{{ $m }}</option>
-                                                @endforeach
-                                            </x-select>
-                                        </div>
-                                        <button type="button" wire:click="toggleStartPeriod"
-                                                class="shrink-0 ml-1 w-10 py-1 rounded-lg text-xs font-bold text-white transition-colors duration-150"
-                                                style="{{ $startPeriod === 'AM' ? 'background:#0A0F1E' : 'background:#F59E0B' }}">
-                                            {{ $startPeriod }}
-                                        </button>
-                                    </div>
-                                    @error('start_time') <p class="text-xs text-[#B91C1C]">{{ $message }}</p> @enderror
-                                </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <x-time-picker prefix="start"
+                                               :label="__('messages.admin.schedules.label_start')"
+                                               :period="$startPeriod"
+                                               :error="$errors->first('start_time')" />
 
-                                {{-- End Time --}}
-                                <div class="space-y-1.5">
-                                    <label class="block text-xs font-semibold uppercase tracking-wide text-navy">
-                                        {{ __('messages.admin.schedules.label_end') }} <span class="text-[#DC2626] ml-0.5">*</span>
-                                    </label>
-                                    <div class="flex items-center gap-1 rounded-xl border bg-surface px-2 py-2 {{ $errors->first('end_time') ? 'border-[#DC2626]' : 'border-line' }}">
-                                        <div class="flex-1">
-                                            <x-select variant="bare" :searchable="false"
-                                                      wire:key="end-hour" wire:model.live="endHour"
-                                                      aria-label="{{ __('messages.admin.schedules.label_end') }} hour">
-                                                @foreach(range(1,12) as $h)
-                                                    <option value="{{ $h }}">{{ str_pad($h, 2, '0', STR_PAD_LEFT) }}</option>
-                                                @endforeach
-                                            </x-select>
-                                        </div>
-                                        <span class="text-muted font-bold text-sm shrink-0">:</span>
-                                        <div class="flex-1">
-                                            <x-select variant="bare" :searchable="false"
-                                                      wire:key="end-minute" wire:model.live="endMinute"
-                                                      aria-label="{{ __('messages.admin.schedules.label_end') }} minute">
-                                                @foreach(['00','05','10','15','20','25','30','35','40','45','50','55'] as $m)
-                                                    <option value="{{ $m }}">{{ $m }}</option>
-                                                @endforeach
-                                            </x-select>
-                                        </div>
-                                        <button type="button" wire:click="toggleEndPeriod"
-                                                class="shrink-0 ml-1 w-10 py-1 rounded-lg text-xs font-bold text-white transition-colors duration-150"
-                                                style="{{ $endPeriod === 'AM' ? 'background:#0A0F1E' : 'background:#F59E0B' }}">
-                                            {{ $endPeriod }}
-                                        </button>
-                                    </div>
-                                    @error('end_time') <p class="text-xs text-[#B91C1C]">{{ $message }}</p> @enderror
-                                </div>
+                                <x-time-picker prefix="end"
+                                               :label="__('messages.admin.schedules.label_end')"
+                                               :period="$endPeriod"
+                                               :error="$errors->first('end_time')" />
                             </div>
 
                             <x-input wire:model="max_capacity" type="number"
