@@ -35,7 +35,9 @@
         <x-sidebar-link href="{{ route('admin.payments') }}" :active="request()->routeIs('admin.payments')" :badge="$navBadges['payments'] ?: null">{{ __('messages.admin.nav.payments') }}</x-sidebar-link>
         <x-sidebar-link href="{{ route('admin.verify-payment') }}" :active="request()->routeIs('admin.verify-payment')">{{ __('messages.admin.nav.verify_payment') }}</x-sidebar-link>
         <x-sidebar-link href="{{ route('admin.reports') }}" :active="request()->routeIs('admin.reports')">{{ __('messages.admin.nav.reports') }}</x-sidebar-link>
-        <x-sidebar-link href="{{ route('admin.owner') }}" :active="request()->routeIs('admin.owner')">{{ __('messages.admin.nav.owner_insights') }}</x-sidebar-link>
+        @if (auth()->user()?->role?->name === 'super_admin')
+            <x-sidebar-link href="{{ route('admin.owner') }}" :active="request()->routeIs('admin.owner')">{{ __('messages.admin.nav.owner_insights') }}</x-sidebar-link>
+        @endif
     </x-nav-dropdown>
 
     <x-nav-dropdown :label="__('messages.admin.section.reports')" :count="$navBadges['report_cards']" data-has-active="{{ $isActive('admin.report-cards','admin.news','admin.audit-log') ? 'true' : 'false' }}">

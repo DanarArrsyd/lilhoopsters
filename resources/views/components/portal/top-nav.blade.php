@@ -19,6 +19,14 @@
         </svg>
         {{ __('messages.nav.players') }}
     </a>
+    <a href="{{ route('parent.events') }}"
+       class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-colors {{ $isActive('parent.events') ? 'bg-navy/8 text-navy' : 'text-muted hover:text-navy hover:bg-off' }}">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        {{ __('messages.nav.events') }}
+    </a>
     <a href="{{ route('parent.news') }}"
        class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-colors {{ $isActive('parent.news') ? 'bg-navy/8 text-navy' : 'text-muted hover:text-navy hover:bg-off' }}">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

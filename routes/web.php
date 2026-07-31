@@ -50,7 +50,9 @@ Route::middleware(['auth', 'role:admin,super_admin', 'registration.status'])
         Route::get('/payments',       fn() => view('admin.payments'))->name('payments');
         Route::get('/verify-payment',  fn() => view('admin.verify-payment'))->name('verify-payment');
         Route::get('/reports',        fn() => view('admin.reports'))->name('reports');
-        Route::get('/owner',          fn() => view('admin.owner'))->name('owner');
+        // Revenue, receivables and the acquisition funnel are owner-level numbers,
+        // not day-to-day admin ones — keep them off the shared staff accounts.
+        Route::get('/owner',          fn() => view('admin.owner'))->middleware('role:super_admin')->name('owner');
         Route::get('/news',           fn() => view('admin.news'))->name('news');
         Route::get('/attendances',    fn() => view('admin.attendances'))->name('attendances');
         Route::get('/leave-requests', fn() => view('admin.leave-requests'))->name('leave-requests');
@@ -111,6 +113,7 @@ Route::middleware(['auth', 'role:parent', 'registration.status'])
         Route::get('/payments/{transaction}/receipt', [PaymentReceiptController::class, 'download'])->name('payments.receipt');
         Route::get('/attendance',    fn() => view('parent.attendance'))->name('attendance');
         Route::get('/report-cards',  fn() => view('parent.report-cards'))->name('report-cards');
+        Route::get('/events',     fn() => view('parent.events'))->name('events');
         Route::get('/news',       fn() => view('parent.news'))->name('news');
         Route::get('/profile',    fn() => view('parent.profile'))->name('profile');
         Route::get('/guide',      fn() => view('parent.guide'))->name('guide');

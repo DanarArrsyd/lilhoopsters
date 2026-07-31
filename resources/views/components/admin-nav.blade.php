@@ -126,13 +126,15 @@
         </svg>
         {{ __('messages.admin.nav.reports') }}
     </x-sidebar-link>
-    <x-sidebar-link href="{{ route('admin.owner') }}" :active="request()->routeIs('admin.owner')">
-        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
-        </svg>
-        {{ __('messages.admin.nav.owner_insights') }}
-    </x-sidebar-link>
+    @if (auth()->user()?->role?->name === 'super_admin')
+        <x-sidebar-link href="{{ route('admin.owner') }}" :active="request()->routeIs('admin.owner')">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+            </svg>
+            {{ __('messages.admin.nav.owner_insights') }}
+        </x-sidebar-link>
+    @endif
 </x-sidebar-section>
 
 <x-sidebar-section :label="__('messages.admin.section.reports')" :count="$navBadges['report_cards']">
