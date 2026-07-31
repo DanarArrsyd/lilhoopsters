@@ -29,9 +29,9 @@
                             <p class="text-sm font-semibold text-ink">{{ $reg->event?->name }}</p>
                             <p class="text-xs text-muted">{{ $reg->child?->name }}</p>
                         </div>
-                        <span class="inline-flex text-[11px] font-bold px-2 py-0.5 rounded-md {{ $sb }}">{{ __('messages.status.'.$reg->status) }}</span>
+                        <span class="inline-flex text-2xs font-bold px-2 py-0.5 rounded-md {{ $sb }}">{{ __('messages.status.'.$reg->status) }}</span>
                         @if ($reg->status === 'pending' && $reg->transaction)
-                            <a href="{{ route('parent.home') }}" class="text-[11px] font-semibold text-navy hover:underline shrink-0">{{ __('messages.events.pay_now') }}</a>
+                            <a href="{{ route('parent.home') }}" class="text-2xs font-semibold text-navy hover:underline shrink-0">{{ __('messages.events.pay_now') }}</a>
                         @endif
                     </div>
                 @endforeach
@@ -59,7 +59,7 @@
                 <div class="text-right shrink-0">
                     <p class="text-sm font-extrabold text-navy">{{ $event->isPaid() ? 'Rp ' . number_format($event->price, 0, ',', '.') : __('messages.events.free') }}</p>
                     @if ($event->capacity)
-                        <p class="text-[11px] text-faint">{{ __('messages.events.spots_left', ['n' => max(0, $event->capacity - $event->taken_count)]) }}</p>
+                        <p class="text-2xs text-faint">{{ __('messages.events.spots_left', ['n' => max(0, $event->capacity - $event->taken_count)]) }}</p>
                     @endif
                 </div>
             </div>

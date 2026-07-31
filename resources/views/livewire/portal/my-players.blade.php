@@ -164,7 +164,7 @@
                         @endif
 
                         {{-- Enrollment count --}}
-                        <p class="text-[11px] text-faint mt-2.5">{{ __('messages.players.enrollments', ['n' => $child->enrollments_count]) }}</p>
+                        <p class="text-2xs text-faint mt-2.5">{{ __('messages.players.enrollments', ['n' => $child->enrollments_count]) }}</p>
                     </div>
                 @endforeach
             </div>

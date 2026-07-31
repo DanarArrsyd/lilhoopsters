@@ -41,7 +41,7 @@
                         @foreach ([1 => __('messages.admin.events.step_info'), 2 => __('messages.admin.events.step_details')] as $n => $label)
                             <div class="flex items-center gap-2">
                                 <div @class([
-                                    'w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 transition-colors',
+                                    'w-6 h-6 rounded-full flex items-center justify-center text-2xs font-bold shrink-0 transition-colors',
                                     'bg-[#15803D] text-white' => $step > $n,
                                     'bg-navy text-off'        => $step === $n,
                                     'bg-line text-faint'      => $step < $n,
@@ -176,7 +176,7 @@
                                                  placeholder="Blank = unlimited"
                                                  :error="$errors->first('capacity')" />
                                     </div>
-                                    <p class="text-[11px] text-faint">{{ __('messages.admin.events.free_hint') }}</p>
+                                    <p class="text-2xs text-faint">{{ __('messages.admin.events.free_hint') }}</p>
                                 @endif
                             </div>
                         </div>
@@ -274,7 +274,7 @@
                                     <span class="block text-xs text-faint">packages</span>
                                 </td>
                                 <td class="py-3 px-4">
-                                    <span class="inline-flex text-[11px] font-bold px-2 py-0.5 rounded-md {{ $state[1] }}">{{ $state[0] }}</span>
+                                    <span class="inline-flex text-2xs font-bold px-2 py-0.5 rounded-md {{ $state[1] }}">{{ $state[0] }}</span>
                                 </td>
                                 <td class="py-3 px-4">
                                     <div class="flex items-center gap-2 justify-end">
@@ -367,7 +367,7 @@
                         @else
                             <table class="w-full text-sm">
                                 <thead>
-                                    <tr class="text-[11px] uppercase tracking-wide text-faint border-b border-line">
+                                    <tr class="text-2xs uppercase tracking-wide text-faint border-b border-line">
                                         <th class="text-left font-semibold px-4 py-2.5">{{ __('messages.admin.events.col_child') }}</th>
                                         <th class="text-left font-semibold px-3 py-2.5">{{ __('messages.admin.events.col_status') }}</th>
                                         @if ($managingEvent->isPaid())
@@ -389,10 +389,10 @@
                                         <tr wire:key="reg-{{ $reg->id }}" class="{{ $reg->status === 'cancelled' ? 'opacity-50' : '' }}">
                                             <td class="px-4 py-2.5">
                                                 <span class="font-semibold text-ink">{{ $reg->child?->name ?? '—' }}</span>
-                                                <span class="block text-[11px] text-faint">{{ $reg->child?->parent?->name }}</span>
+                                                <span class="block text-2xs text-faint">{{ $reg->child?->parent?->name }}</span>
                                             </td>
                                             <td class="px-3 py-2.5">
-                                                <span class="inline-flex text-[11px] font-bold px-2 py-0.5 rounded-md {{ $sb }}">{{ __('messages.status.'.$reg->status) }}</span>
+                                                <span class="inline-flex text-2xs font-bold px-2 py-0.5 rounded-md {{ $sb }}">{{ __('messages.status.'.$reg->status) }}</span>
                                             </td>
                                             @if ($managingEvent->isPaid())
                                                 <td class="px-3 py-2.5 text-muted">{{ $reg->transaction ? __('messages.status.'.$reg->transaction->status) : '—' }}</td>
@@ -402,9 +402,9 @@
                                                     @php $att = $attendanceMap[$reg->child_id] ?? null; @endphp
                                                     <div class="flex items-center justify-center gap-1">
                                                         <button wire:click="markAttendance({{ $reg->child_id }}, 'present')"
-                                                                class="text-[11px] font-semibold px-2 py-1 rounded-lg transition-colors {{ $att === 'present' ? 'bg-[#15803D] text-white' : 'bg-[#15803D]/10 text-[#15803D] hover:bg-[#15803D]/20' }}">{{ __('messages.admin.events.btn_present') }}</button>
+                                                                class="text-2xs font-semibold px-2 py-1 rounded-lg transition-colors {{ $att === 'present' ? 'bg-[#15803D] text-white' : 'bg-[#15803D]/10 text-[#15803D] hover:bg-[#15803D]/20' }}">{{ __('messages.admin.events.btn_present') }}</button>
                                                         <button wire:click="markAttendance({{ $reg->child_id }}, 'absent')"
-                                                                class="text-[11px] font-semibold px-2 py-1 rounded-lg transition-colors {{ $att === 'absent' ? 'bg-[#B91C1C] text-white' : 'bg-[#B91C1C]/10 text-[#B91C1C] hover:bg-[#B91C1C]/20' }}">{{ __('messages.admin.events.btn_absent') }}</button>
+                                                                class="text-2xs font-semibold px-2 py-1 rounded-lg transition-colors {{ $att === 'absent' ? 'bg-[#B91C1C] text-white' : 'bg-[#B91C1C]/10 text-[#B91C1C] hover:bg-[#B91C1C]/20' }}">{{ __('messages.admin.events.btn_absent') }}</button>
                                                     </div>
                                                 @else
                                                     <p class="text-center text-faint">—</p>

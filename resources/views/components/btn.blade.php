@@ -45,7 +45,7 @@ $variantClass = $isSm
     };
 
 $sizeClass = match($size) {
-    'sm'  => 'text-[11px] px-2 py-1',
+    'sm'  => 'text-2xs px-2 py-1',
     'md'  => 'text-sm px-4 py-2.5',
     'lg'  => 'text-sm px-5 py-3',
     default => 'text-sm px-4 py-2.5',

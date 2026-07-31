@@ -450,7 +450,7 @@ return [
             'this_week'          => 'Minggu Ini',
             'see_details'        => 'Lihat detail',
             'todays_sessions'    => 'Sesi Hari Ini',
-            'no_sessions'        => 'Tidak ada sesi hari ini.',
+            'no_sessions' => 'Tidak ada jadwal hari ini. Sesi berikutnya ada di strip minggu.',
             'next'               => 'Berikutnya:',
             'rest_of_week'       => 'Sisa Minggu',
             'stat_pending_payments'   => 'Pembayaran perlu verifikasi',

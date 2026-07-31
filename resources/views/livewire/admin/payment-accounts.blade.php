@@ -120,7 +120,7 @@
                         <div class="flex-1 min-w-0">
                             <p class="text-sm font-bold text-navy">{{ $acc->bank_name }}</p>
                             <p class="text-xs text-muted">{{ $acc->account_number }} · {{ $acc->account_holder }}</p>
-                            <span class="inline-block text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded
+                            <span class="inline-block text-3xs font-bold uppercase tracking-wide px-1.5 py-0.5 rounded
                                          {{ $acc->type === 'ewallet' ? 'bg-purple-100 text-purple-700' : 'bg-blue-50 text-blue-700' }}">
                                 {{ $acc->type === 'ewallet' ? __('messages.admin.payment_accounts.type_ewallet') : __('messages.admin.payment_accounts.type_bank') }}
                             </span>
@@ -129,7 +129,7 @@
                         {{-- Active badge + controls --}}
                         <div class="flex items-center gap-2 flex-shrink-0">
                             @if (!$acc->is_active)
-                                <span class="text-[10px] font-bold text-faint bg-off border border-line px-2 py-0.5 rounded-full">
+                                <span class="text-3xs font-bold text-faint bg-off border border-line px-2 py-0.5 rounded-full">
                                     {{ __('messages.admin.payment_accounts.hidden_badge') }}
                                 </span>
                             @endif

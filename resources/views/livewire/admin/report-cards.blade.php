@@ -55,7 +55,7 @@
                                 @php $schedType = $card->enrollment?->schedule?->type; @endphp
                                 @if ($schedType)
                                     <span @class([
-                                        'text-[10px] font-bold uppercase px-1.5 py-0.5 rounded-full',
+                                        'text-3xs font-bold uppercase px-1.5 py-0.5 rounded-full',
                                         'bg-purple-50 text-purple-700' => $schedType === 'private',
                                         'bg-blue-50 text-blue-600'     => $schedType === 'regular',
                                     ])>{{ __('messages.admin.schedules.type_'.$schedType) }}</span>
@@ -133,7 +133,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                             </svg>
                             <span class="flex-1">{{ collect($coaches)->firstWhere('id', $coachId)?->user?->name ?? __('messages.admin.report_cards.assigned_coach_ph') }}</span>
-                            <span class="text-[10px] font-bold uppercase tracking-wide text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full">{{ __('messages.admin.report_cards.private_badge') }}</span>
+                            <span class="text-3xs font-bold uppercase tracking-wide text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full">{{ __('messages.admin.report_cards.private_badge') }}</span>
                         </div>
                         <p class="text-xs text-faint">{{ __('messages.admin.report_cards.private_hint') }}</p>
                     </div>

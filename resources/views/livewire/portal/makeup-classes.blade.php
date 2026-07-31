@@ -19,7 +19,7 @@
             @foreach ($stepLabels as $s => $label)
                 <div class="flex flex-col items-center shrink-0 w-10 sm:w-14">
                     <div @class([
-                        'w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 text-[10px] sm:text-xs font-bold',
+                        'w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 text-3xs sm:text-xs font-bold',
                         'bg-[#15803D] text-white'               => $step > $s,
                         'bg-navy text-white ring-4 ring-navy/15' => $step === $s,
                         'bg-gray-100 text-gray-400'              => $step < $s,
@@ -33,7 +33,7 @@
                         @endif
                     </div>
                     <p @class([
-                        'text-[9px] sm:text-[10px] mt-1 sm:mt-1.5 text-center leading-tight font-medium hidden sm:block',
+                        'text-4xs sm:text-3xs mt-1 sm:mt-1.5 text-center leading-tight font-medium hidden sm:block',
                         'text-[#15803D]'       => $step > $s,
                         'text-navy font-bold'  => $step === $s,
                         'text-gray-300'        => $step < $s,
@@ -95,7 +95,7 @@
 
             <div class="space-y-6">
                 <div>
-                    <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2.5">{{ __('messages.makeup.col_schedule') }}</p>
+                    <p class="text-3xs font-bold uppercase tracking-widest text-gray-400 mb-2.5">{{ __('messages.makeup.col_schedule') }}</p>
                     <div class="space-y-2">
                         @foreach ($schedules as $s)
                             <button type="button"
@@ -126,7 +126,7 @@
                 </div>
 
                 <div>
-                    <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">{{ __('messages.makeup.col_date') }}</p>
+                    <p class="text-3xs font-bold uppercase tracking-widest text-gray-400 mb-2">{{ __('messages.makeup.col_date') }}</p>
                     <x-input wire:key="mk-target-date" type="date" wire:model="targetDate"
                              min="{{ now()->toDateString() }}"
                              :error="$errors->first('targetDate')" />
@@ -142,14 +142,14 @@
             <p class="text-xs text-gray-400 mb-5">Check everything before submitting.</p>
 
             <div class="bg-navy rounded-xl p-5 text-off">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-off/50 mb-4">Summary</p>
+                <p class="text-3xs font-bold uppercase tracking-widest text-off/50 mb-4">Summary</p>
                 <div class="space-y-3">
                     <div class="flex items-center gap-3">
                         <div class="w-9 h-9 rounded-full bg-off/10 flex items-center justify-center text-sm font-bold shrink-0">
                             {{ strtoupper(substr($selectedLeave?->child?->name ?? '?', 0, 1)) }}
                         </div>
                         <div>
-                            <p class="text-[10px] text-off/50 uppercase tracking-wide">Player</p>
+                            <p class="text-3xs text-off/50 uppercase tracking-wide">Player</p>
                             <p class="text-sm font-semibold">{{ $selectedLeave?->child?->name ?? '—' }}</p>
                         </div>
                     </div>
@@ -160,7 +160,7 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="text-[10px] text-off/50 uppercase tracking-wide">{{ __('messages.makeup.col_schedule') }}</p>
+                            <p class="text-3xs text-off/50 uppercase tracking-wide">{{ __('messages.makeup.col_schedule') }}</p>
                             <p class="text-sm font-semibold">{{ $selectedSchedule?->program?->name ?? '—' }}</p>
                             <p class="text-xs text-off/60">{{ $selectedSchedule ? ucfirst($selectedSchedule->day_of_week) . ' · ' . $selectedSchedule->location->name : '' }}</p>
                         </div>
@@ -172,7 +172,7 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="text-[10px] text-off/50 uppercase tracking-wide">{{ __('messages.makeup.col_date') }}</p>
+                            <p class="text-3xs text-off/50 uppercase tracking-wide">{{ __('messages.makeup.col_date') }}</p>
                             <p class="text-sm font-semibold">{{ $targetDate ? \Carbon\Carbon::parse($targetDate)->format('l, d M Y') : '—' }}</p>
                         </div>
                     </div>

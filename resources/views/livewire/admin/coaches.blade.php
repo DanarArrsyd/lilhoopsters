@@ -42,7 +42,7 @@
                         @foreach ([1 => __('messages.admin.coaches.step_account'), 2 => __('messages.admin.coaches.step_profile')] as $n => $label)
                             <div class="flex items-center gap-2">
                                 <div @class([
-                                    'w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 transition-colors',
+                                    'w-6 h-6 rounded-full flex items-center justify-center text-2xs font-bold shrink-0 transition-colors',
                                     'bg-[#15803D] text-white' => $step > $n,
                                     'bg-navy text-off'        => $step === $n,
                                     'bg-line text-faint'      => $step < $n,
@@ -234,7 +234,7 @@
                                 <td class="py-3 px-4 text-muted">{{ $coach->specialization ?? '—' }}</td>
                                 <td class="py-3 px-4">
                                     @forelse ($coach->locations as $loc)
-                                        <span class="inline-flex items-center bg-navy/8 text-navy text-[11px] font-semibold px-2 py-0.5 rounded-full mr-1">
+                                        <span class="inline-flex items-center bg-navy/8 text-navy text-2xs font-semibold px-2 py-0.5 rounded-full mr-1">
                                             {{ $loc->name }}
                                         </span>
                                     @empty

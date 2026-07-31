@@ -25,11 +25,11 @@
        'border-navy/25 hover:border-navy' => $needsWork,
        'border-line hover:border-navy/30' => ! $needsWork,
    ])>
-    <p class="text-[10px] font-bold uppercase tracking-widest text-muted">{{ $label }}</p>
+    <p class="text-3xs font-bold uppercase tracking-widest text-muted">{{ $label }}</p>
 
     <p class="mt-2 flex items-baseline gap-2">
         <span @class([
-            'font-numeric text-3xl font-extrabold leading-none tabular-nums',
+            'font-mono text-3xl font-extrabold leading-none tabular-nums',
             'text-navy'  => $needsWork,
             'text-ink'   => ! $needsWork,
         ])>{{ $value }}</span>
@@ -40,6 +40,6 @@
     </p>
 
     @if ($hint)
-        <p class="mt-1.5 text-[11px] text-faint group-hover:text-muted transition-colors">{{ $hint }}</p>
+        <p class="mt-1.5 text-2xs text-faint group-hover:text-muted transition-colors">{{ $hint }}</p>
     @endif
 </a>

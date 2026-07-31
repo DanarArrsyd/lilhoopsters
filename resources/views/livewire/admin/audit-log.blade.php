@@ -46,7 +46,7 @@
                             <td class="py-3 px-4 text-ink whitespace-nowrap">{{ $log->created_at->format('d M Y H:i') }}</td>
                             <td class="py-3 px-4">
                                 <p class="font-semibold text-ink">{{ $log->actor_name }}</p>
-                                <span class="text-[10px] font-bold uppercase text-faint">{{ $log->actor_role }}</span>
+                                <span class="text-3xs font-bold uppercase text-faint">{{ $log->actor_role }}</span>
                             </td>
                             <td class="py-3 px-4 text-xs">
                                 <span class="bg-navy/8 text-navy px-2 py-0.5 rounded-full font-semibold">

@@ -6,7 +6,7 @@
                    {{ $attributes->get('data-has-active') === 'true' ? 'bg-navy/8 text-navy' : 'text-muted hover:text-navy hover:bg-off' }}">
         {{ $label }}
         @if ((int) $count > 0)
-            <span class="bg-[#DC2626] text-off text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none">
+            <span class="bg-[#DC2626] text-off text-3xs font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none">
                 {{ $count > 99 ? '99+' : $count }}
             </span>
         @endif

@@ -66,7 +66,7 @@
                         $pastCount = $sessions->filter(fn($s) => $s['is_past'] || $s['is_today'])->count();
                     @endphp
                     @if ($pastCount > 0)
-                        <p class="text-[10px] text-faint">{{ __('messages.attendance.attended', ['a' => $attended, 'b' => $pastCount]) }}</p>
+                        <p class="text-3xs text-faint">{{ __('messages.attendance.attended', ['a' => $attended, 'b' => $pastCount]) }}</p>
                     @endif
                 </div>
             @endif

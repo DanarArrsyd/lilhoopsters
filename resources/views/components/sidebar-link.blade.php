@@ -12,7 +12,7 @@ $isActive = $active || request()->is($path) || request()->is($path . '/*');
               : 'text-muted hover:bg-off hover:text-navy' }}">
     {{ $slot }}
     @if ($badge)
-        <span class="ml-auto bg-[#DC2626] text-off text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
+        <span class="ml-auto bg-[#DC2626] text-off text-3xs font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
             {{ $badge }}
         </span>
     @endif

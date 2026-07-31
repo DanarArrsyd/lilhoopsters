@@ -32,12 +32,12 @@
                             <td class="py-3 px-4">
                                 <span class="font-semibold text-ink">{{ $post->title }}</span>
                                 @if ($post->is_pinned)
-                                    <span class="ml-1 text-[10px] font-bold uppercase text-[#B45309]">· {{ __('messages.admin.news.pinned_badge') }}</span>
+                                    <span class="ml-1 text-3xs font-bold uppercase text-[#B45309]">· {{ __('messages.admin.news.pinned_badge') }}</span>
                                 @endif
                                 <span class="block text-xs text-faint max-w-md truncate">{{ \Illuminate\Support\Str::limit(strip_tags($post->body), 80) }}</span>
                             </td>
                             <td class="py-3 px-4">
-                                <span class="inline-flex text-[11px] font-bold px-2 py-0.5 rounded-md {{ $post->is_published ? 'bg-[#15803D]/10 text-[#15803D]' : 'bg-line text-faint' }}">
+                                <span class="inline-flex text-2xs font-bold px-2 py-0.5 rounded-md {{ $post->is_published ? 'bg-[#15803D]/10 text-[#15803D]' : 'bg-line text-faint' }}">
                                     {{ $post->is_published ? __('messages.admin.news.published_badge') : __('messages.admin.news.draft_badge') }}
                                 </span>
                             </td>
@@ -94,7 +94,7 @@
                         <label class="block text-xs font-semibold uppercase tracking-wide text-navy">{{ __('messages.admin.news.label_image') }}</label>
                         <input type="file" wire:model="image" accept="image/*" class="block w-full text-sm text-muted file:mr-3 file:rounded-lg file:border-0 file:bg-navy file:text-off file:px-3 file:py-1.5 file:text-xs file:font-semibold">
                         @error('image') <p class="text-xs text-[#B91C1C]">{{ $message }}</p> @enderror
-                        <div wire:loading wire:target="image" class="text-[11px] text-muted">Uploading…</div>
+                        <div wire:loading wire:target="image" class="text-2xs text-muted">Uploading…</div>
                         @if ($image)
                             <img src="{{ $image->temporaryUrl() }}" class="mt-2 rounded-lg max-h-40 object-cover">
                         @elseif ($existingImage)
@@ -110,7 +110,7 @@
                             <input type="checkbox" wire:model="is_pinned" class="rounded accent-navy"> {{ __('messages.admin.news.label_pinned') }}
                         </label>
                     </div>
-                    <p class="text-[11px] text-faint">{{ __('messages.admin.news.publish_notice') }}</p>
+                    <p class="text-2xs text-faint">{{ __('messages.admin.news.publish_notice') }}</p>
                 </div>
                 <div class="flex gap-3 px-6 pb-6">
                     <x-btn variant="secondary" class="flex-1" wire:click="$set('showModal', false)">{{ __('messages.common.cancel') }}</x-btn>

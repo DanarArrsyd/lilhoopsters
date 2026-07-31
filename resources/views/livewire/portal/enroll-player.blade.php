@@ -24,7 +24,7 @@
                     @foreach ($stepLabels as $s => $label)
                         <div class="flex flex-col items-center shrink-0 w-10 sm:w-14">
                             <div @class([
-                                'w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 text-[10px] sm:text-xs font-bold',
+                                'w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 text-3xs sm:text-xs font-bold',
                                 'bg-[#15803D] text-white'              => $step > $s,
                                 'bg-navy text-white ring-4 ring-navy/15' => $step === $s,
                                 'bg-gray-100 text-gray-400'            => $step < $s,
@@ -38,7 +38,7 @@
                                 @endif
                             </div>
                             <p @class([
-                                'text-[9px] sm:text-[10px] mt-1 sm:mt-1.5 text-center leading-tight font-medium whitespace-pre-line hidden sm:block',
+                                'text-4xs sm:text-3xs mt-1 sm:mt-1.5 text-center leading-tight font-medium whitespace-pre-line hidden sm:block',
                                 'text-[#15803D]'       => $step > $s,
                                 'text-navy font-bold'  => $step === $s,
                                 'text-gray-300'        => $step < $s,
@@ -84,7 +84,7 @@
                                         <div class="flex-1 min-w-0">
                                             <p class="font-bold text-gray-900 text-sm truncate">{{ $child->name }}</p>
                                             <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                                                <span class="text-[11px] text-gray-400">
+                                                <span class="text-2xs text-gray-400">
                                                     @if ($months >= 12)
                                                         {{ floor($months / 12) }}yr{{ $months % 12 > 0 ? ' ' . ($months % 12) . 'mo' : '' }}
                                                     @else
@@ -92,9 +92,9 @@
                                                     @endif
                                                 </span>
                                                 @if ($child->status === 'unregistered')
-                                                    <span class="text-[9px] bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wide">Register</span>
+                                                    <span class="text-4xs bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wide">Register</span>
                                                 @else
-                                                    <span class="text-[9px] bg-green-50 text-green-600 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wide">Active</span>
+                                                    <span class="text-4xs bg-green-50 text-green-600 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wide">Active</span>
                                                 @endif
                                             </div>
                                         </div>
@@ -119,7 +119,7 @@
                     @if ($availableDays->isEmpty())
                         <p class="text-sm text-gray-400 italic">No active training days found.</p>
                     @else
-                        <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2.5">Training Day</p>
+                        <p class="text-3xs font-bold uppercase tracking-widest text-gray-400 mb-2.5">Training Day</p>
                         <div class="flex items-center gap-2 flex-wrap mb-6">
                             @foreach ($availableDays as $day)
                                 <button wire:key="ep-day-{{ $day }}" wire:click="selectDay('{{ $day }}')"
@@ -133,7 +133,7 @@
 
                     @if ($selectedDay)
                         <div wire:key="locations-{{ $selectedDay }}">
-                            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2.5">
+                            <p class="text-3xs font-bold uppercase tracking-widest text-gray-400 mb-2.5">
                                 Fields on {{ ucfirst($selectedDay) }}
                             </p>
                             @if ($availableLocations->isEmpty())
@@ -155,7 +155,7 @@
                                                 <div class="flex-1 min-w-0">
                                                     <p class="font-bold text-gray-900 text-sm truncate">{{ $loc->name }}</p>
                                                     @if ($loc->address)
-                                                        <p class="text-[11px] text-gray-400 mt-0.5 truncate">{{ $loc->address }}</p>
+                                                        <p class="text-2xs text-gray-400 mt-0.5 truncate">{{ $loc->address }}</p>
                                                     @endif
                                                 </div>
                                                 <svg class="w-3.5 h-3.5 text-gray-300 group-hover:text-navy transition-all duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -197,7 +197,7 @@
                                         <div class="flex items-start justify-between gap-2 mb-2">
                                             <div class="min-w-0">
                                                 <p class="font-bold text-gray-900 text-sm truncate">{{ $sched->program->name }}</p>
-                                                <p class="text-[11px] text-gray-400 mt-0.5 truncate">
+                                                <p class="text-2xs text-gray-400 mt-0.5 truncate">
                                                     @if ($sched->coach)
                                                         Coach · {{ $sched->coach->user->name }}
                                                     @else
@@ -206,7 +206,7 @@
                                                 </p>
                                             </div>
                                             @if ($full)
-                                                <span class="shrink-0 text-[9px] bg-red-50 text-red-500 px-2 py-1 rounded-lg font-bold uppercase">Full</span>
+                                                <span class="shrink-0 text-4xs bg-red-50 text-red-500 px-2 py-1 rounded-lg font-bold uppercase">Full</span>
                                             @else
                                                 <span class="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                                                     <svg class="w-4 h-4 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -222,7 +222,7 @@
                                             {{ \Carbon\Carbon::createFromTimeString($sched->start_time)->format('H:i') }} – {{ \Carbon\Carbon::createFromTimeString($sched->end_time)->format('H:i') }}
                                         </div>
                                         <div>
-                                            <div class="flex items-center justify-between text-[10px] text-gray-400 mb-1">
+                                            <div class="flex items-center justify-between text-3xs text-gray-400 mb-1">
                                                 <span>Capacity</span>
                                                 <span class="{{ $full ? 'text-red-500 font-bold' : '' }}">{{ $approved }}/{{ $sched->max_capacity }}{{ $full ? ' · Full' : '' }}</span>
                                             </div>
@@ -248,7 +248,7 @@
 
                     {{-- Package selection --}}
                     <div class="mb-6">
-                        <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2.5">Package</p>
+                        <p class="text-3xs font-bold uppercase tracking-widest text-gray-400 mb-2.5">Package</p>
                         @if ($availablePackages->isEmpty())
                             <div class="py-7 text-center border-2 border-dashed border-gray-100 rounded-xl">
                                 <p class="text-sm text-gray-400">No packages available at this location.</p>
@@ -271,11 +271,11 @@
                                             <div class="flex-1 min-w-0">
                                                 <p class="font-bold text-gray-900 text-sm leading-none mb-0.5">{{ $pkg->name }}</p>
                                                 @if ($pkg->session_count)
-                                                    <p class="text-[11px] text-gray-400">{{ $pkg->session_count }} sessions</p>
+                                                    <p class="text-2xs text-gray-400">{{ $pkg->session_count }} sessions</p>
                                                 @elseif (isset($pkg->validity_days) && $pkg->validity_days)
-                                                    <p class="text-[11px] text-gray-400">{{ $pkg->validity_days }} days validity</p>
+                                                    <p class="text-2xs text-gray-400">{{ $pkg->validity_days }} days validity</p>
                                                 @elseif (isset($pkg->period_end) && $pkg->period_end)
-                                                    <p class="text-[11px] text-gray-400">Until {{ $pkg->period_end->format('d M Y') }}</p>
+                                                    <p class="text-2xs text-gray-400">Until {{ $pkg->period_end->format('d M Y') }}</p>
                                                 @endif
                                             </div>
                                             <p class="font-extrabold text-navy text-base shrink-0">{{ $pkg->formattedPrice() }}</p>
@@ -298,18 +298,18 @@
                     @endphp
                     @if ($selectedPkg?->type === 'regular')
                     <div class="mb-6">
-                        <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Training Start Date
+                        <p class="text-3xs font-bold uppercase tracking-widest text-gray-400 mb-0.5">Training Start Date
                             <span class="text-red-400 ml-0.5">*</span>
                         </p>
                         @if ($selectedPkg->validity_days)
-                            <p class="text-[11px] text-gray-400 mb-3">
+                            <p class="text-2xs text-gray-400 mb-3">
                                 Package valid for {{ $selectedPkg->validity_days }} days from your chosen start date.
                                 @if ($startDate)
                                     Expires on <strong class="text-navy">{{ \Carbon\Carbon::parse($startDate)->addDays($selectedPkg->validity_days - 1)->format('d M Y') }}</strong>.
                                 @endif
                             </p>
                         @else
-                            <p class="text-[11px] text-gray-400 mb-3">Choose when you'd like to start training.</p>
+                            <p class="text-2xs text-gray-400 mb-3">Choose when you'd like to start training.</p>
                         @endif
                         <input wire:key="ep-start-date" wire:model.live="startDate" type="date"
                                min="{{ now()->toDateString() }}"
@@ -326,18 +326,18 @@
                     {{-- Jersey (registration only) --}}
                     @if ($enrollmentType === 'registration')
                         <div class="mb-6">
-                            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Jersey
+                            <p class="text-3xs font-bold uppercase tracking-widest text-gray-400 mb-0.5">Jersey
                                 <span class="text-gray-300 font-normal normal-case tracking-normal ml-1">— optional</span>
                             </p>
-                            <p class="text-[11px] text-gray-400 mb-3">Printed on your child's jersey.</p>
+                            <p class="text-2xs text-gray-400 mb-3">Printed on your child's jersey.</p>
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">Name</label>
+                                    <label class="block text-4xs font-bold uppercase tracking-widest text-gray-400 mb-1.5">Name</label>
                                     <input wire:key="ep-jersey-name" wire:model="jerseyName" type="text" placeholder="e.g. BUDI"
                                         class="w-full border-0 border-b-2 border-gray-200 focus:border-navy bg-transparent text-base text-navy py-1.5 focus:outline-none placeholder:text-gray-300 transition-colors caret-navy uppercase">
                                 </div>
                                 <div>
-                                    <label class="block text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">Number</label>
+                                    <label class="block text-4xs font-bold uppercase tracking-widest text-gray-400 mb-1.5">Number</label>
                                     <input wire:key="ep-jersey-number" wire:model="jerseyNumber" type="text" placeholder="e.g. 23"
                                         class="w-full border-0 border-b-2 border-gray-200 focus:border-navy bg-transparent text-base text-navy py-1.5 focus:outline-none placeholder:text-gray-300 transition-colors caret-navy">
                                 </div>
@@ -347,10 +347,10 @@
 
                     {{-- Notes --}}
                     <div class="mb-6">
-                        <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Notes
+                        <p class="text-3xs font-bold uppercase tracking-widest text-gray-400 mb-0.5">Notes
                             <span class="text-gray-300 font-normal normal-case tracking-normal ml-1">— optional</span>
                         </p>
-                        <p class="text-[11px] text-gray-400 mb-3">Injuries, preferences, anything for the admin.</p>
+                        <p class="text-2xs text-gray-400 mb-3">Injuries, preferences, anything for the admin.</p>
                         <textarea wire:key="ep-notes" wire:model="memberNotes" rows="2" placeholder="e.g. Allergic to latex, prefers mornings..."
                             class="w-full border-0 border-b-2 border-gray-200 focus:border-navy bg-transparent text-sm text-navy py-1.5 focus:outline-none placeholder:text-gray-300 transition-colors resize-none caret-navy"></textarea>
                     </div>
@@ -407,10 +407,10 @@
                                 {{ strtoupper(substr($confirmChild?->name ?? '?', 0, 1)) }}
                             </div>
                             <div class="flex-1 min-w-0">
-                                <p class="text-[9px] font-bold uppercase tracking-widest text-white/40">Enrollment Order</p>
+                                <p class="text-4xs font-bold uppercase tracking-widest text-white/40">Enrollment Order</p>
                                 <p class="text-sm font-extrabold text-white truncate">{{ $confirmChild?->name }}</p>
                             </div>
-                            <span class="shrink-0 text-[9px] font-extrabold uppercase tracking-wide px-2 py-1 rounded-full
+                            <span class="shrink-0 text-4xs font-extrabold uppercase tracking-wide px-2 py-1 rounded-full
                                 {{ $enrollmentType === 'registration' ? 'bg-amber-500/25 text-amber-300' : 'bg-green-500/25 text-green-300' }}">
                                 {{ ucfirst($enrollmentType) }}
                             </span>
@@ -419,7 +419,7 @@
                             @foreach ($confirmRows as $row)
                                 <div class="flex items-center justify-between gap-3 px-4 py-3
                                     {{ isset($row['highlight']) && $row['highlight'] ? 'bg-navy/[0.03]' : '' }}">
-                                    <span class="text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400 shrink-0 w-16">
+                                    <span class="text-3xs font-semibold uppercase tracking-[0.1em] text-gray-400 shrink-0 w-16">
                                         {{ $row['label'] }}
                                     </span>
                                     <span @class([
@@ -467,7 +467,7 @@
 
                     <div class="flex items-center justify-between gap-3 bg-gray-50 rounded-xl px-4 py-3 border border-gray-100">
                         <div>
-                            <p class="text-[9px] font-bold uppercase tracking-widest text-gray-400">Total</p>
+                            <p class="text-4xs font-bold uppercase tracking-widest text-gray-400">Total</p>
                             <p class="text-lg font-extrabold text-navy leading-none">{{ $confirmPackage?->formattedPrice() }}</p>
                         </div>
                         <button wire:key="ep-submit" wire:click="submit" wire:loading.attr="disabled"

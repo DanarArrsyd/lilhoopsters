@@ -27,13 +27,13 @@
     <div class="rounded-2xl bg-navy text-off px-5 py-5 sm:px-6 sm:py-6">
         <div class="flex flex-wrap items-start justify-between gap-4">
             <div class="min-w-0">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-off/50">
+                <p class="text-3xs font-bold uppercase tracking-widest text-off/50">
                     {{ __('messages.portal.home.next_session') }}
                 </p>
 
                 <p class="mt-2 text-xl sm:text-2xl font-extrabold tracking-tight">
                     {{ $date->translatedFormat('l') }}
-                    <span class="font-numeric">{{ $start->format('H:i') }}–{{ $end->format('H:i') }}</span>
+                    <span class="font-mono">{{ $start->format('H:i') }}–{{ $end->format('H:i') }}</span>
                 </p>
 
                 <p class="mt-1.5 text-sm text-off/75">
@@ -47,7 +47,7 @@
             </div>
 
             <div class="flex items-center gap-3 shrink-0">
-                <span class="rounded-full bg-off/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide">
+                <span class="rounded-full bg-off/10 px-3 py-1.5 text-2xs font-bold uppercase tracking-wide">
                     {{ $when }}
                 </span>
                 @if ($session['location_maps_url'])
@@ -70,7 +70,7 @@
     {{-- No enrolment, or none left in the next two weeks: say so plainly and
          point at the one action that changes it. --}}
     <div class="rounded-2xl border border-line bg-surface px-5 py-5 sm:px-6">
-        <p class="text-[10px] font-bold uppercase tracking-widest text-faint">
+        <p class="text-3xs font-bold uppercase tracking-widest text-faint">
             {{ __('messages.portal.home.next_session') }}
         </p>
         <p class="mt-2 text-sm font-semibold text-ink">{{ __('messages.portal.home.no_upcoming') }}</p>

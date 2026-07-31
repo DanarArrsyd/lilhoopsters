@@ -32,7 +32,7 @@
                     @foreach ($stepLabels as $s => $label)
                         <div class="flex flex-col items-center shrink-0 w-10 sm:w-14">
                             <div @class([
-                                'w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 text-[10px] sm:text-xs font-bold',
+                                'w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 text-3xs sm:text-xs font-bold',
                                 'bg-[#15803D] text-white'               => $step > $s,
                                 'bg-navy text-white ring-4 ring-navy/15' => $step === $s,
                                 'bg-gray-100 text-gray-400'             => $step < $s,
@@ -46,7 +46,7 @@
                                 @endif
                             </div>
                             <p @class([
-                                'text-[9px] sm:text-[10px] mt-1 sm:mt-1.5 text-center leading-tight font-medium hidden sm:block',
+                                'text-4xs sm:text-3xs mt-1 sm:mt-1.5 text-center leading-tight font-medium hidden sm:block',
                                 'text-[#15803D]'       => $step > $s,
                                 'text-navy font-bold'  => $step === $s,
                                 'text-gray-300'        => $step < $s,
@@ -91,7 +91,7 @@
                                         <div class="flex-1 min-w-0">
                                             <p class="font-bold text-gray-900 text-sm truncate">{{ $child->name }}</p>
                                             @if ($child->jersey_number)
-                                                <p class="text-[11px] text-gray-400 mt-0.5">#{{ $child->jersey_number }}</p>
+                                                <p class="text-2xs text-gray-400 mt-0.5">#{{ $child->jersey_number }}</p>
                                             @endif
                                         </div>
                                         <svg class="w-3.5 h-3.5 text-gray-300 group-hover:text-navy group-hover:translate-x-0.5 transition-all duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -133,7 +133,7 @@
                                         <div class="flex-1 min-w-0">
                                             <p class="font-bold text-gray-900 text-sm truncate">{{ $loc->name }}</p>
                                             @if ($loc->address)
-                                                <p class="text-[11px] text-gray-400 mt-0.5 truncate">{{ $loc->address }}</p>
+                                                <p class="text-2xs text-gray-400 mt-0.5 truncate">{{ $loc->address }}</p>
                                             @endif
                                         </div>
                                         <svg class="w-3.5 h-3.5 text-gray-300 group-hover:text-navy group-hover:translate-x-0.5 transition-all duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -179,7 +179,7 @@
                                         <div class="flex-1 min-w-0">
                                             <p class="font-bold text-gray-900 text-sm truncate">{{ $coach->user?->name ?? 'Coach' }}</p>
                                             @if ($coach->specialization)
-                                                <p class="text-[11px] text-gray-400 mt-0.5 truncate">{{ $coach->specialization }}</p>
+                                                <p class="text-2xs text-gray-400 mt-0.5 truncate">{{ $coach->specialization }}</p>
                                             @endif
                                         </div>
                                         <svg class="w-3.5 h-3.5 text-gray-300 group-hover:text-navy group-hover:translate-x-0.5 transition-all duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -225,7 +225,7 @@
                                         </div>
                                         <div class="flex-1 min-w-0">
                                             <p class="font-bold text-gray-900 text-sm">{{ ucfirst($day) }}</p>
-                                            <p class="text-[11px] text-gray-400 mt-0.5">
+                                            <p class="text-2xs text-gray-400 mt-0.5">
                                                 {{ $totalCnt }} slot{{ $totalCnt !== 1 ? 's' : '' }}
                                                 @if ($availCnt > 0)
                                                     · <span class="text-green-600 font-semibold">{{ $availCnt }} open</span>
@@ -255,7 +255,7 @@
 
                     {{-- Time slots for selected day --}}
                     <div class="mb-6">
-                        <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2.5">Available times</p>
+                        <p class="text-3xs font-bold uppercase tracking-widest text-gray-400 mb-2.5">Available times</p>
                         @if ($timeSlotsForDay->isEmpty())
                             <div class="py-7 text-center border-2 border-dashed border-gray-100 rounded-xl">
                                 <p class="text-sm text-gray-400">No slots on {{ ucfirst($selectedDay) }}.</p>
@@ -280,7 +280,7 @@
                                                     </p>
                                                 </div>
                                                 @if (!$slot['available'])
-                                                    <span class="shrink-0 text-[9px] bg-red-50 text-red-500 px-2 py-1 rounded-lg font-bold uppercase">Full</span>
+                                                    <span class="shrink-0 text-4xs bg-red-50 text-red-500 px-2 py-1 rounded-lg font-bold uppercase">Full</span>
                                                 @elseif ($sel)
                                                     <span class="shrink-0">
                                                         <svg class="w-4 h-4 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -296,7 +296,7 @@
                                                 @endif
                                             </div>
                                             <div>
-                                                <div class="flex items-center justify-between text-[10px] text-gray-400 mb-1">
+                                                <div class="flex items-center justify-between text-3xs text-gray-400 mb-1">
                                                     <span>Capacity</span>
                                                     @php $pct = $s->max_capacity > 0 ? min(100, ($slot['enrolled'] / $s->max_capacity) * 100) : 0; @endphp
                                                     <span class="{{ !$slot['available'] ? 'text-red-500 font-bold' : '' }}">
@@ -310,7 +310,7 @@
                                                          style="width: {{ $pct }}%"></div>
                                                 </div>
                                             </div>
-                                            <p class="text-[10px] text-gray-400 mt-2">
+                                            <p class="text-3xs text-gray-400 mt-2">
                                                 Next session: <strong class="text-gray-600">{{ $slot['nextOcc']->format('d M Y') }}</strong>
                                                 · Book by {{ $slot['nextOcc']->subDay()->format('d M') }}
                                             </p>
@@ -329,7 +329,7 @@
 
                     {{-- Select package --}}
                     <div class="mb-6">
-                        <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2.5">Package</p>
+                        <p class="text-3xs font-bold uppercase tracking-widest text-gray-400 mb-2.5">Package</p>
                         @if ($packages->isEmpty())
                             <div class="py-7 text-center border-2 border-dashed border-gray-100 rounded-xl">
                                 <p class="text-sm text-gray-400">No private packages available for this location.</p>
@@ -352,9 +352,9 @@
                                             <div class="flex-1 min-w-0">
                                                 <p class="font-bold text-gray-900 text-sm leading-none mb-0.5">{{ $pkg->name }}</p>
                                                 @if ($pkg->session_count)
-                                                    <p class="text-[11px] text-gray-400">{{ $pkg->session_count }} session{{ $pkg->session_count !== 1 ? 's' : '' }}</p>
+                                                    <p class="text-2xs text-gray-400">{{ $pkg->session_count }} session{{ $pkg->session_count !== 1 ? 's' : '' }}</p>
                                                 @elseif ($pkg->validity_days)
-                                                    <p class="text-[11px] text-gray-400">{{ $pkg->validity_days }} days validity</p>
+                                                    <p class="text-2xs text-gray-400">{{ $pkg->validity_days }} days validity</p>
                                                 @endif
                                             </div>
                                             <p class="font-extrabold text-navy text-base shrink-0">
@@ -417,10 +417,10 @@
                                 {{ strtoupper(substr($selectedChild?->name ?? '?', 0, 1)) }}
                             </div>
                             <div class="flex-1 min-w-0">
-                                <p class="text-[9px] font-bold uppercase tracking-widest text-white/40">Private Session Booking</p>
+                                <p class="text-4xs font-bold uppercase tracking-widest text-white/40">Private Session Booking</p>
                                 <p class="text-sm font-extrabold text-white truncate">{{ $selectedChild?->name }}</p>
                             </div>
-                            <span class="shrink-0 text-[9px] font-extrabold uppercase tracking-wide px-2 py-1 rounded-full bg-white/15 text-white/80">
+                            <span class="shrink-0 text-4xs font-extrabold uppercase tracking-wide px-2 py-1 rounded-full bg-white/15 text-white/80">
                                 Private
                             </span>
                         </div>
@@ -428,7 +428,7 @@
                             @foreach ($confirmRows as $row)
                                 <div class="flex items-center justify-between gap-3 px-4 py-3
                                     {{ isset($row['highlight']) && $row['highlight'] ? 'bg-navy/[0.03]' : '' }}">
-                                    <span class="text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400 shrink-0 w-20">
+                                    <span class="text-3xs font-semibold uppercase tracking-[0.1em] text-gray-400 shrink-0 w-20">
                                         {{ $row['label'] }}
                                     </span>
                                     <span @class([
@@ -454,7 +454,7 @@
 
                     <div class="flex items-center justify-between gap-3 bg-gray-50 rounded-xl px-4 py-3 border border-gray-100">
                         <div class="min-w-0">
-                            <p class="text-[9px] font-bold uppercase tracking-widest text-gray-400">Total</p>
+                            <p class="text-4xs font-bold uppercase tracking-widest text-gray-400">Total</p>
                             <p class="text-lg font-extrabold text-navy leading-none whitespace-nowrap">
                                 Rp {{ number_format($selectedPackage?->price ?? 0, 0, ',', '.') }}
                             </p>

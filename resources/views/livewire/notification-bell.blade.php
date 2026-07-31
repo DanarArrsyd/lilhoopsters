@@ -8,7 +8,7 @@
                   d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
         </svg>
         @if ($unreadCount > 0)
-            <span class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-[#B91C1C] text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 leading-none">
+            <span class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-[#B91C1C] text-white text-3xs font-bold rounded-full flex items-center justify-center px-1 leading-none">
                 {{ $unreadCount > 99 ? '99+' : $unreadCount }}
             </span>
         @endif
@@ -59,7 +59,7 @@
                     <div class="flex-1 min-w-0">
                         <p class="text-sm font-semibold text-ink leading-snug">{{ $notif->title }}</p>
                         <p class="text-xs text-muted mt-0.5 leading-relaxed">{{ $notif->body }}</p>
-                        <p class="text-[10px] text-faint mt-1">{{ $notif->created_at->diffForHumans() }}</p>
+                        <p class="text-3xs text-faint mt-1">{{ $notif->created_at->diffForHumans() }}</p>
                     </div>
 
                     {{-- Mark read --}}

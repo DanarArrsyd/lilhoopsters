@@ -41,7 +41,7 @@
                         @foreach ([1 => __('messages.admin.schedules.step_setup'), 2 => __('messages.admin.schedules.step_timing')] as $n => $label)
                             <div class="flex items-center gap-2">
                                 <div @class([
-                                    'w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 transition-colors',
+                                    'w-6 h-6 rounded-full flex items-center justify-center text-2xs font-bold shrink-0 transition-colors',
                                     'bg-[#15803D] text-white' => $step > $n,
                                     'bg-navy text-off'        => $step === $n,
                                     'bg-line text-faint'      => $step < $n,
@@ -96,7 +96,7 @@
                                         <p @class(['text-xs font-extrabold', 'text-[#1D4ED8]' => $type === 'regular', 'text-ink' => $type !== 'regular'])>
                                             {{ __('messages.admin.schedules.type_regular') }}
                                         </p>
-                                        <p @class(['text-[10px] mt-0.5', 'text-[#3B82F6]' => $type === 'regular', 'text-faint' => $type !== 'regular'])>
+                                        <p @class(['text-3xs mt-0.5', 'text-[#3B82F6]' => $type === 'regular', 'text-faint' => $type !== 'regular'])>
                                             {{ __('messages.admin.schedules.regular_desc') }}
                                         </p>
                                     </button>
@@ -109,7 +109,7 @@
                                         <p @class(['text-xs font-extrabold', 'text-[#7C3AED]' => $type === 'private', 'text-ink' => $type !== 'private'])>
                                             {{ __('messages.admin.schedules.type_private') }}
                                         </p>
-                                        <p @class(['text-[10px] mt-0.5', 'text-[#8B5CF6]' => $type === 'private', 'text-faint' => $type !== 'private'])>
+                                        <p @class(['text-3xs mt-0.5', 'text-[#8B5CF6]' => $type === 'private', 'text-faint' => $type !== 'private'])>
                                             {{ __('messages.admin.schedules.private_desc') }}
                                         </p>
                                     </button>
@@ -305,10 +305,10 @@
                     <div class="min-w-0 flex-1">
                         <p class="font-extrabold text-navy text-sm sm:text-base truncate leading-tight">{{ $location?->name ?? 'Unassigned' }}</p>
                         @if ($location?->address)
-                            <p class="text-[11px] text-muted truncate">{{ $location->address }}</p>
+                            <p class="text-2xs text-muted truncate">{{ $location->address }}</p>
                         @endif
                     </div>
-                    <span class="shrink-0 text-[11px] font-semibold text-muted tabular-nums">
+                    <span class="shrink-0 text-2xs font-semibold text-muted tabular-nums">
                         {{ $group->count() }} {{ $group->count() === 1 ? 'schedule' : 'schedules' }}
                         <span class="text-faint hidden sm:inline">· {{ $activeCount }} active</span>
                     </span>
@@ -326,12 +326,12 @@
                     <table class="w-full text-sm min-w-[720px]">
                         <thead>
                             <tr class="border-b border-line bg-off/50">
-                                <th class="text-left py-2.5 px-4 text-[11px] font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.schedules.col_program') }}</th>
-                                <th class="text-left py-2.5 px-4 text-[11px] font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.schedules.col_day_time') }}</th>
-                                <th class="text-left py-2.5 px-4 text-[11px] font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.schedules.col_type') }}</th>
-                                <th class="text-left py-2.5 px-4 text-[11px] font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.schedules.col_coach') }}</th>
-                                <th class="text-left py-2.5 px-4 text-[11px] font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.schedules.col_capacity') }}</th>
-                                <th class="text-left py-2.5 px-4 text-[11px] font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.schedules.col_status') }}</th>
+                                <th class="text-left py-2.5 px-4 text-2xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.schedules.col_program') }}</th>
+                                <th class="text-left py-2.5 px-4 text-2xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.schedules.col_day_time') }}</th>
+                                <th class="text-left py-2.5 px-4 text-2xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.schedules.col_type') }}</th>
+                                <th class="text-left py-2.5 px-4 text-2xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.schedules.col_coach') }}</th>
+                                <th class="text-left py-2.5 px-4 text-2xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.schedules.col_capacity') }}</th>
+                                <th class="text-left py-2.5 px-4 text-2xs font-bold text-muted uppercase tracking-wide">{{ __('messages.admin.schedules.col_status') }}</th>
                                 <th class="py-2.5 px-4"></th>
                             </tr>
                         </thead>
@@ -358,7 +358,7 @@
                                         </p>
                                     </td>
                                     <td class="py-3 px-4">
-                                        <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide
+                                        <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-2xs font-semibold uppercase tracking-wide
                                             {{ $isPrivate ? 'bg-[#7C3AED]/10 text-[#7C3AED]' : 'bg-[#1D4ED8]/10 text-[#1D4ED8]' }}">
                                             {{ $isPrivate ? __('messages.admin.schedules.type_private') : __('messages.admin.schedules.type_regular') }}
                                         </span>

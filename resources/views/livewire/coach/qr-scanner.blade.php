@@ -102,9 +102,9 @@
                             @if ($status === 'present')
                                 {{-- ✅ Present --}}
                                 <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-[#F0FDF4] border border-[#BBF7D0]">
-                                    <div class="w-7 h-7 rounded-full bg-[#15803D] flex items-center justify-center text-[11px] font-bold text-white shrink-0">{{ $init }}</div>
+                                    <div class="w-7 h-7 rounded-full bg-[#15803D] flex items-center justify-center text-2xs font-bold text-white shrink-0">{{ $init }}</div>
                                     <span class="text-sm font-semibold text-[#15803D] flex-1 truncate">{{ $child->name }}</span>
-                                    <span class="text-[10px] font-bold text-[#15803D] flex items-center gap-1 shrink-0">
+                                    <span class="text-3xs font-bold text-[#15803D] flex items-center gap-1 shrink-0">
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
                                         {{ __('messages.coach.qr_scanner.present') }}
                                     </span>
@@ -118,13 +118,13 @@
                             @elseif ($status === 'no_show')
                                 {{-- ❌ No Show (explicitly recorded) --}}
                                 <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-[#FEF2F2] border border-[#FECACA]">
-                                    <div class="w-7 h-7 rounded-full bg-[#B91C1C]/20 flex items-center justify-center text-[11px] font-bold text-[#B91C1C] shrink-0">{{ $init }}</div>
+                                    <div class="w-7 h-7 rounded-full bg-[#B91C1C]/20 flex items-center justify-center text-2xs font-bold text-[#B91C1C] shrink-0">{{ $init }}</div>
                                     <span class="text-sm font-semibold text-[#B91C1C] flex-1 truncate">{{ $child->name }}</span>
-                                    <span class="text-[10px] font-bold text-[#B91C1C] shrink-0">No Show</span>
+                                    <span class="text-3xs font-bold text-[#B91C1C] shrink-0">No Show</span>
                                     <button type="button"
                                             wire:click="markPresent({{ $child->id }})"
                                             title="Mark present"
-                                            class="text-[10px] font-bold text-[#15803D] bg-[#F0FDF4] border border-[#BBF7D0] px-2 py-1 rounded-lg hover:bg-[#DCFCE7] transition-colors shrink-0">
+                                            class="text-3xs font-bold text-[#15803D] bg-[#F0FDF4] border border-[#BBF7D0] px-2 py-1 rounded-lg hover:bg-[#DCFCE7] transition-colors shrink-0">
                                         Present
                                     </button>
                                     <button type="button"
@@ -140,18 +140,18 @@
                                     $leaveLabel = $status === 'sick' ? __('messages.admin.attendances.opt_sick') : __('messages.admin.attendances.opt_permit');
                                 @endphp
                                 <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-amber-50 border border-amber-100">
-                                    <div class="w-7 h-7 rounded-full bg-amber-200 flex items-center justify-center text-[11px] font-bold text-amber-800 shrink-0">{{ $init }}</div>
+                                    <div class="w-7 h-7 rounded-full bg-amber-200 flex items-center justify-center text-2xs font-bold text-amber-800 shrink-0">{{ $init }}</div>
                                     <div class="flex-1 min-w-0">
                                         <span class="text-sm font-semibold text-ink truncate block">{{ $child->name }}</span>
-                                        <span class="text-[10px] text-amber-700">Leave request submitted</span>
+                                        <span class="text-3xs text-amber-700">Leave request submitted</span>
                                     </div>
-                                    <span class="text-[10px] font-bold text-amber-700 bg-amber-100 border border-amber-200 px-2 py-0.5 rounded-full shrink-0">
+                                    <span class="text-3xs font-bold text-amber-700 bg-amber-100 border border-amber-200 px-2 py-0.5 rounded-full shrink-0">
                                         {{ $leaveLabel }}
                                     </span>
                                     <button type="button"
                                             wire:click="markPresent({{ $child->id }})"
                                             title="Override — mark present"
-                                            class="text-[10px] font-bold text-[#15803D] bg-[#F0FDF4] border border-[#BBF7D0] px-2 py-1 rounded-lg hover:bg-[#DCFCE7] transition-colors shrink-0">
+                                            class="text-3xs font-bold text-[#15803D] bg-[#F0FDF4] border border-[#BBF7D0] px-2 py-1 rounded-lg hover:bg-[#DCFCE7] transition-colors shrink-0">
                                         Present
                                     </button>
                                 </div>
@@ -159,19 +159,19 @@
                             @else
                                 {{-- ⬜ No Record --}}
                                 <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-off border border-line">
-                                    <div class="w-7 h-7 rounded-full bg-navy/10 flex items-center justify-center text-[11px] font-bold text-navy shrink-0">{{ $init }}</div>
+                                    <div class="w-7 h-7 rounded-full bg-navy/10 flex items-center justify-center text-2xs font-bold text-navy shrink-0">{{ $init }}</div>
                                     <span class="text-sm text-ink flex-1 truncate">{{ $child->name }}</span>
-                                    <span class="text-[10px] font-semibold text-faint bg-line/60 px-2 py-0.5 rounded-full shrink-0">No Record</span>
+                                    <span class="text-3xs font-semibold text-faint bg-line/60 px-2 py-0.5 rounded-full shrink-0">No Record</span>
                                     <button type="button"
                                             wire:click="markPresent({{ $child->id }})"
                                             title="Mark present"
-                                            class="text-[10px] font-bold text-[#15803D] bg-[#F0FDF4] border border-[#BBF7D0] px-2 py-1 rounded-lg hover:bg-[#DCFCE7] transition-colors shrink-0">
+                                            class="text-3xs font-bold text-[#15803D] bg-[#F0FDF4] border border-[#BBF7D0] px-2 py-1 rounded-lg hover:bg-[#DCFCE7] transition-colors shrink-0">
                                         Present
                                     </button>
                                     <button type="button"
                                             wire:click="markNoShow({{ $child->id }})"
                                             title="Mark no show"
-                                            class="text-[10px] font-bold text-[#B91C1C] bg-[#FEF2F2] border border-[#FECACA] px-2 py-1 rounded-lg hover:bg-[#FEE2E2] transition-colors shrink-0">
+                                            class="text-3xs font-bold text-[#B91C1C] bg-[#FEF2F2] border border-[#FECACA] px-2 py-1 rounded-lg hover:bg-[#FEE2E2] transition-colors shrink-0">
                                         No Show
                                     </button>
                                 </div>

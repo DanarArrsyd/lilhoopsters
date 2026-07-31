@@ -450,7 +450,7 @@ return [
             'this_week'          => 'This Week',
             'see_details'        => 'See details',
             'todays_sessions'    => "Today's Sessions",
-            'no_sessions'        => 'No sessions today.',
+            'no_sessions' => 'Nothing is scheduled for today. The next session is on the week strip.',
             'next'               => 'Next:',
             'rest_of_week'       => 'Rest of Week',
             'stat_pending_payments'   => 'Payments to verify',

@@ -19,7 +19,7 @@
             @foreach ($stepLabels as $s => $label)
                 <div class="flex flex-col items-center shrink-0 w-10 sm:w-14">
                     <div @class([
-                        'w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 text-[10px] sm:text-xs font-bold',
+                        'w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 text-3xs sm:text-xs font-bold',
                         'bg-[#15803D] text-white'               => $step > $s,
                         'bg-navy text-white ring-4 ring-navy/15' => $step === $s,
                         'bg-gray-100 text-gray-400'              => $step < $s,
@@ -33,7 +33,7 @@
                         @endif
                     </div>
                     <p @class([
-                        'text-[9px] sm:text-[10px] mt-1 sm:mt-1.5 text-center leading-tight font-medium hidden sm:block',
+                        'text-4xs sm:text-3xs mt-1 sm:mt-1.5 text-center leading-tight font-medium hidden sm:block',
                         'text-[#15803D]'       => $step > $s,
                         'text-navy font-bold'  => $step === $s,
                         'text-gray-300'        => $step < $s,
@@ -92,7 +92,7 @@
             <div class="space-y-6">
                 {{-- Schedule cards --}}
                 <div>
-                    <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2.5">Class / Schedule</p>
+                    <p class="text-3xs font-bold uppercase tracking-widest text-gray-400 mb-2.5">Class / Schedule</p>
                     @if ($enrollmentsByChild->isEmpty())
                         <p class="text-sm text-muted py-4 text-center">No active enrollments for this player.</p>
                     @else
@@ -128,17 +128,17 @@
 
                 {{-- Date --}}
                 <div>
-                    <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Leave Date</p>
+                    <p class="text-3xs font-bold uppercase tracking-widest text-gray-400 mb-2">Leave Date</p>
                     <x-input wire:key="lv-date" type="date" wire:model="leaveDate"
                              min="{{ now()->subDays(7)->toDateString() }}"
                              max="{{ now()->toDateString() }}"
                              :error="$errors->first('leaveDate')" />
-                    <p class="text-[11px] text-faint mt-1">{{ __('messages.leaves.date_hint') }}</p>
+                    <p class="text-2xs text-faint mt-1">{{ __('messages.leaves.date_hint') }}</p>
                 </div>
 
                 {{-- Type toggle --}}
                 <div>
-                    <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">Leave Type <span class="text-[#B91C1C]">*</span></p>
+                    <p class="text-3xs font-bold uppercase tracking-widest text-gray-400 mb-3">Leave Type <span class="text-[#B91C1C]">*</span></p>
                     <div class="grid grid-cols-2 gap-3">
                         <button type="button" wire:key="lv-type-sick" wire:click="$set('type','sick')"
                                 @class([
@@ -178,14 +178,14 @@
             <div class="space-y-5">
                 {{-- Summary card --}}
                 <div class="bg-navy rounded-xl p-5 text-off">
-                    <p class="text-[10px] font-bold uppercase tracking-widest text-off/50 mb-4">Summary</p>
+                    <p class="text-3xs font-bold uppercase tracking-widest text-off/50 mb-4">Summary</p>
                     <div class="space-y-3">
                         <div class="flex items-center gap-3">
                             <div class="w-9 h-9 rounded-full bg-off/10 flex items-center justify-center text-sm font-bold shrink-0">
                                 {{ strtoupper(substr($children->firstWhere('id', $selectedChildId)?->name ?? '?', 0, 1)) }}
                             </div>
                             <div>
-                                <p class="text-[10px] text-off/50 uppercase tracking-wide">Player</p>
+                                <p class="text-3xs text-off/50 uppercase tracking-wide">Player</p>
                                 <p class="text-sm font-semibold">{{ $children->firstWhere('id', $selectedChildId)?->name ?? '—' }}</p>
                             </div>
                         </div>
@@ -197,7 +197,7 @@
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-[10px] text-off/50 uppercase tracking-wide">Class</p>
+                                <p class="text-3xs text-off/50 uppercase tracking-wide">Class</p>
                                 <p class="text-sm font-semibold">{{ $selectedEnrollment->schedule->program->name }}</p>
                                 <p class="text-xs text-off/60">{{ ucfirst($selectedEnrollment->schedule->day_of_week) }} · {{ $selectedEnrollment->schedule->location->name }}</p>
                             </div>
@@ -210,7 +210,7 @@
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-[10px] text-off/50 uppercase tracking-wide">Date</p>
+                                <p class="text-3xs text-off/50 uppercase tracking-wide">Date</p>
                                 <p class="text-sm font-semibold">{{ $leaveDate ? \Carbon\Carbon::parse($leaveDate)->format('l, d M Y') : '—' }}</p>
                             </div>
                         </div>
@@ -221,7 +221,7 @@
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-[10px] text-off/50 uppercase tracking-wide">Type</p>
+                                <p class="text-3xs text-off/50 uppercase tracking-wide">Type</p>
                                 <p class="text-sm font-semibold capitalize">{{ $type ?: '—' }}</p>
                             </div>
                         </div>
@@ -341,7 +341,7 @@
                     <div class="px-4 py-3.5">
                         <div class="flex items-center justify-between gap-2">
                             <div class="flex items-center gap-2 min-w-0">
-                                <span class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide {{ $t['text'] }} {{ $t['bg'] }} px-2 py-0.5 rounded-full shrink-0">
+                                <span class="inline-flex items-center gap-1.5 text-2xs font-bold uppercase tracking-wide {{ $t['text'] }} {{ $t['bg'] }} px-2 py-0.5 rounded-full shrink-0">
                                     <span class="w-1.5 h-1.5 rounded-full {{ $t['dot'] }} inline-block"></span>
                                     {{ $t['label'] }}
                                 </span>
@@ -349,7 +349,7 @@
                                     <span class="text-xs text-faint truncate">{{ $lr->child->name }}</span>
                                 @endif
                             </div>
-                            <span class="text-[11px] font-bold px-2 py-0.5 rounded-full shrink-0 {{ $s['class'] }}">
+                            <span class="text-2xs font-bold px-2 py-0.5 rounded-full shrink-0 {{ $s['class'] }}">
                                 {{ $s['label'] }}
                             </span>
                         </div>
@@ -366,7 +366,7 @@
                         </p>
 
                         @if ($lr->status === 'pending' && $lr->auto_approve_at)
-                            <p class="text-[10px] text-muted mt-1.5 flex items-center gap-1">
+                            <p class="text-3xs text-muted mt-1.5 flex items-center gap-1">
                                 <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>

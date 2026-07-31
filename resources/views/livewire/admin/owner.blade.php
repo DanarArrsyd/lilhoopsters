@@ -38,7 +38,7 @@
         </div>
 
         <div class="border-t border-line mt-4 pt-3 flex flex-wrap gap-x-8 gap-y-3">
-            <span class="text-[11px] uppercase tracking-wide text-faint font-semibold self-center">{{ __('messages.admin.owner.last_30_days') }}</span>
+            <span class="text-2xs uppercase tracking-wide text-faint font-semibold self-center">{{ __('messages.admin.owner.last_30_days') }}</span>
             @php
                 $trendMeta = [
                     'joined'  => __('messages.admin.owner.trend_joined'),
@@ -49,7 +49,7 @@
             @foreach ($trendMeta as $key => $label)
                 @php $t = $insights['trends'][$key]; $d = $t['delta']; @endphp
                 <div>
-                    <span class="block text-[11px] text-faint">{{ $label }}</span>
+                    <span class="block text-2xs text-faint">{{ $label }}</span>
                     <span class="text-lg font-extrabold text-navy leading-none">
                         {{ ($t['money'] ?? false) ? 'Rp ' . number_format($t['value'], 0, ',', '.') : number_format($t['value']) }}
                     </span>
@@ -59,14 +59,14 @@
                             $isFlat = $d['dir'] === 'flat';
                             $cls = $isFlat ? 'text-muted' : ($isGood ? 'text-[#15803D]' : 'text-[#B91C1C]');
                         @endphp
-                        <span class="inline-flex items-center gap-0.5 text-[11px] font-bold {{ $cls }} ml-1">
+                        <span class="inline-flex items-center gap-0.5 text-2xs font-bold {{ $cls }} ml-1">
                             @unless ($isFlat)
                                 <svg class="w-2.5 h-2.5 {{ $d['dir'] === 'down' ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>
                             @endunless
                             {{ $d['pct'] }}%
                         </span>
                     @else
-                        <span class="text-[11px] text-faint ml-1">—</span>
+                        <span class="text-2xs text-faint ml-1">—</span>
                     @endif
                 </div>
             @endforeach
@@ -80,7 +80,7 @@
         <section>
             <div class="flex items-center gap-2 mb-3">
                 <h2 class="text-sm font-extrabold text-navy uppercase tracking-wide">{{ __('messages.admin.owner.needs_attention') }}</h2>
-                <span class="text-[11px] text-faint">{{ __('messages.admin.owner.ranked_by_impact') }}</span>
+                <span class="text-2xs text-faint">{{ __('messages.admin.owner.ranked_by_impact') }}</span>
             </div>
             <div class="space-y-2">
                 @php
@@ -94,7 +94,7 @@
                         </div>
                         @if ($a['action'])
                             <button wire:click="{{ $a['action'] }}" wire:loading.attr="disabled" wire:target="{{ $a['action'] }}"
-                                    class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-off bg-navy hover:bg-navy/90 disabled:opacity-50 rounded-lg px-3 py-1.5 transition-colors shrink-0">
+                                    class="inline-flex items-center gap-1.5 text-2xs font-semibold text-off bg-navy hover:bg-navy/90 disabled:opacity-50 rounded-lg px-3 py-1.5 transition-colors shrink-0">
                                 {{ $a['cta'] }}
                             </button>
                         @endif
@@ -170,7 +170,7 @@
             <section>
                 <div class="flex items-center gap-2 mb-3">
                     <h2 class="text-sm font-extrabold text-navy uppercase tracking-wide">{{ __('messages.admin.owner.retention_renewal') }}</h2>
-                    <span class="text-[11px] text-faint">{{ __('messages.admin.owner.current_snapshot') }}</span>
+                    <span class="text-2xs text-faint">{{ __('messages.admin.owner.current_snapshot') }}</span>
                 </div>
 
                 @php
@@ -185,10 +185,10 @@
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
                     @foreach ($renewalCards as $c)
                         <div class="bg-surface border border-line rounded-xl px-4 pt-4 pb-3 flex flex-col gap-3">
-                            <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">{{ $c['label'] }}</p>
+                            <p class="text-2xs font-semibold text-muted uppercase tracking-wide leading-tight">{{ $c['label'] }}</p>
                             <div>
                                 <p class="text-xl font-extrabold text-navy leading-none tracking-tight">{{ $c['value'] }}</p>
-                                <p class="text-[11px] text-muted mt-1.5">{{ $c['sub'] }}</p>
+                                <p class="text-2xs text-muted mt-1.5">{{ $c['sub'] }}</p>
                             </div>
                             <div class="h-0.5 w-10 {{ $c['bar'] }} rounded-full"></div>
                         </div>
@@ -200,7 +200,7 @@
                         <h3 class="text-xs font-extrabold text-navy uppercase tracking-wide">{{ __('messages.admin.owner.expiring_followup') }}</h3>
                         @if ($renewal['expiring_list']->isNotEmpty())
                             <button wire:click="remindAllExpiring" wire:loading.attr="disabled" wire:target="remindAllExpiring"
-                                    class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-off bg-navy hover:bg-navy/90 disabled:opacity-50 rounded-lg px-2.5 py-1.5 transition-colors shrink-0">
+                                    class="inline-flex items-center gap-1.5 text-2xs font-semibold text-off bg-navy hover:bg-navy/90 disabled:opacity-50 rounded-lg px-2.5 py-1.5 transition-colors shrink-0">
                                 <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>
                                 </svg>
@@ -214,7 +214,7 @@
                         <div class="overflow-x-auto">
                             <table class="w-full text-sm">
                                 <thead>
-                                    <tr class="text-[11px] uppercase tracking-wide text-faint border-b border-line">
+                                    <tr class="text-2xs uppercase tracking-wide text-faint border-b border-line">
                                         <th class="text-left font-semibold px-5 py-2.5">{{ __('messages.admin.owner.col_child') }}</th>
                                         <th class="text-left font-semibold px-3 py-2.5">{{ __('messages.admin.owner.col_parent') }}</th>
                                         <th class="text-left font-semibold px-3 py-2.5 hidden md:table-cell">{{ __('messages.admin.owner.col_package') }}</th>
@@ -229,7 +229,7 @@
                                             <td class="px-5 py-2.5 font-semibold text-ink">{{ $row['child'] }}</td>
                                             <td class="px-3 py-2.5 text-muted">
                                                 <span class="text-ink">{{ $row['parent'] }}</span>
-                                                <span class="block text-[11px] text-faint">{{ $row['email'] }}</span>
+                                                <span class="block text-2xs text-faint">{{ $row['email'] }}</span>
                                             </td>
                                             <td class="px-3 py-2.5 text-muted hidden md:table-cell">{{ $row['package'] }}</td>
                                             <td class="px-3 py-2.5 text-right">
@@ -243,7 +243,7 @@
                                                 @if ($row['expires'])
                                                     <span class="text-ink">{{ $row['expires']->format('d M Y') }}</span>
                                                     @php $d = $row['days']; @endphp
-                                                    <span class="block text-[11px] font-semibold {{ $d !== null && $d < 0 ? 'text-[#B91C1C]' : ($d !== null && $d <= 7 ? 'text-[#B45309]' : 'text-faint') }}">
+                                                    <span class="block text-2xs font-semibold {{ $d !== null && $d < 0 ? 'text-[#B91C1C]' : ($d !== null && $d <= 7 ? 'text-[#B45309]' : 'text-faint') }}">
                                                         @if ($d === null)
                                                         @elseif ($d < 0)
                                                             {{ __('messages.admin.owner.days_ago', ['count' => abs($d)]) }}
@@ -260,7 +260,7 @@
                                             <td class="px-5 py-2.5 text-right">
                                                 <button wire:click="sendRenewalReminder({{ $row['id'] }})"
                                                         wire:loading.attr="disabled" wire:target="sendRenewalReminder({{ $row['id'] }})"
-                                                        class="inline-flex items-center gap-1 text-[11px] font-semibold text-navy border border-line hover:border-navy/40 hover:bg-off disabled:opacity-50 rounded-lg px-2 py-1 transition-colors">
+                                                        class="inline-flex items-center gap-1 text-2xs font-semibold text-navy border border-line hover:border-navy/40 hover:bg-off disabled:opacity-50 rounded-lg px-2 py-1 transition-colors">
                                                     <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>
                                                     </svg>
@@ -280,31 +280,31 @@
             <section>
                 <div class="flex items-center gap-2 mb-3">
                     <h2 class="text-sm font-extrabold text-navy uppercase tracking-wide">{{ __('messages.admin.owner.class_utilization') }}</h2>
-                    <span class="text-[11px] text-faint">{{ __('messages.admin.owner.booked_div_cap') }}</span>
+                    <span class="text-2xs text-faint">{{ __('messages.admin.owner.booked_div_cap') }}</span>
                 </div>
 
                 <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
                     <div class="bg-surface border border-line rounded-xl px-4 pt-4 pb-3 flex flex-col gap-3">
-                        <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">{{ __('messages.admin.owner.total_util_label') }}</p>
+                        <p class="text-2xs font-semibold text-muted uppercase tracking-wide leading-tight">{{ __('messages.admin.owner.total_util_label') }}</p>
                         <div>
                             <p class="text-xl font-extrabold text-navy leading-none tracking-tight">{{ $capacity['overall'] }}%</p>
-                            <p class="text-[11px] text-muted mt-1.5">{{ __('messages.admin.owner.sub_slots', ['booked' => $capacity['total_book'], 'cap' => $capacity['total_cap']]) }}</p>
+                            <p class="text-2xs text-muted mt-1.5">{{ __('messages.admin.owner.sub_slots', ['booked' => $capacity['total_book'], 'cap' => $capacity['total_cap']]) }}</p>
                         </div>
                         <div class="h-0.5 w-10 bg-[#1D4ED8] rounded-full"></div>
                     </div>
                     <div class="bg-surface border border-line rounded-xl px-4 pt-4 pb-3 flex flex-col gap-3">
-                        <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">{{ __('messages.admin.owner.underfilled_label') }}</p>
+                        <p class="text-2xs font-semibold text-muted uppercase tracking-wide leading-tight">{{ __('messages.admin.owner.underfilled_label') }}</p>
                         <div>
                             <p class="text-xl font-extrabold text-navy leading-none tracking-tight">{{ $capacity['underfilled'] }}</p>
-                            <p class="text-[11px] text-muted mt-1.5">{{ __('messages.admin.owner.sub_filled') }}</p>
+                            <p class="text-2xs text-muted mt-1.5">{{ __('messages.admin.owner.sub_filled') }}</p>
                         </div>
                         <div class="h-0.5 w-10 bg-[#B45309] rounded-full"></div>
                     </div>
                     <div class="bg-surface border border-line rounded-xl px-4 pt-4 pb-3 flex flex-col gap-3">
-                        <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">{{ __('messages.admin.owner.active_sched_label') }}</p>
+                        <p class="text-2xs font-semibold text-muted uppercase tracking-wide leading-tight">{{ __('messages.admin.owner.active_sched_label') }}</p>
                         <div>
                             <p class="text-xl font-extrabold text-navy leading-none tracking-tight">{{ $capacity['schedules']->count() }}</p>
-                            <p class="text-[11px] text-muted mt-1.5">{{ __('messages.admin.owner.sub_weekly') }}</p>
+                            <p class="text-2xs text-muted mt-1.5">{{ __('messages.admin.owner.sub_weekly') }}</p>
                         </div>
                         <div class="h-0.5 w-10 bg-navy rounded-full"></div>
                     </div>
@@ -323,7 +323,7 @@
                                 <div class="px-5 py-3 flex items-center gap-4">
                                     <div class="min-w-0 flex-1">
                                         <p class="text-sm font-semibold text-ink truncate">{{ $s['label'] }}</p>
-                                        <p class="text-[11px] text-faint">{{ $s['day'] }} · {{ $s['time'] }}</p>
+                                        <p class="text-2xs text-faint">{{ $s['day'] }} · {{ $s['time'] }}</p>
                                     </div>
                                     <div class="w-40 shrink-0 hidden sm:block">
                                         <div class="h-2 bg-off rounded-full overflow-hidden">
@@ -332,7 +332,7 @@
                                     </div>
                                     <div class="text-right shrink-0 w-20">
                                         <p class="text-sm font-bold text-navy">{{ $s['booked'] }}/{{ $s['capacity'] }}</p>
-                                        <p class="text-[11px] text-muted">{{ $fill }}%</p>
+                                        <p class="text-2xs text-muted">{{ $fill }}%</p>
                                     </div>
                                 </div>
                             @endforeach
@@ -356,7 +356,7 @@
             <section>
                 <div class="flex items-center gap-2 mb-3">
                     <h2 class="text-sm font-extrabold text-navy uppercase tracking-wide">{{ __('messages.admin.owner.outstanding_payments') }}</h2>
-                    <span class="text-[11px] text-faint">{{ __('messages.admin.owner.pending_status') }}</span>
+                    <span class="text-2xs text-faint">{{ __('messages.admin.owner.pending_status') }}</span>
                 </div>
 
                 @php
@@ -370,10 +370,10 @@
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-3">
                     @foreach ($arCards as $c)
                         <div class="bg-surface border border-line rounded-xl px-4 pt-4 pb-3 flex flex-col gap-3">
-                            <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">{{ $c['label'] }}</p>
+                            <p class="text-2xs font-semibold text-muted uppercase tracking-wide leading-tight">{{ $c['label'] }}</p>
                             <div>
                                 <p class="text-xl font-extrabold text-navy leading-none tracking-tight">{{ $c['value'] }}</p>
-                                <p class="text-[11px] text-muted mt-1.5">{{ $c['sub'] }}</p>
+                                <p class="text-2xs text-muted mt-1.5">{{ $c['sub'] }}</p>
                             </div>
                             <div class="h-0.5 w-10 {{ $c['bar'] }} rounded-full"></div>
                         </div>
@@ -382,7 +382,7 @@
 
                 {{-- Aging strip --}}
                 <div class="bg-surface border border-line rounded-xl px-5 py-3 mb-3 flex flex-wrap items-center gap-x-6 gap-y-2">
-                    <span class="text-[11px] uppercase tracking-wide text-faint font-semibold">{{ __('messages.admin.owner.invoice_age') }}</span>
+                    <span class="text-2xs uppercase tracking-wide text-faint font-semibold">{{ __('messages.admin.owner.invoice_age') }}</span>
                     <span class="flex items-center gap-1.5 text-sm"><span class="w-2.5 h-2.5 rounded-full bg-[#15803D]"></span><span class="text-muted">{{ __('messages.admin.owner.age_fresh') }}</span><span class="font-bold text-ink">{{ $ar['aging']['fresh'] }}</span></span>
                     <span class="flex items-center gap-1.5 text-sm"><span class="w-2.5 h-2.5 rounded-full bg-[#B45309]"></span><span class="text-muted">{{ __('messages.admin.owner.age_week') }}</span><span class="font-bold text-ink">{{ $ar['aging']['week'] }}</span></span>
                     <span class="flex items-center gap-1.5 text-sm"><span class="w-2.5 h-2.5 rounded-full bg-[#B91C1C]"></span><span class="text-muted">{{ __('messages.admin.owner.age_stale') }}</span><span class="font-bold text-ink">{{ $ar['aging']['stale'] }}</span></span>
@@ -393,7 +393,7 @@
                         <div class="px-5 py-3 border-b border-line flex items-center justify-between gap-3">
                             <h3 class="text-xs font-extrabold text-navy uppercase tracking-wide">{{ __('messages.admin.owner.invoice_list') }}</h3>
                             <button wire:click="remindAllOutstanding" wire:loading.attr="disabled" wire:target="remindAllOutstanding"
-                                    class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-off bg-navy hover:bg-navy/90 disabled:opacity-50 rounded-lg px-2.5 py-1.5 transition-colors shrink-0">
+                                    class="inline-flex items-center gap-1.5 text-2xs font-semibold text-off bg-navy hover:bg-navy/90 disabled:opacity-50 rounded-lg px-2.5 py-1.5 transition-colors shrink-0">
                                 <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>
                                 </svg>
@@ -407,7 +407,7 @@
                         <div class="overflow-x-auto">
                             <table class="w-full text-sm">
                                 <thead>
-                                    <tr class="text-[11px] uppercase tracking-wide text-faint border-b border-line">
+                                    <tr class="text-2xs uppercase tracking-wide text-faint border-b border-line">
                                         <th class="text-left font-semibold px-5 py-2.5">{{ __('messages.admin.owner.col_code') }}</th>
                                         <th class="text-left font-semibold px-3 py-2.5">{{ __('messages.admin.owner.col_child') }}</th>
                                         <th class="text-left font-semibold px-3 py-2.5 hidden md:table-cell">{{ __('messages.admin.owner.col_package') }}</th>
@@ -419,10 +419,10 @@
                                 <tbody class="divide-y divide-line">
                                     @foreach ($ar['list'] as $row)
                                         <tr class="hover:bg-off/60" wire:key="ar-{{ $row['id'] }}">
-                                            <td class="px-5 py-2.5 font-mono text-[12px] text-muted">{{ $row['code'] }}</td>
+                                            <td class="px-5 py-2.5 font-mono text-xs text-muted">{{ $row['code'] }}</td>
                                             <td class="px-3 py-2.5">
                                                 <span class="font-semibold text-ink">{{ $row['child'] }}</span>
-                                                <span class="block text-[11px] text-faint">{{ $row['parent'] }}</span>
+                                                <span class="block text-2xs text-faint">{{ $row['parent'] }}</span>
                                             </td>
                                             <td class="px-3 py-2.5 text-muted hidden md:table-cell">{{ $row['package'] }}</td>
                                             <td class="px-3 py-2.5 text-right">
@@ -434,7 +434,7 @@
                                             <td class="px-5 py-2.5 text-right">
                                                 <button wire:click="sendPaymentReminder({{ $row['id'] }})"
                                                         wire:loading.attr="disabled" wire:target="sendPaymentReminder({{ $row['id'] }})"
-                                                        class="inline-flex items-center gap-1 text-[11px] font-semibold text-navy border border-line hover:border-navy/40 hover:bg-off disabled:opacity-50 rounded-lg px-2 py-1 transition-colors">
+                                                        class="inline-flex items-center gap-1 text-2xs font-semibold text-navy border border-line hover:border-navy/40 hover:bg-off disabled:opacity-50 rounded-lg px-2 py-1 transition-colors">
                                                     <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>
                                                     </svg>
@@ -466,7 +466,7 @@
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
                     <div class="flex items-center gap-2">
                         <h2 class="text-sm font-extrabold text-navy uppercase tracking-wide">{{ __('messages.admin.owner.coach_performance') }}</h2>
-                        <span class="text-[11px] text-faint">{{ __('messages.admin.owner.payroll_basis') }}</span>
+                        <span class="text-2xs text-faint">{{ __('messages.admin.owner.payroll_basis') }}</span>
                     </div>
                     <input type="month" wire:model.live="payrollMonth"
                            class="text-xs border border-line rounded-lg px-2.5 py-1.5 text-ink bg-off
@@ -480,7 +480,7 @@
                         <div class="overflow-x-auto">
                             <table class="w-full text-sm">
                                 <thead>
-                                    <tr class="text-[11px] uppercase tracking-wide text-faint border-b border-line">
+                                    <tr class="text-2xs uppercase tracking-wide text-faint border-b border-line">
                                         <th class="text-left font-semibold px-5 py-2.5">{{ __('messages.admin.owner.col_coach') }}</th>
                                         <th class="text-right font-semibold px-3 py-2.5">{{ __('messages.admin.owner.col_sessions') }}</th>
                                         <th class="text-right font-semibold px-3 py-2.5">{{ __('messages.admin.owner.col_active_days') }}</th>
@@ -507,7 +507,7 @@
             <section>
                 <div class="flex items-center gap-2 mb-3">
                     <h2 class="text-sm font-extrabold text-navy uppercase tracking-wide">Leaderboard</h2>
-                    <span class="text-[11px] text-faint">Last 30 days</span>
+                    <span class="text-2xs text-faint">Last 30 days</span>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
@@ -518,7 +518,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
                             </svg>
                             <span class="text-xs font-extrabold text-navy uppercase tracking-wide">Top Coaches</span>
-                            <span class="text-[11px] text-faint">by sessions led</span>
+                            <span class="text-2xs text-faint">by sessions led</span>
                         </div>
                         @if ($leaderboard['topCoaches']->isEmpty())
                             <p class="px-5 py-8 text-center text-sm text-muted">No coach sessions recorded this period.</p>
@@ -527,7 +527,7 @@
                                 @foreach ($leaderboard['topCoaches'] as $i => $row)
                                     <div class="px-5 py-3 flex items-center gap-3">
                                         <span @class([
-                                            'w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-extrabold shrink-0',
+                                            'w-6 h-6 rounded-full flex items-center justify-center text-2xs font-extrabold shrink-0',
                                             'bg-[#F59E0B] text-white' => $i === 0,
                                             'bg-[#9CA3AF] text-white' => $i === 1,
                                             'bg-[#B45309] text-white' => $i === 2,
@@ -554,7 +554,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
                             </svg>
                             <span class="text-xs font-extrabold text-navy uppercase tracking-wide">Top Members</span>
-                            <span class="text-[11px] text-faint">by attendances</span>
+                            <span class="text-2xs text-faint">by attendances</span>
                         </div>
                         @if ($leaderboard['topMembers']->isEmpty())
                             <p class="px-5 py-8 text-center text-sm text-muted">No attendance recorded this period.</p>
@@ -563,7 +563,7 @@
                                 @foreach ($leaderboard['topMembers'] as $i => $row)
                                     <div class="px-5 py-3 flex items-center gap-3">
                                         <span @class([
-                                            'w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-extrabold shrink-0',
+                                            'w-6 h-6 rounded-full flex items-center justify-center text-2xs font-extrabold shrink-0',
                                             'bg-[#F59E0B] text-white' => $i === 0,
                                             'bg-[#9CA3AF] text-white' => $i === 1,
                                             'bg-[#B45309] text-white' => $i === 2,
@@ -601,9 +601,9 @@
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
                     <div class="flex items-center gap-2">
                         <h2 class="text-sm font-extrabold text-navy uppercase tracking-wide">{{ __('messages.admin.owner.lead_funnel') }}</h2>
-                        <span class="text-[11px] text-faint">{{ __('messages.admin.owner.prospect_conversion') }}</span>
+                        <span class="text-2xs text-faint">{{ __('messages.admin.owner.prospect_conversion') }}</span>
                     </div>
-                    <a href="{{ route('admin.leads') }}" class="text-[11px] font-semibold text-navy hover:underline">{{ __('messages.admin.owner.manage_leads') }}</a>
+                    <a href="{{ route('admin.leads') }}" class="text-2xs font-semibold text-navy hover:underline">{{ __('messages.admin.owner.manage_leads') }}</a>
                 </div>
 
                 @php
@@ -627,10 +627,10 @@
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
                     @foreach ($leadCards as $c)
                         <div class="bg-surface border border-line rounded-xl px-4 pt-4 pb-3 flex flex-col gap-3">
-                            <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">{{ $c['label'] }}</p>
+                            <p class="text-2xs font-semibold text-muted uppercase tracking-wide leading-tight">{{ $c['label'] }}</p>
                             <div>
                                 <p class="text-xl font-extrabold text-navy leading-none tracking-tight">{{ $c['value'] }}</p>
-                                <p class="text-[11px] text-muted mt-1.5">{{ $c['sub'] }}</p>
+                                <p class="text-2xs text-muted mt-1.5">{{ $c['sub'] }}</p>
                             </div>
                             <div class="h-0.5 w-10 {{ $c['bar'] }} rounded-full"></div>
                         </div>
@@ -662,33 +662,33 @@
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
                     <div class="flex items-center gap-2">
                         <h2 class="text-sm font-extrabold text-navy uppercase tracking-wide">{{ __('messages.admin.owner.events_section') }}</h2>
-                        <span class="text-[11px] text-faint">{{ __('messages.admin.owner.events_subtitle') }}</span>
+                        <span class="text-2xs text-faint">{{ __('messages.admin.owner.events_subtitle') }}</span>
                     </div>
-                    <a href="{{ route('admin.events') }}" class="text-[11px] font-semibold text-navy hover:underline">{{ __('messages.admin.owner.manage_events') }}</a>
+                    <a href="{{ route('admin.events') }}" class="text-2xs font-semibold text-navy hover:underline">{{ __('messages.admin.owner.manage_events') }}</a>
                 </div>
 
                 <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
                     <div class="bg-surface border border-line rounded-xl px-4 pt-4 pb-3 flex flex-col gap-3">
-                        <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">{{ __('messages.admin.owner.event_revenue_label') }}</p>
+                        <p class="text-2xs font-semibold text-muted uppercase tracking-wide leading-tight">{{ __('messages.admin.owner.event_revenue_label') }}</p>
                         <div>
                             <p class="text-xl font-extrabold text-navy leading-none tracking-tight">Rp {{ number_format($events['total_revenue'], 0, ',', '.') }}</p>
-                            <p class="text-[11px] text-muted mt-1.5">{{ __('messages.admin.owner.sub_collected') }}</p>
+                            <p class="text-2xs text-muted mt-1.5">{{ __('messages.admin.owner.sub_collected') }}</p>
                         </div>
                         <div class="h-0.5 w-10 bg-[#15803D] rounded-full"></div>
                     </div>
                     <div class="bg-surface border border-line rounded-xl px-4 pt-4 pb-3 flex flex-col gap-3">
-                        <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">{{ __('messages.admin.owner.awaiting_payment_label') }}</p>
+                        <p class="text-2xs font-semibold text-muted uppercase tracking-wide leading-tight">{{ __('messages.admin.owner.awaiting_payment_label') }}</p>
                         <div>
                             <p class="text-xl font-extrabold text-navy leading-none tracking-tight">Rp {{ number_format($events['total_pending'], 0, ',', '.') }}</p>
-                            <p class="text-[11px] text-muted mt-1.5">{{ __('messages.admin.owner.sub_pending_reg') }}</p>
+                            <p class="text-2xs text-muted mt-1.5">{{ __('messages.admin.owner.sub_pending_reg') }}</p>
                         </div>
                         <div class="h-0.5 w-10 bg-[#B45309] rounded-full"></div>
                     </div>
                     <div class="bg-surface border border-line rounded-xl px-4 pt-4 pb-3 flex flex-col gap-3">
-                        <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">{{ __('messages.admin.owner.confirmed_part_label') }}</p>
+                        <p class="text-2xs font-semibold text-muted uppercase tracking-wide leading-tight">{{ __('messages.admin.owner.confirmed_part_label') }}</p>
                         <div>
                             <p class="text-xl font-extrabold text-navy leading-none tracking-tight">{{ number_format($events['total_people']) }}</p>
-                            <p class="text-[11px] text-muted mt-1.5">{{ __('messages.admin.owner.sub_across_events') }}</p>
+                            <p class="text-2xs text-muted mt-1.5">{{ __('messages.admin.owner.sub_across_events') }}</p>
                         </div>
                         <div class="h-0.5 w-10 bg-navy rounded-full"></div>
                     </div>
@@ -701,7 +701,7 @@
                         <div class="overflow-x-auto">
                             <table class="w-full text-sm">
                                 <thead>
-                                    <tr class="text-[11px] uppercase tracking-wide text-faint border-b border-line">
+                                    <tr class="text-2xs uppercase tracking-wide text-faint border-b border-line">
                                         <th class="text-left font-semibold px-5 py-2.5">{{ __('messages.admin.owner.col_event') }}</th>
                                         <th class="text-right font-semibold px-3 py-2.5">{{ __('messages.admin.owner.col_confirmed') }}</th>
                                         <th class="text-right font-semibold px-3 py-2.5 hidden sm:table-cell">{{ __('messages.admin.owner.col_pending') }}</th>
@@ -714,7 +714,7 @@
                                         <tr class="hover:bg-off/60">
                                             <td class="px-5 py-2.5">
                                                 <span class="font-semibold text-ink">{{ $row['name'] }}</span>
-                                                <span class="block text-[11px] text-faint">{{ $row['period'] }}{{ $row['is_paid'] ? '' : ' ' . __('messages.admin.owner.free_suffix') }}</span>
+                                                <span class="block text-2xs text-faint">{{ $row['period'] }}{{ $row['is_paid'] ? '' : ' ' . __('messages.admin.owner.free_suffix') }}</span>
                                             </td>
                                             <td class="px-3 py-2.5 text-right font-bold text-navy">{{ $row['confirmed'] }}</td>
                                             <td class="px-3 py-2.5 text-right text-muted hidden sm:table-cell">{{ $row['pending'] }}</td>
@@ -743,7 +743,7 @@
             <section>
                 <div class="flex items-center gap-2 mb-3">
                     <h2 class="text-sm font-extrabold text-navy uppercase tracking-wide">Attendance Rate</h2>
-                    <span class="text-[11px] text-faint">Last 30 days</span>
+                    <span class="text-2xs text-faint">Last 30 days</span>
                 </div>
 
                 @if ($attendance['total'] === 0)
@@ -753,32 +753,32 @@
                 @else
                     <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
                         <div class="bg-surface border border-line rounded-xl px-4 pt-4 pb-3 flex flex-col gap-3">
-                            <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">Overall Attendance Rate</p>
+                            <p class="text-2xs font-semibold text-muted uppercase tracking-wide leading-tight">Overall Attendance Rate</p>
                             <div>
                                 <p class="text-xl font-extrabold text-navy leading-none tracking-tight">{{ $attendance['overall'] }}%</p>
-                                <p class="text-[11px] text-muted mt-1.5">{{ $attendance['present'] }}/{{ $attendance['total'] }} sessions</p>
+                                <p class="text-2xs text-muted mt-1.5">{{ $attendance['present'] }}/{{ $attendance['total'] }} sessions</p>
                             </div>
                             <div class="h-0.5 w-10 bg-navy rounded-full"></div>
                         </div>
                         <div class="bg-surface border border-line rounded-xl px-4 pt-4 pb-3 flex flex-col gap-3">
-                            <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">Present</p>
+                            <p class="text-2xs font-semibold text-muted uppercase tracking-wide leading-tight">Present</p>
                             <div>
                                 <p class="text-xl font-extrabold text-navy leading-none tracking-tight">{{ $attendance['present'] }}</p>
-                                <p class="text-[11px] text-muted mt-1.5">of {{ $attendance['total'] }} tracked</p>
+                                <p class="text-2xs text-muted mt-1.5">of {{ $attendance['total'] }} tracked</p>
                             </div>
                             <div class="h-0.5 w-10 bg-[#15803D] rounded-full"></div>
                         </div>
                         <div class="bg-surface border border-line rounded-xl px-4 pt-4 pb-3 flex flex-col gap-3">
-                            <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">Absent / Sick / Permit</p>
+                            <p class="text-2xs font-semibold text-muted uppercase tracking-wide leading-tight">Absent / Sick / Permit</p>
                             <div>
                                 <p class="text-xl font-extrabold text-navy leading-none tracking-tight">{{ $attendance['total'] - $attendance['present'] }}</p>
-                                <p class="text-[11px] text-muted mt-1.5">of {{ $attendance['total'] }} tracked</p>
+                                <p class="text-2xs text-muted mt-1.5">of {{ $attendance['total'] }} tracked</p>
                             </div>
                             <div class="h-0.5 w-10 bg-[#B45309] rounded-full"></div>
                         </div>
                     </div>
 
-                    <p class="text-[10px] font-bold uppercase tracking-widest text-faint mb-2 mt-4">By Program</p>
+                    <p class="text-3xs font-bold uppercase tracking-widest text-faint mb-2 mt-4">By Program</p>
                     <div class="bg-surface border border-line rounded-xl overflow-hidden mb-3">
                         <div class="divide-y divide-line">
                             @foreach ($attendance['by_program'] as $label => $row)
@@ -797,14 +797,14 @@
                                     </div>
                                     <div class="text-right shrink-0 w-24">
                                         <p class="text-sm font-bold text-navy">{{ $row['rate'] }}%</p>
-                                        <p class="text-[11px] text-muted">({{ $row['total'] }} sessions)</p>
+                                        <p class="text-2xs text-muted">({{ $row['total'] }} sessions)</p>
                                     </div>
                                 </div>
                             @endforeach
                         </div>
                     </div>
 
-                    <p class="text-[10px] font-bold uppercase tracking-widest text-faint mb-2">By Location</p>
+                    <p class="text-3xs font-bold uppercase tracking-widest text-faint mb-2">By Location</p>
                     <div class="bg-surface border border-line rounded-xl overflow-hidden">
                         <div class="divide-y divide-line">
                             @foreach ($attendance['by_location'] as $label => $row)
@@ -823,7 +823,7 @@
                                     </div>
                                     <div class="text-right shrink-0 w-24">
                                         <p class="text-sm font-bold text-navy">{{ $row['rate'] }}%</p>
-                                        <p class="text-[11px] text-muted">({{ $row['total'] }} sessions)</p>
+                                        <p class="text-2xs text-muted">({{ $row['total'] }} sessions)</p>
                                     </div>
                                 </div>
                             @endforeach

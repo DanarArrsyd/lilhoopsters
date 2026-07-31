@@ -42,7 +42,7 @@
 
         {{-- Upcoming --}}
         @if ($upcomingDate && $upcomingSchedules->isNotEmpty())
-            <p class="text-[10px] font-bold uppercase tracking-widest text-faint mb-2.5">{{ __('messages.coach.checkin.next_session') }}</p>
+            <p class="text-3xs font-bold uppercase tracking-widest text-faint mb-2.5">{{ __('messages.coach.checkin.next_session') }}</p>
             <div class="bg-surface border border-line rounded-2xl overflow-hidden">
                 <div class="px-4 py-2.5 border-b border-line bg-off">
                     <p class="text-xs font-semibold text-navy">
@@ -60,7 +60,7 @@
                                     <x-maps-button :url="$sched->location->maps_url" />
                                 </p>
                             </div>
-                            <span class="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full shrink-0
+                            <span class="text-4xs font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full shrink-0
                                 {{ $sched->type === 'private' ? 'bg-purple-100 text-purple-700' : 'bg-blue-50 text-blue-600' }}">
                                 {{ $sched->type === 'private' ? __('messages.coach.dashboard.private_badge') : __('messages.coach.dashboard.regular_badge') }}
                             </span>
@@ -99,7 +99,7 @@
                                         {{ $sched->program?->name ?? __('messages.admin.schedules.type_private') }}
                                     </p>
                                     @if ($isPrivate)
-                                        <span class="text-[9px] font-bold uppercase tracking-wide bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full shrink-0">{{ __('messages.coach.dashboard.private_badge') }}</span>
+                                        <span class="text-4xs font-bold uppercase tracking-wide bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full shrink-0">{{ __('messages.coach.dashboard.private_badge') }}</span>
                                     @endif
                                 </div>
                                 <p class="text-xs text-faint flex items-center gap-1">
@@ -114,7 +114,7 @@
                                 @if ($sessionCoaches->isNotEmpty())
                                     <div class="flex flex-wrap gap-1 mt-1">
                                         @foreach ($sessionCoaches as $cs)
-                                            <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full
+                                            <span class="text-3xs font-semibold px-1.5 py-0.5 rounded-full
                                                 {{ $cs->role === 'primary' ? 'bg-navy text-white' : 'bg-blue-100 text-blue-700' }}">
                                                 {{ $cs->coach->user->name }}{{ $cs->role === 'primary' ? ' · ' . __('messages.coach.checkin.primary_role') : ' · ' . __('messages.coach.checkin.asst_role') }}
                                             </span>
@@ -126,7 +126,7 @@
                             {{-- Action --}}
                             @if ($checkedIn)
                                 <div class="flex items-center gap-2 shrink-0">
-                                    <span class="text-[10px] font-bold text-[#15803D] flex items-center gap-1">
+                                    <span class="text-3xs font-bold text-[#15803D] flex items-center gap-1">
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
                                         {{ __('messages.coach.checkin.checked_in') }}
                                     </span>
@@ -134,7 +134,7 @@
                                         <button type="button"
                                                 wire:click="checkOut({{ $mySession->id }})"
                                                 wire:confirm="Check out from {{ $sched->program?->name ?? __('messages.admin.schedules.type_private') }}?"
-                                                class="text-[10px] font-bold text-[#9B1C1C] bg-white border border-[#FECACA] px-2.5 py-1 rounded-full hover:bg-[#FEF2F2] transition-colors">
+                                                class="text-3xs font-bold text-[#9B1C1C] bg-white border border-[#FECACA] px-2.5 py-1 rounded-full hover:bg-[#FEF2F2] transition-colors">
                                             {{ __('messages.coach.checkin.check_out') }}
                                         </button>
                                     @endif
@@ -148,11 +148,11 @@
                                     {{ $hasPrimary ? __('messages.coach.checkin.join') : __('messages.coach.checkin.btn') }}
                                 </button>
                             @elseif ($checkInState === 'early')
-                                <span class="shrink-0 text-[10px] font-bold text-faint bg-off border border-line px-2.5 py-1.5 rounded-full">
+                                <span class="shrink-0 text-3xs font-bold text-faint bg-off border border-line px-2.5 py-1.5 rounded-full">
                                     {{ __('messages.coach.checkin.opens_at', ['time' => $opensAt->format('H:i')]) }}
                                 </span>
                             @else
-                                <span class="shrink-0 text-[10px] font-bold text-faint bg-off border border-line px-2.5 py-1.5 rounded-full">
+                                <span class="shrink-0 text-3xs font-bold text-faint bg-off border border-line px-2.5 py-1.5 rounded-full">
                                     {{ __('messages.coach.checkin.session_ended') }}
                                 </span>
                             @endif
@@ -163,7 +163,7 @@
         </div>
 
         @if ($activeSessions->isNotEmpty())
-            <p class="text-[10px] font-bold uppercase tracking-widest text-faint mt-4 mb-1.5">
+            <p class="text-3xs font-bold uppercase tracking-widest text-faint mt-4 mb-1.5">
                 {{ trans_choice('messages.coach.checkin.active_count', $activeSessions->count(), ['n' => $activeSessions->count()]) }}
             </p>
         @endif

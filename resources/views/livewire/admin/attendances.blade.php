@@ -105,7 +105,7 @@
                                 <td class="py-3 px-4">
                                     <x-badge :status="$a->status">{{ ucfirst(str_replace('_', ' ', $a->status)) }}</x-badge>
                                     @if ($a->isFlagged())
-                                        <span class="mt-1 inline-flex items-center gap-1 text-[10px] font-bold text-[#B45309] bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full">
+                                        <span class="mt-1 inline-flex items-center gap-1 text-3xs font-bold text-[#B45309] bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full">
                                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                             @if ($a->isLocationFlagged()){{ __('messages.admin.attendances.flag_location', ['m' => $a->distanceMeters()]) }}@else{{ __('messages.admin.attendances.flag_time') }}@endif
                                         </span>
@@ -170,7 +170,7 @@
                                 <td class="py-3 px-4 text-ink text-xs">
                                     {{ $cs->checked_in_at?->format('H:i') ?? '—' }} <span class="text-faint">WIB</span>
                                     @if ($cs->isFlagged())
-                                        <span class="mt-1 inline-flex items-center gap-1 text-[10px] font-bold text-[#B45309] bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full">
+                                        <span class="mt-1 inline-flex items-center gap-1 text-3xs font-bold text-[#B45309] bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full">
                                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                             @if ($cs->isLocationFlagged()){{ __('messages.admin.attendances.flag_location', ['m' => $cs->distanceMeters()]) }}@else{{ __('messages.admin.attendances.flag_time') }}@endif
                                         </span>

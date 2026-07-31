@@ -30,8 +30,8 @@
                     </p>
 
                     <div class="flex items-center justify-between mt-3 mb-1">
-                        <span class="text-[11px] text-muted">{{ __('messages.portal.home.attendance_label', ['a' => $c['attended'], 'b' => $c['total']]) }}</span>
-                        <span class="text-[11px] font-bold text-navy">{{ $c['pct'] }}%</span>
+                        <span class="text-2xs text-muted">{{ __('messages.portal.home.attendance_label', ['a' => $c['attended'], 'b' => $c['total']]) }}</span>
+                        <span class="text-2xs font-bold text-navy">{{ $c['pct'] }}%</span>
                     </div>
                     <div class="h-1.5 bg-line rounded-full overflow-hidden">
                         <div class="h-full bg-navy rounded-full" style="width: {{ $c['pct'] }}%"></div>

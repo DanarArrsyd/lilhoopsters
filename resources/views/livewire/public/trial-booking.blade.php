@@ -6,7 +6,7 @@
             <img src="{{ asset('basket_logo.jpeg') }}" alt="Lil' Hoopsters" class="w-11 h-11 rounded-xl object-cover">
             <div>
                 <p class="text-navy font-extrabold text-base uppercase tracking-tight leading-tight">Lil' Hoopsters</p>
-                <p class="text-faint text-[11px] uppercase tracking-wide">Basketball Academy</p>
+                <p class="text-faint text-2xs uppercase tracking-wide">Basketball Academy</p>
             </div>
         </div>
 

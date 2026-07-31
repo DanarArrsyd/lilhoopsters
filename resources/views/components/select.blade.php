@@ -202,7 +202,7 @@
                         :aria-selected="option.value === value"
                         :aria-disabled="option.disabled"
                         :data-active="i === activeIndex"
-                        class="mx-1 flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 text-sm transition-colors duration-100 {{ $centreOptions ? 'justify-center font-numeric' : '' }}"
+                        class="mx-1 flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 text-sm transition-colors duration-100 {{ $centreOptions ? 'justify-center font-mono' : '' }}"
                         :class="{
                             'bg-navy/[0.06] text-navy font-semibold': option.value === value,
                             'text-ink': option.value !== value && !option.disabled,

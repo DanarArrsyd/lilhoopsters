@@ -65,14 +65,14 @@
                                     <div class="flex items-center gap-2 flex-wrap">
                                         <p class="font-semibold text-ink text-sm">{{ $s->location->name }}</p>
                                         @if ($s->type === 'private')
-                                            <span class="text-[9px] font-bold uppercase bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full">{{ __('messages.admin.dashboard.private_badge') }}</span>
+                                            <span class="text-4xs font-bold uppercase bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full">{{ __('messages.admin.dashboard.private_badge') }}</span>
                                         @else
-                                            <span class="text-[9px] font-bold uppercase bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-full">{{ __('messages.admin.dashboard.regular_badge') }}</span>
+                                            <span class="text-4xs font-bold uppercase bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-full">{{ __('messages.admin.dashboard.regular_badge') }}</span>
                                         @endif
                                     </div>
                                     <p class="text-xs text-faint">{{ $s->program->name }} · {{ \Carbon\Carbon::parse($s->start_time)->format('H:i') }}–{{ \Carbon\Carbon::parse($s->end_time)->format('H:i') }}</p>
                                     @if ($s->type === 'private' && $s->coach)
-                                        <p class="text-[10px] text-muted">{{ __('messages.admin.dashboard.coach_label') }} {{ $s->coach->user->name }}</p>
+                                        <p class="text-3xs text-muted">{{ __('messages.admin.dashboard.coach_label') }} {{ $s->coach->user->name }}</p>
                                     @endif
                                 </div>
                             </div>
@@ -80,13 +80,13 @@
                                 <p class="text-sm font-bold text-ink">
                                     {{ $item['present'] }}<span class="text-faint font-normal">/{{ $item['enrolled'] }}</span>
                                 </p>
-                                <p class="text-[10px] text-faint">
+                                <p class="text-3xs text-faint">
                                     {{ __('messages.admin.dashboard.present_recorded', ['a' => $item['present'], 'b' => $item['recorded']]) }}
                                 </p>
                                 @if ($item['enrolled'] > 0 && $item['recorded'] === 0)
-                                    <span class="text-[9px] font-bold uppercase text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-full">{{ __('messages.admin.dashboard.not_started') }}</span>
+                                    <span class="text-4xs font-bold uppercase text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-full">{{ __('messages.admin.dashboard.not_started') }}</span>
                                 @elseif ($item['recorded'] >= $item['enrolled'] && $item['enrolled'] > 0)
-                                    <span class="text-[9px] font-bold uppercase text-green-600 bg-green-50 px-1.5 py-0.5 rounded-full">{{ __('messages.admin.dashboard.complete') }}</span>
+                                    <span class="text-4xs font-bold uppercase text-green-600 bg-green-50 px-1.5 py-0.5 rounded-full">{{ __('messages.admin.dashboard.complete') }}</span>
                                 @endif
                             </div>
                         </div>
@@ -107,7 +107,7 @@
             <div class="sticky top-0 bg-surface flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-line z-10">
                 <div>
                     <h3 class="text-lg font-extrabold uppercase tracking-tight text-navy">{{ __('messages.admin.dashboard.session_calendar') }}</h3>
-                    <p class="text-[11px] text-faint">{{ __('messages.admin.dashboard.sessions_weekly') }}</p>
+                    <p class="text-2xs text-faint">{{ __('messages.admin.dashboard.sessions_weekly') }}</p>
                 </div>
                 <button wire:click="closeCalendar" class="text-muted hover:text-navy p-1 leading-none">&#x2715;</button>
             </div>
@@ -133,7 +133,7 @@
                 {{-- Weekday header --}}
                 <div class="grid grid-cols-7 gap-1 mb-1.5">
                     @foreach (['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] as $wd)
-                        <p class="text-center text-[10px] font-bold uppercase tracking-wide text-faint">{{ $wd }}</p>
+                        <p class="text-center text-3xs font-bold uppercase tracking-wide text-faint">{{ $wd }}</p>
                     @endforeach
                 </div>
 
@@ -151,13 +151,13 @@
                                             'opacity-40'                               => !$cell['inMonth'],
                                         ])>
                                     <span @class([
-                                        'w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-full text-[11px] sm:text-xs font-bold',
+                                        'w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-full text-2xs sm:text-xs font-bold',
                                         'bg-navy text-white'        => $cell['isToday'],
                                         'text-ink'                  => !$cell['isToday'] && $cell['inMonth'],
                                         'text-faint'                => !$cell['inMonth'],
                                     ])>{{ $cell['day'] }}</span>
                                     @if ($cell['count'] > 0)
-                                        <span class="inline-flex items-center justify-center min-w-[15px] h-[15px] sm:min-w-[18px] sm:h-[18px] px-0.5 sm:px-1 rounded-full bg-navy/10 text-navy text-[8px] sm:text-[9px] font-extrabold tabular-nums leading-none">
+                                        <span class="inline-flex items-center justify-center min-w-[15px] h-[15px] sm:min-w-[18px] sm:h-[18px] px-0.5 sm:px-1 rounded-full bg-navy/10 text-navy text-4xs sm:text-4xs font-extrabold tabular-nums leading-none">
                                             {{ $cell['count'] }}
                                         </span>
                                     @endif
@@ -169,7 +169,7 @@
 
                 {{-- Selected day detail --}}
                 <div class="mt-5 border-t border-line pt-4">
-                    <p class="text-[10px] font-bold uppercase tracking-widest text-faint mb-3">
+                    <p class="text-3xs font-bold uppercase tracking-widest text-faint mb-3">
                         {{ \Carbon\Carbon::parse($selectedDate)->format('l, d M Y') }}
                         <span class="text-navy/50">· {{ $selectedSessions->count() }} session{{ $selectedSessions->count() === 1 ? '' : 's' }}</span>
                     </p>
@@ -184,16 +184,16 @@
                                     <div class="min-w-0 flex-1">
                                         <div class="flex items-center gap-2 flex-wrap">
                                             <p class="text-sm font-bold text-ink truncate">{{ $sched->program->name }}</p>
-                                            <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-full {{ $sched->type === 'private' ? 'bg-[#7C3AED]/10 text-[#7C3AED]' : 'bg-[#1D4ED8]/10 text-[#1D4ED8]' }}">
+                                            <span class="text-4xs font-bold uppercase px-1.5 py-0.5 rounded-full {{ $sched->type === 'private' ? 'bg-[#7C3AED]/10 text-[#7C3AED]' : 'bg-[#1D4ED8]/10 text-[#1D4ED8]' }}">
                                                 {{ $sched->type === 'private' ? __('messages.admin.dashboard.private_badge') : __('messages.admin.dashboard.regular_badge') }}
                                             </span>
                                         </div>
-                                        <p class="text-[11px] text-faint truncate">
+                                        <p class="text-2xs text-faint truncate">
                                             {{ $sched->location->name }}
                                             @if ($sched->type === 'private' && $sched->coach) · Coach {{ $sched->coach->user->name }} @endif
                                         </p>
                                     </div>
-                                    <p class="text-[11px] font-semibold text-muted tabular-nums shrink-0">
+                                    <p class="text-2xs font-semibold text-muted tabular-nums shrink-0">
                                         {{ \Carbon\Carbon::parse($sched->start_time)->format('H:i') }}–{{ \Carbon\Carbon::parse($sched->end_time)->format('H:i') }}
                                     </p>
                                 </div>

@@ -55,7 +55,7 @@
                     @foreach ($roster as $row)
                         <div class="flex items-center gap-3 px-4 py-2.5">
                             {{-- Avatar --}}
-                            <div class="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0
+                            <div class="w-7 h-7 rounded-full flex items-center justify-center text-2xs font-bold shrink-0
                                 {{ $row['status'] === 'present' ? 'bg-[#15803D] text-white' : 'bg-navy/8 text-navy' }}">
                                 {{ strtoupper(substr($row['name'], 0, 1)) }}
                             </div>
@@ -71,15 +71,15 @@
                             {{-- Status --}}
                             <div class="shrink-0">
                                 @if ($row['status'] === 'present')
-                                    <span class="text-[10px] font-bold text-[#15803D] bg-[#DCFCE7] px-2 py-0.5 rounded-full">{{ __('messages.coach.roster.badge_present') }}</span>
+                                    <span class="text-3xs font-bold text-[#15803D] bg-[#DCFCE7] px-2 py-0.5 rounded-full">{{ __('messages.coach.roster.badge_present') }}</span>
                                 @elseif ($row['status'] === 'no_show')
-                                    <span class="text-[10px] font-bold text-[#B91C1C] bg-[#FEE2E2] px-2 py-0.5 rounded-full">{{ __('messages.coach.roster.badge_no_show') }}</span>
+                                    <span class="text-3xs font-bold text-[#B91C1C] bg-[#FEE2E2] px-2 py-0.5 rounded-full">{{ __('messages.coach.roster.badge_no_show') }}</span>
                                 @elseif ($row['status'] === 'sick')
-                                    <span class="text-[10px] font-bold text-[#1D4ED8] bg-blue-50 px-2 py-0.5 rounded-full">{{ __('messages.coach.roster.badge_sick') }}</span>
+                                    <span class="text-3xs font-bold text-[#1D4ED8] bg-blue-50 px-2 py-0.5 rounded-full">{{ __('messages.coach.roster.badge_sick') }}</span>
                                 @elseif ($row['status'] === 'permit')
-                                    <span class="text-[10px] font-bold text-[#1D4ED8] bg-blue-50 px-2 py-0.5 rounded-full">{{ __('messages.coach.roster.badge_permit') }}</span>
+                                    <span class="text-3xs font-bold text-[#1D4ED8] bg-blue-50 px-2 py-0.5 rounded-full">{{ __('messages.coach.roster.badge_permit') }}</span>
                                 @else
-                                    <span class="text-[10px] font-medium text-faint">—</span>
+                                    <span class="text-3xs font-medium text-faint">—</span>
                                 @endif
                             </div>
                         </div>

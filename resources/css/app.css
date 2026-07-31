@@ -5,9 +5,21 @@
 [x-cloak] { display: none !important; }
 
 @theme {
+    /* Two faces, no more: Public Sans carries every word, IBM Plex Mono carries
+       anything that has to line up in a column — times, amounts, codes, counts.
+       --font-heading is deliberately the same value as --font-sans; headings are
+       set apart by weight, size and tracking, not by a second family. */
     --font-sans:    'Public Sans', system-ui, sans-serif;
     --font-heading: 'Public Sans', system-ui, sans-serif;
     --font-mono:    'IBM Plex Mono', ui-monospace, monospace;
+
+    /* The UI leans on type smaller than text-sm for labels, badges and meta
+       lines. Those sizes were written as one-off arbitrary values — 368 of them
+       across six different pixel numbers — which is what made the typography
+       read as inconsistent. Three named steps replace the lot. */
+    --text-2xs: 0.6875rem;  /* 11px — meta lines, badge text, tab labels */
+    --text-3xs: 0.625rem;   /* 10px — uppercase eyebrows, table captions */
+    --text-4xs: 0.5625rem;  /*  9px — the floor; smaller stops being readable */
 
     /* Tighter radius scale (Tailwind defaults are too round) */
     --radius-sm:  0.125rem;  /*  2px — unchanged */
@@ -58,10 +70,9 @@
         font-family: var(--font-heading);
     }
 
-    /* Numeric data: KPI values, stat counts */
-    .font-numeric {
-        font-family: var(--font-mono);
-    }
+    /* .font-numeric used to live here as a second name for --font-mono. Two
+       names for one face is how a type system starts drifting, so the call
+       sites use Tailwind's own `font-mono` now. */
 }
 
 @layer components {

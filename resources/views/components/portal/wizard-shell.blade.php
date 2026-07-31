@@ -9,7 +9,7 @@
         </div>
         <x-portal.top-nav />
         <div class="flex items-center justify-end gap-4">
-            <span class="text-[11px] text-gray-400 font-medium tabular-nums shrink-0">{{ $step }} / {{ $totalSteps }}</span>
+            <span class="text-2xs text-gray-400 font-medium tabular-nums shrink-0">{{ $step }} / {{ $totalSteps }}</span>
             <livewire:locale-switcher />
             <livewire:notification-bell />
             <x-portal.avatar-menu />

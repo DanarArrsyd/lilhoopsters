@@ -12,5 +12,5 @@
        'bg-off text-muted hover:bg-line/50 hover:text-navy' => ! $active,
    ])>
     <span class="shrink-0">{{ $slot }}</span>
-    <span class="text-[11px] font-semibold leading-tight">{{ $label }}</span>
+    <span class="text-2xs font-semibold leading-tight">{{ $label }}</span>
 </a>

@@ -106,12 +106,12 @@
             </div>
 
             <div class="px-6 py-4 border-b border-line">
-                <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">Total Lifetime Spend</p>
+                <p class="text-2xs font-semibold text-muted uppercase tracking-wide leading-tight">Total Lifetime Spend</p>
                 <p class="text-xl font-extrabold text-navy leading-none tracking-tight mt-1.5">Rp {{ number_format($ltvTotal, 0, ',', '.') }}</p>
             </div>
 
             <div class="p-6">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-faint mb-3">Transaction History</p>
+                <p class="text-3xs font-bold uppercase tracking-widest text-faint mb-3">Transaction History</p>
                 @if ($ltvTransactions->isEmpty())
                     <p class="text-center text-sm text-muted py-6">No transactions yet</p>
                 @else
@@ -120,7 +120,7 @@
                             <div class="py-3 flex items-center justify-between gap-3">
                                 <div class="min-w-0">
                                     <p class="text-sm font-semibold text-ink truncate">{{ $t->package?->name ?? '—' }}</p>
-                                    <p class="text-[11px] text-faint">{{ $t->created_at->format('d M Y') }}</p>
+                                    <p class="text-2xs text-faint">{{ $t->created_at->format('d M Y') }}</p>
                                 </div>
                                 <div class="text-right shrink-0">
                                     <p class="text-sm font-bold text-navy">Rp {{ number_format($t->amount, 0, ',', '.') }}</p>

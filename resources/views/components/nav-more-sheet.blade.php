@@ -31,7 +31,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M4 6h16M4 12h16M4 18h16"/>
         </svg>
-        <span class="text-[11px] font-semibold">{{ $label }}</span>
+        <span class="text-2xs font-semibold">{{ $label }}</span>
     </button>
 
     <template x-teleport="body">
@@ -56,7 +56,7 @@
 
                 <div class="mx-auto mb-4 h-1 w-10 rounded-full bg-line"></div>
 
-                <p class="mb-3 text-[10px] font-bold uppercase tracking-widest text-muted">{{ $label }}</p>
+                <p class="mb-3 text-3xs font-bold uppercase tracking-widest text-muted">{{ $label }}</p>
 
                 <div class="grid grid-cols-3 gap-2">
                     {{ $slot }}

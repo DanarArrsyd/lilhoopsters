@@ -26,7 +26,7 @@
         {{-- Transaction summary --}}
         @if ($uploadingTransaction)
         <div class="bg-surface border border-line rounded-2xl p-4 mb-4">
-            <p class="text-[10px] font-bold uppercase tracking-wider text-faint mb-3">{{ __('messages.payments.txn_details') }}</p>
+            <p class="text-3xs font-bold uppercase tracking-wider text-faint mb-3">{{ __('messages.payments.txn_details') }}</p>
             <div class="flex items-center gap-3 pb-3 border-b border-line mb-3">
                 <div class="w-10 h-10 bg-navy rounded-full flex items-center justify-center text-off font-extrabold text-sm flex-shrink-0">
                     {{ strtoupper(substr($uploadingTransaction->child?->name ?? '?', 0, 1)) }}
@@ -54,7 +54,7 @@
 
             {{-- Proof file --}}
             <div class="p-4 border-b border-line">
-                <p class="text-[10px] font-bold uppercase tracking-wider text-navy mb-3">
+                <p class="text-3xs font-bold uppercase tracking-wider text-navy mb-3">
                     {{ __('messages.payments.proof_label') }} <span class="text-[#B91C1C]">*</span>
                 </p>
                 <label class="block cursor-pointer">
@@ -83,7 +83,7 @@
 
             {{-- Admin payment accounts --}}
             <div class="p-4">
-                <p class="text-[10px] font-bold uppercase tracking-wider text-navy mb-3">
+                <p class="text-3xs font-bold uppercase tracking-wider text-navy mb-3">
                     {{ __('messages.payments.transfer_to') }}
                 </p>
                 @if ($paymentAccounts->isEmpty())
@@ -96,7 +96,7 @@
                             <div class="flex items-center justify-between gap-3 bg-off border border-line rounded-xl px-4 py-3"
                                  x-data="{ copied: false, copyText: '{{ __('messages.payments.copy') }}', copiedText: '{{ __('messages.payments.copied') }}' }">
                                 <div class="min-w-0">
-                                    <p class="text-[10px] font-bold uppercase tracking-wider text-faint mb-0.5">
+                                    <p class="text-3xs font-bold uppercase tracking-wider text-faint mb-0.5">
                                         {{ $acc->bank_name }}
                                     </p>
                                     <p class="text-base font-extrabold text-navy tracking-wide leading-tight">
@@ -246,10 +246,10 @@
         {{-- Pending summary card --}}
         @if ($pendingCount > 0)
         <div class="bg-navy rounded-2xl p-4 mb-4">
-            <p class="text-[10px] font-bold uppercase tracking-wider text-off/50 mb-1">{{ __('messages.payments.pending_label') }}</p>
+            <p class="text-3xs font-bold uppercase tracking-wider text-off/50 mb-1">{{ __('messages.payments.pending_label') }}</p>
             <p class="text-3xl font-extrabold text-off mb-2 tracking-tight">Rp {{ number_format($pendingTotal, 0, ',', '.') }}</p>
             <div class="flex items-center gap-2">
-                <span class="bg-[#B45309] text-[#FEF3C7] text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wide">
+                <span class="bg-[#B45309] text-[#FEF3C7] text-3xs font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wide">
                     {{ __('messages.payments.pending_count', ['n' => $pendingCount]) }}
                 </span>
                 <span class="text-xs text-off/40">{{ __('messages.payments.upload_to_confirm') }}</span>
@@ -270,8 +270,11 @@
             @endforeach
         </div>
 
-        {{-- Transaction card list --}}
-        <div class="flex flex-col gap-3">
+        {{-- Transaction card list.
+             Two columns from lg: a transaction carries about four facts, and one
+             row per screen-width put the child's name and its status badge 1400px
+             apart with nothing in between. --}}
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
             @forelse ($transactions as $trx)
                 @php
                     $needsUpload    = $trx->status === 'pending' && !$trx->payment_proof;
@@ -307,18 +310,14 @@
                                 <p class="text-xl font-extrabold text-navy tracking-tight leading-none">
                                     Rp {{ number_format($trx->amount, 0, ',', '.') }}
                                 </p>
-                                <p class="text-[10px] text-faint mt-1">
+                                <p class="text-3xs text-faint mt-1">
                                     {{ $trx->transaction_code }} · {{ $trx->created_at->format('d M Y') }}
                                 </p>
                             </div>
-                            @if ($isPaid)
-                                <span class="text-xs font-semibold text-[#15803D] flex items-center gap-1 flex-shrink-0">
-                                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                    </svg>
-                                    {{ __('messages.payments.verified') }}
-                                </span>
-                            @elseif ($awaitingReview && $trx->payment_proof)
+                            {{-- No "Verified" line here: the badge beside the name
+                                 already carries the status, and two indicators for
+                                 one fact is noise. --}}
+                            @if ($awaitingReview && $trx->payment_proof)
                                 <a href="{{ Storage::disk('public')->url($trx->payment_proof) }}" target="_blank"
                                    class="text-xs font-semibold text-navy underline flex-shrink-0">{{ __('messages.payments.view_proof') }}</a>
                             @elseif ($isRejected && $trx->payment_proof)
@@ -341,12 +340,12 @@
                             <p class="text-xs font-medium text-[#92400E]">{{ __('messages.payments.upload_to_confirm') }}</p>
                             <div class="flex items-center gap-2 flex-shrink-0">
                                 <button type="button" wire:click="confirmCancel({{ $trx->id }})"
-                                        class="bg-[#FEE2E2] text-[#B91C1C] text-[11px] font-bold px-3 py-1.5 rounded-full
+                                        class="bg-[#FEE2E2] text-[#B91C1C] text-2xs font-bold px-3 py-1.5 rounded-full
                                                hover:bg-[#FECACA] transition-colors">
                                     {{ __('messages.payments.cancel_action') }}
                                 </button>
                                 <button type="button" wire:click="openUpload({{ $trx->id }})"
-                                        class="bg-navy text-off text-[11px] font-bold px-3.5 py-1.5 rounded-full
+                                        class="bg-navy text-off text-2xs font-bold px-3.5 py-1.5 rounded-full
                                                hover:bg-navy-2 transition-colors">
                                     {{ __('messages.payments.upload_action') }}
                                 </button>
@@ -356,7 +355,7 @@
                         <div class="bg-[#FEF2F2] border-t border-[#FECACA] px-4 py-2.5 flex items-center justify-between gap-3">
                             <p class="text-xs font-medium text-[#9B1C1C]">{{ __('messages.payments.proof_rejected') }}</p>
                             <button type="button" wire:click="openUpload({{ $trx->id }})"
-                                    class="flex-shrink-0 bg-[#B91C1C] text-white text-[11px] font-bold px-3.5 py-1.5 rounded-full
+                                    class="flex-shrink-0 bg-[#B91C1C] text-white text-2xs font-bold px-3.5 py-1.5 rounded-full
                                            hover:bg-[#991B1B] transition-colors">
                                 {{ __('messages.payments.reupload') }}
                             </button>
@@ -365,7 +364,7 @@
                         <div class="bg-[#FFFBEB] border-t border-[#FDE68A] px-4 py-2.5 flex items-center justify-between gap-3">
                             <p class="text-xs text-[#92400E] font-medium">⏳ {{ __('messages.payments.awaiting_verify') }}</p>
                             <button type="button" wire:click="confirmCancel({{ $trx->id }})"
-                                    class="flex-shrink-0 bg-[#FEE2E2] text-[#B91C1C] text-[11px] font-bold px-3 py-1.5 rounded-full
+                                    class="flex-shrink-0 bg-[#FEE2E2] text-[#B91C1C] text-2xs font-bold px-3 py-1.5 rounded-full
                                            hover:bg-[#FECACA] transition-colors">
                                 {{ __('messages.payments.cancel_action') }}
                             </button>
@@ -373,7 +372,7 @@
                     @elseif ($isPaid)
                         <div class="bg-[#F0FDF4] border-t border-[#BBF7D0] px-4 py-2.5 flex items-center justify-end">
                             <a href="{{ route('parent.payments.receipt', $trx) }}"
-                               class="inline-flex items-center gap-1.5 flex-shrink-0 bg-[#15803D] text-white text-[11px] font-bold px-3.5 py-1.5 rounded-full hover:bg-[#166534] transition-colors">
+                               class="inline-flex items-center gap-1.5 flex-shrink-0 bg-[#15803D] text-white text-2xs font-bold px-3.5 py-1.5 rounded-full hover:bg-[#166534] transition-colors">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                                 </svg>
@@ -437,7 +436,7 @@
                         </div>
                         <div class="flex-1 min-w-0">
                             <p class="text-sm font-bold text-navy truncate">{{ $confirmCancelTransaction->child?->name ?? '—' }}</p>
-                            <p class="text-[11px] text-gray-400 truncate">{{ $confirmCancelTransaction->transaction_code }}</p>
+                            <p class="text-2xs text-gray-400 truncate">{{ $confirmCancelTransaction->transaction_code }}</p>
                         </div>
                         <p class="text-sm font-extrabold text-navy shrink-0">
                             Rp {{ number_format($confirmCancelTransaction->amount, 0, ',', '.') }}

@@ -187,7 +187,7 @@
                     @foreach ($kpiCards as $card)
                         <div class="bg-surface border border-line rounded-xl px-4 pt-4 pb-3 flex flex-col gap-3">
                             <div class="flex items-start justify-between gap-2">
-                                <p class="text-[11px] font-semibold text-muted uppercase tracking-wide leading-tight">{{ $card['label'] }}</p>
+                                <p class="text-2xs font-semibold text-muted uppercase tracking-wide leading-tight">{{ $card['label'] }}</p>
                                 <div class="w-7 h-7 rounded-lg {{ $card['ib'] }} flex items-center justify-center shrink-0">
                                     <svg class="w-3.5 h-3.5 {{ $card['it'] }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $card['icon'] }}"/>
@@ -207,7 +207,7 @@
                                                 : ($isGood ? 'bg-[#15803D]/10 text-[#15803D] border-[#15803D]/20'
                                                            : 'bg-[#B91C1C]/10 text-[#B91C1C] border-[#B91C1C]/20');
                                         @endphp
-                                        <span class="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-md border {{ $badge }}">
+                                        <span class="inline-flex items-center gap-0.5 text-3xs font-bold px-1.5 py-0.5 rounded-md border {{ $badge }}">
                                             @if (! $isFlat)
                                                 <svg class="w-2.5 h-2.5 shrink-0 {{ $d['dir'] === 'down' ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/>
@@ -215,9 +215,9 @@
                                             @endif
                                             {{ $d['pct'] }}%
                                         </span>
-                                        <span class="text-[10px] text-faint">{{ __('messages.admin.reports.vs_prev_period') }}</span>
+                                        <span class="text-3xs text-faint">{{ __('messages.admin.reports.vs_prev_period') }}</span>
                                     @else
-                                        <p class="text-[11px] text-muted">{{ $card['sub'] }}</p>
+                                        <p class="text-2xs text-muted">{{ $card['sub'] }}</p>
                                     @endif
                                 </div>
                             </div>
@@ -313,7 +313,7 @@
                                 <div>
                                     <div class="flex items-center justify-between mb-2">
                                         <div class="flex items-center gap-2">
-                                            <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold {{ $meta['class'] }}">
+                                            <span class="px-2 py-0.5 rounded-full text-2xs font-semibold {{ $meta['class'] }}">
                                                 {{ $meta['label'] }}
                                             </span>
                                             <span class="text-xs text-muted">{{ $data['count'] }} txn</span>
@@ -393,12 +393,12 @@
                             <table class="w-full text-xs">
                                 <thead>
                                     <tr class="border-b border-line bg-off/50">
-                                        <th class="px-5 py-2.5 text-left font-semibold text-muted uppercase tracking-wide text-[10px] w-8">{{ __('messages.admin.reports.col_rank') }}</th>
-                                        <th class="px-5 py-2.5 text-left font-semibold text-muted uppercase tracking-wide text-[10px]">{{ __('messages.admin.reports.col_package') }}</th>
-                                        <th class="px-5 py-2.5 text-left font-semibold text-muted uppercase tracking-wide text-[10px]">{{ __('messages.admin.reports.col_type') }}</th>
-                                        <th class="px-5 py-2.5 text-left font-semibold text-muted uppercase tracking-wide text-[10px] hidden md:table-cell">{{ __('messages.admin.reports.col_location') }}</th>
-                                        <th class="px-5 py-2.5 text-right font-semibold text-muted uppercase tracking-wide text-[10px]">{{ __('messages.admin.reports.col_unit') }}</th>
-                                        <th class="px-5 py-2.5 text-right font-semibold text-muted uppercase tracking-wide text-[10px]">{{ __('messages.admin.reports.col_revenue') }}</th>
+                                        <th class="px-5 py-2.5 text-left font-semibold text-muted uppercase tracking-wide text-3xs w-8">{{ __('messages.admin.reports.col_rank') }}</th>
+                                        <th class="px-5 py-2.5 text-left font-semibold text-muted uppercase tracking-wide text-3xs">{{ __('messages.admin.reports.col_package') }}</th>
+                                        <th class="px-5 py-2.5 text-left font-semibold text-muted uppercase tracking-wide text-3xs">{{ __('messages.admin.reports.col_type') }}</th>
+                                        <th class="px-5 py-2.5 text-left font-semibold text-muted uppercase tracking-wide text-3xs hidden md:table-cell">{{ __('messages.admin.reports.col_location') }}</th>
+                                        <th class="px-5 py-2.5 text-right font-semibold text-muted uppercase tracking-wide text-3xs">{{ __('messages.admin.reports.col_unit') }}</th>
+                                        <th class="px-5 py-2.5 text-right font-semibold text-muted uppercase tracking-wide text-3xs">{{ __('messages.admin.reports.col_revenue') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-line">
@@ -408,7 +408,7 @@
                                             <td class="px-5 py-3 text-muted tabular-nums font-semibold">{{ $idx + 1 }}</td>
                                             <td class="px-5 py-3 font-semibold text-ink group-hover:text-navy transition-colors">{{ $pkg['name'] }}</td>
                                             <td class="px-5 py-3">
-                                                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold {{ $meta['class'] }}">
+                                                <span class="px-2 py-0.5 rounded-full text-3xs font-semibold {{ $meta['class'] }}">
                                                     {{ $meta['label'] }}
                                                 </span>
                                             </td>
@@ -466,7 +466,7 @@
                                              style="width:{{ $pct }}%"
                                              title="{{ $meta['label'] }}: {{ $count }} ({{ $pct }}%)">
                                             @if ($pct >= 7)
-                                                <span class="text-white text-[10px] font-bold select-none">{{ $pct }}%</span>
+                                                <span class="text-white text-3xs font-bold select-none">{{ $pct }}%</span>
                                             @endif
                                         </div>
                                     @endif
@@ -483,7 +483,7 @@
                                     <div class="border rounded-xl p-4 {{ $meta['light'] }} {{ $meta['border'] }}">
                                         <div class="flex items-center gap-1.5 mb-3">
                                             <span class="w-2.5 h-2.5 rounded-full {{ $meta['bg'] }} shrink-0"></span>
-                                            <span class="{{ $meta['text'] }} text-[11px] font-bold uppercase tracking-wide">{{ $meta['label'] }}</span>
+                                            <span class="{{ $meta['text'] }} text-2xs font-bold uppercase tracking-wide">{{ $meta['label'] }}</span>
                                         </div>
                                         <p class="{{ $meta['text'] }} text-3xl font-extrabold leading-none tabular-nums">{{ $count }}</p>
                                         <p class="{{ $meta['text'] }} text-xs mt-2 font-medium">{{ $pct }}{{ __('messages.admin.reports.pct_of_total') }}</p>

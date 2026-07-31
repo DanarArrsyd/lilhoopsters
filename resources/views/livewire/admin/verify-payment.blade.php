@@ -33,7 +33,7 @@
 
         {{-- Manual fallback --}}
         <div class="border-t border-line pt-5">
-            <p class="text-[11px] font-bold uppercase tracking-wide text-faint mb-2">{{ __('messages.admin.verify_payment.manual') }}</p>
+            <p class="text-2xs font-bold uppercase tracking-wide text-faint mb-2">{{ __('messages.admin.verify_payment.manual') }}</p>
             <div class="flex items-end gap-2">
                 <div class="flex-1">
                     <x-input wire:model="manualCode" placeholder="TRX-XXXXXXXX" :error="$errors->first('manualCode')" />
@@ -56,7 +56,7 @@
                         </svg>
                         <div>
                             <p class="text-sm font-extrabold uppercase tracking-wide leading-none">{{ __('messages.admin.verify_payment.valid') }}</p>
-                            <p class="text-[11px] text-white/70 mt-0.5">{{ $result['code'] }}</p>
+                            <p class="text-2xs text-white/70 mt-0.5">{{ $result['code'] }}</p>
                         </div>
                     </div>
                     <div class="p-5 space-y-2.5">
@@ -66,25 +66,25 @@
                         </div>
                         <div class="grid grid-cols-2 gap-y-2.5 gap-x-4 pt-2 border-t border-[#15803D]/15">
                             <div>
-                                <p class="text-[10px] uppercase tracking-wide text-faint">{{ __('messages.receipt.billed_to') }}</p>
+                                <p class="text-3xs uppercase tracking-wide text-faint">{{ __('messages.receipt.billed_to') }}</p>
                                 <p class="text-sm font-semibold text-ink">{{ $result['parent'] ?? '—' }}</p>
                             </div>
                             <div>
-                                <p class="text-[10px] uppercase tracking-wide text-faint">{{ __('messages.receipt.player') }}</p>
+                                <p class="text-3xs uppercase tracking-wide text-faint">{{ __('messages.receipt.player') }}</p>
                                 <p class="text-sm font-semibold text-ink">{{ $result['child'] ?? '—' }}</p>
                             </div>
                             <div>
-                                <p class="text-[10px] uppercase tracking-wide text-faint">{{ __('messages.receipt.description') }}</p>
+                                <p class="text-3xs uppercase tracking-wide text-faint">{{ __('messages.receipt.description') }}</p>
                                 <p class="text-sm font-semibold text-ink">{{ $result['package'] ?? '—' }}</p>
-                                @if ($result['location'])<p class="text-[11px] text-faint">{{ $result['location'] }}</p>@endif
+                                @if ($result['location'])<p class="text-2xs text-faint">{{ $result['location'] }}</p>@endif
                             </div>
                             <div>
-                                <p class="text-[10px] uppercase tracking-wide text-faint">{{ __('messages.receipt.paid_at') }}</p>
+                                <p class="text-3xs uppercase tracking-wide text-faint">{{ __('messages.receipt.paid_at') }}</p>
                                 <p class="text-sm font-semibold text-ink">{{ $result['paid_at'] ?? '—' }}</p>
                             </div>
                             @if ($result['verified_by'])
                             <div class="col-span-2">
-                                <p class="text-[10px] uppercase tracking-wide text-faint">{{ __('messages.receipt.verified_by') }}</p>
+                                <p class="text-3xs uppercase tracking-wide text-faint">{{ __('messages.receipt.verified_by') }}</p>
                                 <p class="text-sm font-semibold text-ink">{{ $result['verified_by'] }}</p>
                             </div>
                             @endif

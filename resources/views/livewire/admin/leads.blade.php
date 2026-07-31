@@ -60,7 +60,7 @@
                         @foreach ([1 => __('messages.admin.leads.step_contact'), 2 => __('messages.admin.leads.step_details')] as $n => $label)
                             <div class="flex items-center gap-2">
                                 <div @class([
-                                    'w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 transition-colors',
+                                    'w-6 h-6 rounded-full flex items-center justify-center text-2xs font-bold shrink-0 transition-colors',
                                     'bg-[#15803D] text-white' => $step > $n,
                                     'bg-navy text-off'        => $step === $n,
                                     'bg-line text-faint'      => $step < $n,

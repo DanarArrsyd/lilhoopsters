@@ -12,6 +12,6 @@ $classes = match($status) {
 };
 @endphp
 
-<span {{ $attributes->merge(['class' => "inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide $classes"]) }}>
+<span {{ $attributes->merge(['class' => "inline-flex items-center rounded-full px-2.5 py-0.5 text-2xs font-semibold uppercase tracking-wide $classes"]) }}>
     {{ $slot }}
 </span>
