@@ -95,6 +95,17 @@
     }
 }
 
+/* Admin data pages reclaim the width the sidebar layout frees up. Only a
+   container that actually holds a table widens — dashboards, forms and wizards
+   keep the 1152px measure, where longer lines would read worse, not better.
+   Unlayered for the same reason as the block below: it has to beat the
+   max-w-6xl utility. A browser without :has() simply keeps the old width. */
+@media (min-width: 1280px) {
+    .admin-main .max-w-6xl:has(table) {
+        max-width: 1600px;
+    }
+}
+
 /* The enhancement swap lives OUTSIDE @layer on purpose. Both elements carry
    Tailwind utilities (`w-full`, `flex`, `block`) that sit in the utilities
    layer, and in Tailwind v4 every layer beats an earlier one regardless of
