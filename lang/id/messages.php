@@ -831,6 +831,12 @@ return [
             'empty_desc'    => 'Tidak ada pemain yang cocok.',
         ],
         'profile' => [
+            'account_overview' => 'Ringkasan Akun',
+            'role'             => 'Peran',
+            'role_admin'       => 'Admin',
+            'role_superadmin'  => 'Super Admin',
+            'member_since'     => 'Bergabung sejak',
+            'quick_links'      => 'Tautan Cepat',
             'title'            => 'Pengaturan Profil',
             'subtitle'         => 'Kelola informasi akun Anda.',
             'personal_info'    => 'Informasi Pribadi',

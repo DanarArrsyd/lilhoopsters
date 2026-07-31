@@ -831,6 +831,12 @@ return [
             'empty_desc'    => 'No players match your search.',
         ],
         'profile' => [
+            'account_overview' => 'Account Overview',
+            'role'             => 'Role',
+            'role_admin'       => 'Admin',
+            'role_superadmin'  => 'Super Admin',
+            'member_since'     => 'Member since',
+            'quick_links'      => 'Quick Links',
             'title'            => 'Profile Settings',
             'subtitle'         => 'Manage your account information.',
             'personal_info'    => 'Personal Information',
