@@ -6,6 +6,7 @@ use App\Models\Attendance;
 use App\Models\Child;
 use App\Models\Coach;
 use App\Models\Enrollment;
+use App\Models\LeaveRequest;
 use App\Models\Location;
 use App\Models\Role;
 use App\Models\Schedule;
@@ -69,6 +70,9 @@ class Dashboard extends Component
             'active_players'      => Child::where('status', 'active')->count(),
             'pending_enrollments' => Enrollment::where('status', 'pending')->count(),
             'pending_payments'    => Transaction::where('status', 'pending')->count(),
+            // The sidebar's Operations badge counts this; the dashboard has to
+            // agree with it, or the two disagree in front of the operator.
+            'pending_leaves'      => LeaveRequest::where('status', 'pending')->count(),
             'active_locations'    => Location::where('is_active', true)->count(),
             'active_coaches'      => Coach::where('is_active', true)->count(),
         ];

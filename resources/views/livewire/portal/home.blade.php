@@ -43,6 +43,13 @@
 
                 <x-portal.child-switcher :children="$children" :active-child-id="$activeChildId" />
 
+                {{-- Full width, above the split: this is the question the page
+                     exists to answer, so it gets the first line rather than the
+                     smallest one inside the week card. --}}
+                <div class="mb-6">
+                    <x-portal.next-session :session="$nextSession" />
+                </div>
+
                 <div class="flex flex-col lg:flex-row gap-6 items-start">
 
                     {{-- LEFT: Weekly calendar --}}
