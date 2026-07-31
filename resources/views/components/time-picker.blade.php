@@ -41,7 +41,7 @@
             <x-select variant="bare" :searchable="false"
                       wire:key="{{ $prefix }}-hour"
                       wire:model.live="{{ $hourModel }}"
-                      trigger-class="font-mono text-base tracking-tight"
+                      trigger-class="tabular-nums text-base tracking-tight"
                       aria-label="{{ $label }} — hour">
                 @foreach (range(1, 12) as $h)
                     <option value="{{ $h }}">{{ str_pad($h, 2, '0', STR_PAD_LEFT) }}</option>
@@ -55,7 +55,7 @@
             <x-select variant="bare" :searchable="false"
                       wire:key="{{ $prefix }}-minute"
                       wire:model.live="{{ $minuteModel }}"
-                      trigger-class="font-mono text-base tracking-tight"
+                      trigger-class="tabular-nums text-base tracking-tight"
                       aria-label="{{ $label }} — minute">
                 @foreach ($minutes as $m)
                     <option value="{{ $m }}">{{ $m }}</option>

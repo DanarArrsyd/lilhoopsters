@@ -419,7 +419,7 @@
                                 <tbody class="divide-y divide-line">
                                     @foreach ($ar['list'] as $row)
                                         <tr class="hover:bg-off/60" wire:key="ar-{{ $row['id'] }}">
-                                            <td class="px-5 py-2.5 font-mono text-xs text-muted">{{ $row['code'] }}</td>
+                                            <td class="px-5 py-2.5 tabular-nums text-xs text-muted">{{ $row['code'] }}</td>
                                             <td class="px-3 py-2.5">
                                                 <span class="font-semibold text-ink">{{ $row['child'] }}</span>
                                                 <span class="block text-2xs text-faint">{{ $row['parent'] }}</span>

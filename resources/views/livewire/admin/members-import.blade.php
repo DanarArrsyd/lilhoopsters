@@ -147,7 +147,7 @@
                         <tbody class="divide-y divide-line">
                             @foreach ($results as $r)
                                 <tr @class(['hover:bg-off transition-colors', 'bg-red-50/50 hover:bg-red-50' => $r['status'] === 'error'])>
-                                    <td class="py-2.5 px-4 text-faint text-xs font-mono">{{ $r['row'] }}</td>
+                                    <td class="py-2.5 px-4 text-faint text-xs tabular-nums">{{ $r['row'] }}</td>
                                     <td class="py-2.5 px-4 font-semibold text-ink">{{ $r['name'] ?? '—' }}</td>
                                     <td class="py-2.5 px-4">
                                         @if ($r['status'] === 'ok')

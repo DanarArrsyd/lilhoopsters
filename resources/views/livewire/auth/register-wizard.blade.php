@@ -65,7 +65,7 @@
                         <svg wire:loading wire:target="nextStep" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
                         OK
                     </button>
-                    <span class="text-xs text-gray-400">Press <kbd class="px-1.5 py-0.5 text-3xs font-mono bg-gray-100 border border-gray-200 rounded text-gray-500">Enter ↵</kbd></span>
+                    <span class="text-xs text-gray-400">Press <kbd class="px-1.5 py-0.5 text-3xs tabular-nums bg-gray-100 border border-gray-200 rounded text-gray-500">Enter ↵</kbd></span>
                 </div>
 
                 {{-- Google option --}}
@@ -124,7 +124,7 @@
                         <svg wire:loading wire:target="nextStep" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
                         OK
                     </button>
-                    <span class="text-xs text-gray-400">Press <kbd class="px-1.5 py-0.5 text-3xs font-mono bg-gray-100 border border-gray-200 rounded text-gray-500">Enter ↵</kbd></span>
+                    <span class="text-xs text-gray-400">Press <kbd class="px-1.5 py-0.5 text-3xs tabular-nums bg-gray-100 border border-gray-200 rounded text-gray-500">Enter ↵</kbd></span>
                 </div>
 
             @endif
@@ -214,7 +214,7 @@
                         <svg wire:loading wire:target="nextStep" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
                         OK
                     </button>
-                    <span class="text-xs text-gray-400">Press <kbd class="px-1.5 py-0.5 text-3xs font-mono bg-gray-100 border border-gray-200 rounded text-gray-500">Enter ↵</kbd></span>
+                    <span class="text-xs text-gray-400">Press <kbd class="px-1.5 py-0.5 text-3xs tabular-nums bg-gray-100 border border-gray-200 rounded text-gray-500">Enter ↵</kbd></span>
                 </div>
 
             @endif
@@ -259,7 +259,7 @@
                         <svg wire:loading wire:target="nextStep" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
                         OK
                     </button>
-                    <span class="text-xs text-gray-400">Press <kbd class="px-1.5 py-0.5 text-3xs font-mono bg-gray-100 border border-gray-200 rounded text-gray-500">Enter ↵</kbd></span>
+                    <span class="text-xs text-gray-400">Press <kbd class="px-1.5 py-0.5 text-3xs tabular-nums bg-gray-100 border border-gray-200 rounded text-gray-500">Enter ↵</kbd></span>
                 </div>
 
             @endif

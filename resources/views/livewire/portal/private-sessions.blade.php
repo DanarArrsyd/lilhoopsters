@@ -433,7 +433,7 @@
                                     </span>
                                     <span @class([
                                         'flex-1 text-right leading-snug',
-                                        'font-mono text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md' => isset($row['mono']) && $row['mono'],
+                                        'tabular-nums text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md' => isset($row['mono']) && $row['mono'],
                                         'text-lg font-extrabold text-navy' => isset($row['highlight']) && $row['highlight'],
                                         'text-xs font-semibold text-gray-800' => !isset($row['mono']) && !isset($row['highlight']),
                                     ])>{{ $row['value'] }}</span>

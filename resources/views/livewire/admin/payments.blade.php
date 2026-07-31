@@ -48,7 +48,7 @@
                     @forelse ($transactions as $trx)
                         <tr class="hover:bg-off transition-colors">
                             <td class="py-3 px-4">
-                                <p class="font-mono text-xs font-semibold text-ink">{{ $trx->transaction_code }}</p>
+                                <p class="tabular-nums text-xs font-semibold text-ink">{{ $trx->transaction_code }}</p>
                                 <p class="text-xs text-faint">{{ $trx->created_at->format('d M Y') }}</p>
                             </td>
                             <td class="py-3 px-4">

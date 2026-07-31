@@ -29,7 +29,7 @@
 
     <p class="mt-2 flex items-baseline gap-2">
         <span @class([
-            'font-mono text-3xl font-extrabold leading-none tabular-nums',
+            'tabular-nums text-3xl font-extrabold leading-none tabular-nums',
             'text-navy'  => $needsWork,
             'text-ink'   => ! $needsWork,
         ])>{{ $value }}</span>

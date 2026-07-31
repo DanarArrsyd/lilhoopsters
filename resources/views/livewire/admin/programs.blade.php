@@ -190,7 +190,7 @@
                             <tr class="hover:bg-off transition-colors">
                                 <td class="py-3 px-4 font-semibold text-ink">{{ $program->name }}</td>
                                 <td class="py-3 px-4">
-                                    <span class="font-mono bg-navy/8 text-navy rounded px-1.5 py-0.5 text-xs">
+                                    <span class="tabular-nums bg-navy/8 text-navy rounded px-1.5 py-0.5 text-xs">
                                         {{ round($program->min_age_months / 12) }}–{{ round($program->max_age_months / 12) }} yrs
                                     </span>
                                 </td>

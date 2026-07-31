@@ -5,13 +5,17 @@
 [x-cloak] { display: none !important; }
 
 @theme {
-    /* Two faces, no more: Public Sans carries every word, IBM Plex Mono carries
-       anything that has to line up in a column — times, amounts, codes, counts.
-       --font-heading is deliberately the same value as --font-sans; headings are
-       set apart by weight, size and tracking, not by a second family. */
+    /* One face. Public Sans sets every word and every number in the app.
+       Times, amounts and codes used to be set in IBM Plex Mono; its slashed
+       zero and typewriter shapes stood out against everything around them, so
+       the second family is gone. Numbers that need to line up in a column use
+       `tabular-nums`, which switches Public Sans to fixed-width figures — same
+       alignment, no change of voice.
+
+       --font-heading is deliberately the same value as --font-sans; headings
+       are set apart by weight, size and tracking, not by another family. */
     --font-sans:    'Public Sans', system-ui, sans-serif;
     --font-heading: 'Public Sans', system-ui, sans-serif;
-    --font-mono:    'IBM Plex Mono', ui-monospace, monospace;
 
     /* The UI leans on type smaller than text-sm for labels, badges and meta
        lines. Those sizes were written as one-off arbitrary values — 368 of them
@@ -70,9 +74,9 @@
         font-family: var(--font-heading);
     }
 
-    /* .font-numeric used to live here as a second name for --font-mono. Two
-       names for one face is how a type system starts drifting, so the call
-       sites use Tailwind's own `font-mono` now. */
+    /* A .font-numeric alias used to live here, pointing at a second family.
+       Both are gone: there is one face, and columns of figures line up with
+       `tabular-nums` instead. */
 }
 
 @layer components {

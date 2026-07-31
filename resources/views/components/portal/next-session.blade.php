@@ -33,7 +33,7 @@
 
                 <p class="mt-2 text-xl sm:text-2xl font-extrabold tracking-tight">
                     {{ $date->translatedFormat('l') }}
-                    <span class="font-mono">{{ $start->format('H:i') }}–{{ $end->format('H:i') }}</span>
+                    <span class="tabular-nums">{{ $start->format('H:i') }}–{{ $end->format('H:i') }}</span>
                 </p>
 
                 <p class="mt-1.5 text-sm text-off/75">
