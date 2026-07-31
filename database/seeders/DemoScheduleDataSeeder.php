@@ -159,6 +159,11 @@ class DemoScheduleDataSeeder extends Seeder
 
             $this->history($child, $enrollment, $schedule, $coach, $admin);
         }
+
+        // A child with an approved enrolment is an active member. Without this
+        // they stay 'unregistered', which hides them from the leave-request and
+        // make-up forms that only offer active children.
+        $child->update(['status' => 'active']);
     }
 
     /**

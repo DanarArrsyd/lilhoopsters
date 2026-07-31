@@ -137,7 +137,7 @@
 @if ($showCalendar && $calendar)
 <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
     <div class="absolute inset-0 bg-navy/40" wire:click="closeCalendar"></div>
-    <div class="relative bg-surface rounded-2xl border border-line shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+    <div class="relative bg-surface rounded-2xl border border-line shadow-xl w-full max-w-2xl lg:max-w-4xl max-h-[90vh] overflow-y-auto">
         <div class="sticky top-0 bg-surface flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-line z-10">
             <div>
                 <h3 class="text-lg font-extrabold uppercase tracking-tight text-navy">{{ __('messages.portal.home.calendar') }}</h3>
@@ -146,7 +146,30 @@
             <button wire:click="closeCalendar" class="text-muted hover:text-navy p-1 leading-none">&#x2715;</button>
         </div>
 
-        <div class="p-4 sm:p-6">
+        @php
+            // One colour per day state. A parent opening the calendar wants to know
+            // what happened, not how many rows matched — so the cell carries the
+            // outcome and the count moves to the day panel.
+            $stateDot = [
+                'scheduled' => 'bg-navy',
+                'present'   => 'bg-[#15803D]',
+                'missed'    => 'bg-[#B91C1C]',
+                'excused'   => 'bg-[#1D4ED8]',
+                'pending'   => 'border-2 border-navy/50 bg-transparent',
+                'makeup'    => 'bg-[#7C3AED]',
+            ];
+            $stateLabel = [
+                'scheduled' => __('messages.portal.home.state_scheduled'),
+                'present'   => __('messages.portal.home.state_present'),
+                'missed'    => __('messages.portal.home.state_missed'),
+                'excused'   => __('messages.portal.home.state_excused'),
+                'pending'   => __('messages.portal.home.state_pending'),
+                'makeup'    => __('messages.portal.home.state_makeup'),
+            ];
+        @endphp
+
+        <div class="p-4 sm:p-6 lg:grid lg:grid-cols-[1fr_20rem] lg:gap-6 lg:items-start">
+          <div>
             <div class="flex items-center justify-between mb-4">
                 <button wire:click="prevMonth" wire:loading.attr="disabled"
                         class="w-9 h-9 flex items-center justify-center rounded-xl border border-line text-ink hover:bg-off hover:border-navy/30 transition-colors">
@@ -187,10 +210,15 @@
                                     'text-ink'           => !$cell['isToday'] && $cell['inMonth'],
                                     'text-faint'         => !$cell['inMonth'],
                                 ])>{{ $cell['day'] }}</span>
-                                @if ($cell['count'] > 0)
-                                    <span class="inline-flex items-center justify-center min-w-[15px] h-[15px] sm:min-w-[18px] sm:h-[18px] px-0.5 sm:px-1 rounded-full bg-navy/10 text-navy text-[8px] sm:text-[9px] font-extrabold tabular-nums leading-none">
-                                        {{ $cell['count'] }}
-                                    </span>
+
+                                @if ($cell['state'] !== 'none')
+                                    <span class="w-2 h-2 rounded-full {{ $stateDot[$cell['state']] }}"
+                                          title="{{ $stateLabel[$cell['state']] }}"></span>
+                                @endif
+
+                                @if ($cell['hasEvent'])
+                                    <span class="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-[#B45309]"
+                                          title="{{ __('messages.portal.home.state_event') }}"></span>
                                 @endif
                             </button>
                         @endforeach
@@ -198,11 +226,38 @@
                 @endforeach
             </div>
 
-            <div class="mt-5 border-t border-line pt-4">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-faint mb-3">
+            {{-- Legend: the dots are only readable if the key is next to them --}}
+            <div class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                @foreach ($stateLabel as $key => $text)
+                    <span class="inline-flex items-center gap-1.5 text-[10px] text-muted">
+                        <span class="w-2 h-2 rounded-full {{ $stateDot[$key] }}"></span>{{ $text }}
+                    </span>
+                @endforeach
+                <span class="inline-flex items-center gap-1.5 text-[10px] text-muted">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#B45309]"></span>{{ __('messages.portal.home.state_event') }}
+                </span>
+            </div>
+          </div>
+
+          {{-- Day panel. On desktop it sits beside the grid and stays put, so
+               clicking through dates doesn't push the month around. --}}
+          <div class="mt-5 lg:mt-0 border-t lg:border-t-0 lg:border-l border-line pt-4 lg:pt-0 lg:pl-6">
+                <p class="text-[10px] font-bold uppercase tracking-widest text-faint mb-2">
                     {{ \Illuminate\Support\Carbon::parse($selectedDate)->format('l, d M Y') }}
                     <span class="text-navy/50">· {{ $selectedSessions->count() }} session{{ $selectedSessions->count() === 1 ? '' : 's' }}</span>
                 </p>
+
+                {{-- The dot in the grid says what happened; repeat it in words here,
+                     otherwise the colour is a code the parent has to decrypt. --}}
+                @php
+                    $selectedCell = collect($calendar['weeks'])->flatten(1)->firstWhere('date', $selectedDate);
+                @endphp
+                @if ($selectedCell && $selectedCell['state'] !== 'none')
+                    <p class="mb-3 inline-flex items-center gap-1.5 rounded-full bg-off px-2.5 py-1 text-[11px] font-semibold text-ink">
+                        <span class="w-2 h-2 rounded-full {{ $stateDot[$selectedCell['state']] }}"></span>
+                        {{ $stateLabel[$selectedCell['state']] }}
+                    </p>
+                @endif
 
                 @if ($selectedSessions->isEmpty())
                     <p class="text-xs text-faint py-2">{{ __('messages.portal.home.no_sessions_day') }}</p>
@@ -229,6 +284,26 @@
                             </div>
                         @endforeach
                     </div>
+                @endif
+
+                {{-- The action a parent most often wants from a date is bound to
+                     that date. Before this they had to close the calendar, open
+                     Leave Requests and pick the day again.
+
+                     Only shown inside the window the form accepts — leave here is
+                     reported for a session that already happened (today back to
+                     seven days), so offering it on a future date would hand the
+                     parent a form that rejects them. --}}
+                @if (\App\Livewire\Portal\LeaveRequests::isRequestableDate($selectedDate))
+                <a href="{{ route('parent.leaves', ['date' => $selectedDate]) }}"
+                   class="mt-4 flex items-center justify-center gap-2 rounded-xl border border-line px-3 py-2.5
+                          text-xs font-semibold text-navy hover:bg-off hover:border-navy/30 transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M9 12h6m-3-3v6m8-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    {{ __('messages.portal.home.request_leave_on') }}
+                </a>
                 @endif
             </div>
         </div>

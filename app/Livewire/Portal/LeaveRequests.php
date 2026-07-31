@@ -5,6 +5,7 @@ namespace App\Livewire\Portal;
 use App\Models\Enrollment;
 use App\Models\LeaveRequest;
 use App\Services\NotificationService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
@@ -129,6 +130,34 @@ class LeaveRequests extends Component
         if ($first) {
             $this->filterChildId = (string) $first->id;
         }
+
+        // Arriving from a calendar day: open the form on that date instead of
+        // making the parent pick it again. Guarded by the same window the
+        // validation enforces, so a link can't land on a date the form rejects.
+        $date = request()->query('date');
+
+        if ($first && $date && $this->isRequestableDate($date)) {
+            $this->openCreate();
+            $this->selectedChildId = $first->id;
+            $this->leaveDate       = Carbon::parse($date)->toDateString();
+            $this->step            = 2;
+        }
+    }
+
+    /** Leave is reported for a session that already happened: today back to 7 days. */
+    public static function isRequestableDate(?string $date): bool
+    {
+        if (! $date) {
+            return false;
+        }
+
+        try {
+            $day = Carbon::parse($date)->startOfDay();
+        } catch (\Throwable) {
+            return false;
+        }
+
+        return $day->betweenIncluded(now()->subDays(7)->startOfDay(), now()->startOfDay());
     }
 
     public function render()

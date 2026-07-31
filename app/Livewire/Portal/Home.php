@@ -2,8 +2,11 @@
 
 namespace App\Livewire\Portal;
 
+use App\Models\Attendance;
 use App\Models\Child;
 use App\Models\Event;
+use App\Models\LeaveRequest;
+use App\Models\MakeUpClass;
 use App\Support\ChildSchedulePlanner;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -119,6 +122,36 @@ class Home extends Component
             ->find($this->activeChildId);
     }
 
+    /**
+     * One label per day, resolved in the order a parent would read it: what the
+     * coach recorded beats what was requested, and a booked make-up beats a
+     * plain scheduled class.
+     *
+     * scheduled · present · missed · excused · pending · makeup · none
+     */
+    private function dayState(int $sessionCount, $attendance, $leave, $makeUp): string
+    {
+        if ($attendance) {
+            return match ($attendance->status) {
+                'present'        => 'present',
+                'no_show'        => 'missed',
+                'sick', 'permit' => 'excused',
+                'make_up'        => 'makeup',
+                default          => 'scheduled',
+            };
+        }
+
+        if ($makeUp) {
+            return 'makeup';
+        }
+
+        if ($leave) {
+            return in_array($leave->status, ['approved', 'auto_approved'], true) ? 'excused' : 'pending';
+        }
+
+        return $sessionCount > 0 ? 'scheduled' : 'none';
+    }
+
     public function render()
     {
         $child = $this->activeChild;
@@ -140,14 +173,40 @@ class Home extends Component
             $gridStart   = $monthStart->copy()->startOfWeek(Carbon::MONDAY);
             $gridEnd     = $monthStart->copy()->endOfMonth()->endOfWeek(Carbon::SUNDAY);
 
+            // What actually happened (or is booked) on each day, fetched once for
+            // the whole grid. Without these the calendar can only ever say "there
+            // is a class here" — never attended, excused, replaced or cancelled.
+            $attendance = Attendance::where('child_id', $child->id)
+                ->whereBetween('attended_at', [$gridStart->copy()->startOfDay(), $gridEnd->copy()->endOfDay()])
+                ->get()->keyBy(fn ($a) => Carbon::parse($a->attended_at)->toDateString());
+
+            $leaves = LeaveRequest::where('child_id', $child->id)
+                ->whereBetween('leave_date', [$gridStart, $gridEnd])
+                ->whereIn('status', ['approved', 'auto_approved', 'pending'])
+                ->get()->keyBy(fn ($l) => Carbon::parse($l->leave_date)->toDateString());
+
+            $makeUps = MakeUpClass::where('child_id', $child->id)
+                ->whereBetween('target_date', [$gridStart, $gridEnd])
+                ->whereIn('status', ['approved', 'completed'])
+                ->get()->keyBy(fn ($m) => Carbon::parse($m->target_date)->toDateString());
+
+            $events = Event::where('is_active', true)
+                ->whereBetween('start_date', [$gridStart->copy()->startOfDay(), $gridEnd->copy()->endOfDay()])
+                ->get()->groupBy(fn ($e) => Carbon::parse($e->start_date)->toDateString());
+
             $days = collect();
             for ($d = $gridStart->copy(); $d->lte($gridEnd); $d->addDay()) {
+                $key   = $d->toDateString();
+                $count = ChildSchedulePlanner::sessionsOn($enrollments, $d->copy())->count();
+
                 $days->push([
-                    'date'    => $d->toDateString(),
-                    'day'     => $d->day,
-                    'inMonth' => $d->month === $monthStart->month,
-                    'isToday' => $d->isToday(),
-                    'count'   => ChildSchedulePlanner::sessionsOn($enrollments, $d->copy())->count(),
+                    'date'     => $key,
+                    'day'      => $d->day,
+                    'inMonth'  => $d->month === $monthStart->month,
+                    'isToday'  => $d->isToday(),
+                    'count'    => $count,
+                    'state'    => $this->dayState($count, $attendance->get($key), $leaves->get($key), $makeUps->get($key)),
+                    'hasEvent' => $events->has($key),
                 ]);
             }
 
