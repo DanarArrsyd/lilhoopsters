@@ -17,6 +17,7 @@ return [
         'attendance'   => 'Kehadiran',
         'leaves'       => 'Izin / Sakit',
         'makeup'       => 'Kelas Pengganti',
+        'more'         => 'Lainnya',
         'report_cards' => 'Rapor',
         'payments'     => 'Pembayaran',
         'profile'      => 'Profil',
@@ -241,6 +242,7 @@ return [
         'panel'    => 'Panel Pelatih',
         'sign_out' => 'Keluar',
         'nav' => [
+            'take_attendance' => 'Ambil Absensi',
             'qr_scanner'       => 'Pemindai QR',
             'checkin'          => 'Check-In',
             'roster'           => 'Daftar Harian',

@@ -35,4 +35,17 @@
         </svg>
         {{ __('messages.nav.news') }}
     </a>
+
+    {{-- Desktop counterpart of the bottom-nav More sheet: the same destinations
+         that were previously only on the Home quick-actions card. --}}
+    <x-nav-dropdown :label="__('messages.nav.more')"
+                    data-has-active="{{ $isActive('parent.payments', 'parent.attendance', 'parent.report-cards', 'parent.enroll', 'parent.private', 'parent.leaves', 'parent.makeup') ? 'true' : 'false' }}">
+        <x-sidebar-link :href="route('parent.payments')" :active="request()->routeIs('parent.payments')">{{ __('messages.nav.payments') }}</x-sidebar-link>
+        <x-sidebar-link :href="route('parent.attendance')" :active="request()->routeIs('parent.attendance')">{{ __('messages.nav.attendance') }}</x-sidebar-link>
+        <x-sidebar-link :href="route('parent.report-cards')" :active="request()->routeIs('parent.report-cards')">{{ __('messages.nav.report_cards') }}</x-sidebar-link>
+        <x-sidebar-link :href="route('parent.enroll')" :active="request()->routeIs('parent.enroll')">{{ __('messages.nav.enroll') }}</x-sidebar-link>
+        <x-sidebar-link :href="route('parent.private')" :active="request()->routeIs('parent.private')">{{ __('messages.nav.private') }}</x-sidebar-link>
+        <x-sidebar-link :href="route('parent.leaves')" :active="request()->routeIs('parent.leaves')">{{ __('messages.nav.leaves') }}</x-sidebar-link>
+        <x-sidebar-link :href="route('parent.makeup')" :active="request()->routeIs('parent.makeup')">{{ __('messages.nav.makeup') }}</x-sidebar-link>
+    </x-nav-dropdown>
 </nav>

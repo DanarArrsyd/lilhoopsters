@@ -32,4 +32,52 @@
         </svg>
         <span class="text-[11px] font-semibold">{{ __('messages.nav.news') }}</span>
     </a>
+
+    {{-- Everything the five slots can't hold. Before this, these seven pages were
+         reachable only through the Quick Actions card on Home — so a parent on
+         Payments had to go back home to file a leave request. --}}
+    <x-nav-more-sheet :active="request()->routeIs('parent.enroll', 'parent.private', 'parent.payments', 'parent.leaves', 'parent.makeup', 'parent.attendance', 'parent.report-cards')">
+
+        <x-nav-more-item :href="route('parent.payments')" :label="__('messages.nav.payments')" :active="request()->routeIs('parent.payments')">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+        </x-nav-more-item>
+
+        <x-nav-more-item :href="route('parent.attendance')" :label="__('messages.nav.attendance')" :active="request()->routeIs('parent.attendance')">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+            </svg>
+        </x-nav-more-item>
+
+        <x-nav-more-item :href="route('parent.report-cards')" :label="__('messages.nav.report_cards')" :active="request()->routeIs('parent.report-cards')">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+        </x-nav-more-item>
+
+        <x-nav-more-item :href="route('parent.enroll')" :label="__('messages.nav.enroll')" :active="request()->routeIs('parent.enroll')">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+        </x-nav-more-item>
+
+        <x-nav-more-item :href="route('parent.private')" :label="__('messages.nav.private')" :active="request()->routeIs('parent.private')">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+        </x-nav-more-item>
+
+        <x-nav-more-item :href="route('parent.leaves')" :label="__('messages.nav.leaves')" :active="request()->routeIs('parent.leaves')">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+        </x-nav-more-item>
+
+        <x-nav-more-item :href="route('parent.makeup')" :label="__('messages.nav.makeup')" :active="request()->routeIs('parent.makeup')">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+        </x-nav-more-item>
+    </x-nav-more-sheet>
 </nav>

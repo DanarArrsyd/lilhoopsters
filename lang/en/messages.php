@@ -17,6 +17,7 @@ return [
         'attendance'   => 'Attendance',
         'leaves'       => 'Leave Requests',
         'makeup'       => 'Make-Up Class',
+        'more'         => 'More',
         'report_cards' => 'Report Cards',
         'payments'     => 'Payments',
         'profile'      => 'Profile',
@@ -254,6 +255,7 @@ return [
         'panel'    => 'Coach Panel',
         'sign_out' => 'Sign out',
         'nav' => [
+            'take_attendance' => 'Take Attendance',
             'qr_scanner'       => 'QR Scanner',
             'checkin'          => 'Check-In',
             'roster'           => 'Daily Roster',

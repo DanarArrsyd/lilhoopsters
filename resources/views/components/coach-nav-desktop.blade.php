@@ -12,7 +12,8 @@
         {{ __('messages.nav.news') }}
     </a>
 
-    <x-nav-dropdown :label="__('messages.nav.attendance')" data-has-active="{{ $isActive('coach.qr-scanner','coach.checkin','coach.roster') ? 'true' : 'false' }}">
+    <x-nav-dropdown :label="__('messages.nav.attendance')" data-has-active="{{ $isActive('coach.attendance','coach.qr-scanner','coach.checkin','coach.roster') ? 'true' : 'false' }}">
+        <x-sidebar-link href="{{ route('coach.attendance') }}" :active="request()->routeIs('coach.attendance')">{{ __('messages.coach.nav.take_attendance') }}</x-sidebar-link>
         <x-sidebar-link href="{{ route('coach.qr-scanner') }}" :active="request()->routeIs('coach.qr-scanner')">{{ __('messages.coach.nav.qr_scanner') }}</x-sidebar-link>
         <x-sidebar-link href="{{ route('coach.checkin') }}" :active="request()->routeIs('coach.checkin')">{{ __('messages.coach.nav.checkin') }}</x-sidebar-link>
         <x-sidebar-link href="{{ route('coach.roster') }}" :active="request()->routeIs('coach.roster')">{{ __('messages.coach.nav.roster') }}</x-sidebar-link>
