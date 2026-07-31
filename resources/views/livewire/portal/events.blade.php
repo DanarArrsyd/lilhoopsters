@@ -70,8 +70,10 @@
                 @elseif ($children->isEmpty())
                     <p class="text-sm text-muted">{{ __('messages.events.no_children') }}</p>
                 @else
-                    <div class="flex gap-2 items-end">
-                        <div class="flex-1 max-w-xs space-y-1.5">
+                    {{-- Stacks on a phone: side by side at 390px squeezed the
+                         button to a sliver next to the field. --}}
+                    <div class="flex flex-col sm:flex-row sm:items-end gap-3">
+                        <div class="w-full sm:max-w-xs space-y-1.5">
                             <label class="block text-xs font-semibold uppercase tracking-wide text-navy">{{ __('messages.events.child') }}</label>
                             <x-select wire:model="childSelection.{{ $event->id }}">
                                 <option value="">{{ __('messages.events.select_child') }}</option>
@@ -83,7 +85,23 @@
                                 @endforeach
                             </x-select>
                         </div>
-                        <x-btn wire:click="register({{ $event->id }})" wire:loading.attr="disabled" wire:target="register({{ $event->id }})">
+                        {{-- min-h matches the 46px of the select beside it; the md
+                             size is 40px, which left the button floating short of
+                             the field it belongs to. --}}
+                        <x-btn size="lg"
+                               class="w-full sm:w-auto shrink-0 min-h-[2.875rem]"
+                               wire:click="register({{ $event->id }})"
+                               wire:loading.attr="disabled"
+                               wire:target="register({{ $event->id }})">
+                            <svg wire:loading.remove wire:target="register({{ $event->id }})"
+                                 class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <svg wire:loading wire:target="register({{ $event->id }})"
+                                 class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                <path fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                            </svg>
                             {{ __('messages.events.register') }}
                         </x-btn>
                     </div>
