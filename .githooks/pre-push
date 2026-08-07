@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+#
+# Runs the test suite before every push, so a red commit cannot reach main.
+#
+# Installed with:  git config core.hooksPath .githooks
+# Bypassed with:   git push --no-verify
+#
+# The suite is MySQL-only. Several tests use MySQL's FIELD() and rely on
+# constraint behaviour SQLite does not share, so running it on SQLite reports
+# ~78 failures that are not real. If MySQL is unreachable this hook warns and
+# lets the push through rather than gating on infrastructure that is down —
+# a hook that blocks for the wrong reason just teaches you to skip it.
+
+set -uo pipefail
+
+RED=$'\033[0;31m'; GREEN=$'\033[0;32m'; YELLOW=$'\033[1;33m'; DIM=$'\033[2m'; OFF=$'\033[0m'
+
+repo_root=$(git rev-parse --show-toplevel)
+cd "$repo_root" || exit 0
+
+# phpunit.xml pins the test database name; the rest comes from .env.
+TEST_DB="basketballv2_test"
+env_get() {
+    local key=$1 default=${2:-}
+    local val
+    val=$(grep -E "^${key}=" .env 2>/dev/null | head -1 | cut -d= -f2- | tr -d '"' | tr -d "'")
+    echo "${val:-$default}"
+}
+
+DB_HOST=$(env_get DB_HOST 127.0.0.1)
+DB_PORT=$(env_get DB_PORT 3306)
+DB_USER=$(env_get DB_USERNAME root)
+DB_PASS=$(env_get DB_PASSWORD "")
+
+# Can we reach the test database at all?
+db_check=$(php -r '
+    $dsn = sprintf("mysql:host=%s;port=%s;dbname=%s", $argv[1], $argv[2], $argv[3]);
+    try { new PDO($dsn, $argv[4], $argv[5], [PDO::ATTR_TIMEOUT => 3]); echo "ok"; }
+    catch (Throwable $e) { echo "fail: " . $e->getMessage(); }
+' "$DB_HOST" "$DB_PORT" "$TEST_DB" "$DB_USER" "$DB_PASS" 2>&1)
+
+if [[ "$db_check" != "ok" ]]; then
+    echo
+    echo "${YELLOW}⚠  pre-push: test suite skipped — MySQL is not reachable.${OFF}"
+    echo "${DIM}   ${db_check}${OFF}"
+    echo "${DIM}   Start it:  sudo /Applications/XAMPP/xamppfiles/bin/mysql.server start${OFF}"
+    echo "${DIM}   Then:      mysql -u${DB_USER} -e 'CREATE DATABASE IF NOT EXISTS ${TEST_DB}'${OFF}"
+    echo "${YELLOW}   Pushing anyway. CI is the real check — watch it.${OFF}"
+    echo
+    exit 0
+fi
+
+echo "${DIM}pre-push: running test suite against ${TEST_DB}…${OFF}"
+
+# memory_limit is raised because the report-card PDF tests blow past the 128M
+# CLI default; GitHub's runner has no such limit, so this is a local-only need.
+if php -d memory_limit=1G vendor/bin/pest --compact; then
+    echo "${GREEN}✓ pre-push: suite green — pushing.${OFF}"
+    exit 0
+fi
+
+echo
+echo "${RED}✗ pre-push: tests failed — push aborted.${OFF}"
+echo "${DIM}  Fix them, or push anyway with:  git push --no-verify${OFF}"
+echo
+exit 1
