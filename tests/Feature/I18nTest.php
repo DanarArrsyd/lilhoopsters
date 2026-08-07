@@ -115,7 +115,10 @@ it('fully localises the admin portal to Indonesian', function () {
     $this->actingAs($admin)->get(route('admin.reports'))
         ->assertSee('Bulan Ini'); // preset pill
 
-    $this->actingAs($admin)->get(route('admin.owner'))
+    // Owner Insights is super_admin-only, so it needs its own actor.
+    $superAdmin = User::factory()->withRole('super_admin')->approved()->create(['locale' => 'id']);
+
+    $this->actingAs($superAdmin)->get(route('admin.owner'))
         ->assertSee('Retensi & Perpanjangan')  // renewal section heading
         ->assertSee('Pembayaran Tertunggak');   // AR section heading
 });

@@ -27,29 +27,38 @@ beforeEach(function () {
         ['name' => 'parent',      'created_at' => now(), 'updated_at' => now()],
     ]);
 
-    $this->admin    = User::factory()->withRole('admin')->approved()->create();
+    $this->admin      = User::factory()->withRole('admin')->approved()->create();
+    $this->superAdmin = User::factory()->withRole('super_admin')->approved()->create();
     $this->location = Location::factory()->create();
     $this->package  = Package::factory()->regular()->create(['location_id' => $this->location->id]);
 });
 
-it('renders owner insights page for admin', function () {
-    $this->actingAs($this->admin)
+it('renders owner insights page for super admin', function () {
+    $this->actingAs($this->superAdmin)
         ->get(route('admin.owner'))
         ->assertOk();
 });
 
-it('non-admin cannot access owner insights', function () {
+it('keeps owner insights away from admin and parent accounts', function () {
     $parent = User::factory()->withRole('parent')->approved()->create();
+
+    $this->actingAs($this->admin)
+        ->get(route('admin.owner'))
+        ->assertForbidden();
 
     $this->actingAs($parent)
         ->get(route('admin.owner'))
         ->assertForbidden();
 });
 
-it('shows owner insights link in sidebar', function () {
-    $this->actingAs($this->admin)
+it('shows owner insights link in sidebar to super admin only', function () {
+    $this->actingAs($this->superAdmin)
         ->get(route('admin.reports'))
         ->assertSee(route('admin.owner'));
+
+    $this->actingAs($this->admin)
+        ->get(route('admin.reports'))
+        ->assertDontSee(route('admin.owner'));
 });
 
 it('counts active members and flags expiring enrollments', function () {

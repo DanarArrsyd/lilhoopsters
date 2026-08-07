@@ -29,8 +29,8 @@ it('redirects the old dashboard route to home', function () {
         ->assertRedirect(route('parent.home'));
 });
 
-it('returns 404 for routes removed from navigation', function () {
-    $this->actingAs($this->parent)->get('/parent/events')->assertNotFound();
+it('renders the events page', function () {
+    $this->actingAs($this->parent)->get(route('parent.events'))->assertOk();
 });
 
 it('renders the players, leaves, makeup, private, payments, attendance, and report-cards pages', function () {
