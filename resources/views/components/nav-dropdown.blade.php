@@ -16,8 +16,12 @@
         </svg>
     </button>
 
+    {{-- p-1.5, not py-1.5: the links inside carry their own rounded-lg, and with
+         no horizontal padding the active one ran edge to edge and died against
+         the panel border, reading as a full-bleed bar rather than a pill. The
+         admin sidebar already insets its links by px-2 for the same reason. --}}
     <div x-show="open" x-cloak x-transition.opacity.duration.150ms
-         class="absolute left-0 mt-2 w-56 bg-surface border border-line rounded-xl shadow-lg py-1.5 z-40">
+         class="absolute left-0 mt-2 w-56 bg-surface border border-line rounded-xl shadow-lg p-1.5 z-40">
         {{ $slot }}
     </div>
 </div>
