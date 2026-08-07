@@ -64,7 +64,13 @@
         default               => 8,
     };
 
-    $wrapperClass = $variant === 'chip' ? 'inline-block' : 'space-y-1.5';
+    // Deliberately not space-y-*. That sets a bottom margin on every child but
+    // the last, and the last child here is the teleport <template> — which
+    // renders nothing but still counts. The visible trigger therefore kept a
+    // 6px bottom margin that leaked past the field and pushed the column 6px
+    // taller than the control, so any sm:items-end row aligned its button to
+    // that phantom edge instead of the field. Gaps are set explicitly below.
+    $wrapperClass = $variant === 'chip' ? 'inline-block' : '';
 
     // Numeric pickers centre their value in the trigger, so the list has to
     // centre too or the digits jump sideways when the panel opens.
@@ -82,7 +88,7 @@
              once enhanced, clicking it hands focus to the visible trigger. --}}
         <label id="{{ $fieldId }}_label" for="{{ $fieldId }}"
                @click.prevent="$refs.trigger.focus()"
-               class="block text-xs font-semibold uppercase tracking-wide text-navy">
+               class="block mb-1.5 text-xs font-semibold uppercase tracking-wide text-navy">
             {{ $label }}
             @if ($attributes->get('required'))
                 <span class="text-danger ml-0.5">*</span>
@@ -233,10 +239,10 @@
     </template>
 
     @if ($error)
-        <p id="{{ $descId }}" class="text-xs text-danger">{{ $error }}</p>
+        <p id="{{ $descId }}" class="mt-1.5 text-xs text-danger">{{ $error }}</p>
     @elseif ($success)
-        <p id="{{ $descId }}" class="text-xs text-success">{{ $success }}</p>
+        <p id="{{ $descId }}" class="mt-1.5 text-xs text-success">{{ $success }}</p>
     @elseif ($helper)
-        <p id="{{ $descId }}" class="text-xs text-muted">{{ $helper }}</p>
+        <p id="{{ $descId }}" class="mt-1.5 text-xs text-muted">{{ $helper }}</p>
     @endif
 </div>
