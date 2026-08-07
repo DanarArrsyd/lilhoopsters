@@ -395,8 +395,10 @@ return [
         ],
     ],
     'admin' => [
-        'panel'    => 'Admin Panel',
-        'sign_out' => 'Sign out',
+        'panel'     => 'Admin Panel',
+        'sign_out'  => 'Sign out',
+        'hide_menu' => 'Hide menu',
+        'show_menu' => 'Show menu',
         'section'  => [
             'people'     => 'People',
             'programs'   => 'Programs',

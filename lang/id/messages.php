@@ -395,8 +395,10 @@ return [
         'submit'          => 'Kirim Permintaan',
     ],
     'admin' => [
-        'panel'    => 'Panel Admin',
-        'sign_out' => 'Keluar',
+        'panel'     => 'Panel Admin',
+        'sign_out'  => 'Keluar',
+        'hide_menu' => 'Sembunyikan menu',
+        'show_menu' => 'Tampilkan menu',
         'section'  => [
             'people'     => 'Orang',
             'programs'   => 'Program',
