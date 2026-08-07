@@ -5,9 +5,21 @@
     $hasActive = str_contains((string) $slot, 'bg-navy text-off font-semibold');
 @endphp
 
-<div x-data="{ open: {{ $hasActive ? 'true' : 'false' }} }" class="mt-3">
+{{-- Accordion: opening one group closes the rest, so a long nav never turns
+     into a wall of every link at once. Coordinated by a window event rather
+     than shared parent state, because these sections have no common Alpine
+     scope: the desktop sidebar and the mobile drawer each render their own
+     copy of the nav, so the rule holds across both copies at once. Only one
+     of the two is ever on screen, so what a user sees is a plain accordion.
+
+     Only the group holding the current page starts open, and at most one link
+     can be active, so the one-open rule already holds on first paint. --}}
+<div x-data="{ open: {{ $hasActive ? 'true' : 'false' }} }"
+     x-id="['sidebar-section']"
+     @sidebar-section-opened.window="if ($event.detail !== $id('sidebar-section')) open = false"
+     class="mt-3">
     <button type="button"
-            @click="open = !open"
+            @click="open = !open; open && $dispatch('sidebar-section-opened', $id('sidebar-section'))"
             class="w-full flex items-center justify-between px-3 py-1.5 group">
         <span class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted group-hover:text-navy transition-colors sidebar-brand">
             {{ $label }}
