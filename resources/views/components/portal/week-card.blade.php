@@ -135,9 +135,15 @@
 
 {{-- ════════ Month Calendar modal ════════ --}}
 @if ($showCalendar && $calendar)
-<div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
+{{-- The padding reserves the chrome this modal sits on top of: the 3.5rem
+     sticky header above, and the bottom nav below on anything under lg. With
+     max-h-[90vh] the panel only left 5vh of headroom, which is less than the
+     header is tall, so a full month of sessions slid up underneath it.
+     max-h-full then measures against this padded box, so the panel keeps
+     clearing both bars even if either one changes height. --}}
+<div class="fixed inset-0 z-50 flex items-center justify-center px-3 sm:px-4 pt-[4.5rem] pb-20 lg:pb-4">
     <div class="absolute inset-0 bg-navy/40" wire:click="closeCalendar"></div>
-    <div class="relative bg-surface rounded-2xl border border-line shadow-xl w-full max-w-2xl lg:max-w-4xl max-h-[90vh] overflow-y-auto">
+    <div class="relative bg-surface rounded-2xl border border-line shadow-xl w-full max-w-2xl lg:max-w-4xl max-h-full overflow-y-auto">
         <div class="sticky top-0 bg-surface flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-line z-10">
             <div>
                 <h3 class="text-lg font-extrabold uppercase tracking-tight text-navy">{{ __('messages.portal.home.calendar') }}</h3>
