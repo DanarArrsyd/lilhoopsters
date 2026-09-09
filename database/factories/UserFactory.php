@@ -14,6 +14,7 @@ class UserFactory extends Factory
             'role_id'             => Role::factory(),
             'name'                => fake()->name(),
             'email'               => fake()->unique()->safeEmail(),
+            'email_verified_at'   => now(),
             'password'            => 'password', // hashed by model cast
             'registration_status' => 'pending',
             'is_active'           => true,

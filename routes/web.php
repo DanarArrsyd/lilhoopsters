@@ -4,6 +4,8 @@ use App\Http\Controllers\PaymentReceiptController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\GoogleController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // Public: redirect root to login
@@ -31,8 +33,25 @@ Route::get('/pending', fn() => view('auth.pending'))
     ->middleware('auth')
     ->name('pending');
 
+// ─── Email verification (self-registered accounts only — Google and
+// admin-imported accounts are pre-verified at creation time) ──────────
+Route::middleware('auth')->group(function () {
+    Route::get('/email/verify', fn() => view('auth.verify-email'))
+        ->name('verification.notice');
+
+    Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+        $request->fulfill();
+        return redirect()->route(request()->user()->redirectRouteName());
+    })->middleware('signed')->name('verification.verify');
+
+    Route::post('/email/verification-notification', function (Request $request) {
+        $request->user()->sendEmailVerificationNotification();
+        return back()->with('status', 'verification-link-sent');
+    })->middleware('throttle:6,1')->name('verification.send');
+});
+
 // ─── Admin routes ─────────────────────────────────────────────────────
-Route::middleware(['auth', 'role:admin,super_admin', 'registration.status'])
+Route::middleware(['auth', 'verified', 'role:admin,super_admin', 'registration.status'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
@@ -65,7 +84,7 @@ Route::middleware(['auth', 'role:admin,super_admin', 'registration.status'])
     });
 
 // ─── Super Admin routes ───────────────────────────────────────────────
-Route::middleware(['auth', 'role:super_admin', 'registration.status'])
+Route::middleware(['auth', 'verified', 'role:super_admin', 'registration.status'])
     ->prefix('superadmin')
     ->name('superadmin.')
     ->group(function () {
@@ -79,7 +98,7 @@ Route::middleware(['auth', 'role:super_admin', 'registration.status'])
     });
 
 // ─── Coach routes ─────────────────────────────────────────────────────
-Route::middleware(['auth', 'role:coach', 'registration.status'])
+Route::middleware(['auth', 'verified', 'role:coach', 'registration.status'])
     ->prefix('coach')
     ->name('coach.')
     ->group(function () {
@@ -95,7 +114,7 @@ Route::middleware(['auth', 'role:coach', 'registration.status'])
     });
 
 // ─── Parent routes ────────────────────────────────────────────────────
-Route::middleware(['auth', 'role:parent', 'registration.status'])
+Route::middleware(['auth', 'verified', 'role:parent', 'registration.status'])
     ->prefix('parent')
     ->name('parent.')
     ->group(function () {

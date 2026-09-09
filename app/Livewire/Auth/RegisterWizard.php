@@ -90,7 +90,9 @@ class RegisterWizard extends Component
 
         Auth::login($user);
 
-        $this->redirect(route('pending'), navigate: false);
+        $user->sendEmailVerificationNotification();
+
+        $this->redirect(route('verification.notice'), navigate: false);
     }
 
     public function render()

@@ -54,6 +54,7 @@ class AdminAccounts extends Component
             'role_id'             => $adminRole->id,
             'name'                => $this->name,
             'email'               => $this->email,
+            'email_verified_at'   => now(), // created directly by a super admin — ownership already established
             'password'            => Hash::make($this->password),
             'is_active'           => true,
             'registration_status' => 'approved',

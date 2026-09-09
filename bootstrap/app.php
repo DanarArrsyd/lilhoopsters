@@ -30,6 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role'                => \App\Http\Middleware\RoleMiddleware::class,
             'registration.status' => \App\Http\Middleware\RegistrationStatusMiddleware::class,
             'profile.complete'    => \App\Http\Middleware\ProfileCompleteMiddleware::class,
+            'verified'            => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         ]);
 
         $middleware->redirectUsersTo(function ($request) {

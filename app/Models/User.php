@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail as MustVerifyEmailContract;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -9,12 +11,12 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmailContract
 {
-    use HasFactory, Notifiable;
+    use HasFactory, MustVerifyEmail, Notifiable;
 
     protected $fillable = [
-        'role_id', 'name', 'email', 'password',
+        'role_id', 'name', 'email', 'email_verified_at', 'password',
         'google_id', 'avatar', 'profile_photo',
         'whatsapp_number', 'address', 'occupation',
         'is_active', 'registration_status', 'locale',
@@ -23,8 +25,9 @@ class User extends Authenticatable
     protected $hidden = ['password', 'remember_token'];
 
     protected $casts = [
-        'is_active' => 'boolean',
-        'password'  => 'hashed',
+        'is_active'         => 'boolean',
+        'password'          => 'hashed',
+        'email_verified_at' => 'datetime',
     ];
 
     public function role(): BelongsTo

@@ -133,6 +133,7 @@ class MembersImport extends Component
                         'role_id'             => $parentRoleId,
                         'name'                => $parentName,
                         'email'               => strtolower($parentEmail),
+                        'email_verified_at'   => now(), // admin already vetted this contact offline
                         'password'            => Hash::make(Str::random(16)),
                         'whatsapp_number'     => $wa,
                         'is_active'           => true,

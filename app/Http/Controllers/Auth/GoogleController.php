@@ -24,28 +24,43 @@ class GoogleController extends Controller
             return redirect()->route('login')->with('error', 'Google sign-in failed. Please try again.');
         }
 
-        // Find by google_id first, then by email (separate queries to avoid account hijack)
-        $user = User::where('google_id', $googleUser->getId())->first()
-            ?? User::where('email', $googleUser->getEmail())->first();
+        // Find by google_id first (already linked — trusted regardless of verification state).
+        $user = User::where('google_id', $googleUser->getId())->first();
 
-        if ($user) {
-            // Link google_id to an existing email account (user chose to connect Google)
-            if (! $user->google_id) {
+        if (! $user) {
+            $existing = User::where('email', $googleUser->getEmail())->first();
+
+            if ($existing) {
+                // An account with this email exists but was never linked to this Google
+                // identity. Only auto-link when that account's email is already verified
+                // (self-registration verified by the owner, or pre-verified at import) —
+                // otherwise someone could have pre-registered with this email to hijack
+                // the real owner's account the moment they sign in with Google.
+                if (! $existing->hasVerifiedEmail()) {
+                    return redirect()->route('login')->with(
+                        'error',
+                        'An account with this email already exists but is not verified yet. Please log in with your password, or check your email for a verification link.'
+                    );
+                }
+
+                $user = $existing;
                 $user->update(['google_id' => $googleUser->getId(), 'avatar' => $googleUser->getAvatar()]);
-            }
-        } else {
-            // New user — create with parent role, pending status
-            $parentRole = Role::where('name', 'parent')->firstOrFail();
+            } else {
+                // New user — create with parent role, pending status. Google has already
+                // verified this email address for us.
+                $parentRole = Role::where('name', 'parent')->firstOrFail();
 
-            $user = User::create([
-                'role_id'             => $parentRole->id,
-                'name'                => $googleUser->getName(),
-                'email'               => $googleUser->getEmail(),
-                'google_id'           => $googleUser->getId(),
-                'avatar'              => $googleUser->getAvatar(),
-                'registration_status' => 'pending',
-                'is_active'           => true,
-            ]);
+                $user = User::create([
+                    'role_id'             => $parentRole->id,
+                    'name'                => $googleUser->getName(),
+                    'email'               => $googleUser->getEmail(),
+                    'email_verified_at'   => now(),
+                    'google_id'           => $googleUser->getId(),
+                    'avatar'              => $googleUser->getAvatar(),
+                    'registration_status' => 'pending',
+                    'is_active'           => true,
+                ]);
+            }
         }
 
         if (! $user->is_active) {

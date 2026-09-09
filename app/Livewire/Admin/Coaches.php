@@ -126,6 +126,7 @@ class Coaches extends Component
                     'role_id'             => $role->id,
                     'name'                => $this->coach_name,
                     'email'               => $this->coach_email,
+                    'email_verified_at'   => now(), // created directly by an admin — ownership already established
                     'password'            => Hash::make($this->coach_password),
                     'registration_status' => 'approved',
                     'is_active'           => true,

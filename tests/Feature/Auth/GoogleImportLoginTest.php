@@ -32,11 +32,13 @@ function fakeGoogleUser(string $id, string $email, string $name): void
 }
 
 it('logs in an imported parent straight away via Google (no approval)', function () {
-    // Simulates a member previously added through Import Members (approved).
+    // Simulates a member previously added through Import Members (approved,
+    // and pre-verified — the admin already vetted the contact offline).
     $parentRoleId = Role::where('name', 'parent')->value('id');
     $imported = User::factory()->create([
         'role_id'             => $parentRoleId,
         'email'               => 'budi@gmail.com',
+        'email_verified_at'   => now(),
         'google_id'           => null,
         'registration_status' => 'approved',
         'is_active'           => true,
@@ -57,5 +59,32 @@ it('still sends a brand-new Google user to the pending screen', function () {
     $this->get(route('auth.google.callback'))
         ->assertRedirect(route('pending'));
 
-    expect(User::where('email', 'stranger@gmail.com')->first()->registration_status)->toBe('pending');
+    $created = User::where('email', 'stranger@gmail.com')->first();
+    expect($created->registration_status)->toBe('pending');
+    // Google verified this email for us at signup time.
+    expect($created->email_verified_at)->not->toBeNull();
+});
+
+it('refuses to auto-link Google to an existing unverified account', function () {
+    // Simulates someone pre-registering with a victim's email through the
+    // public sign-up form (unverified) before the real owner ever signs in
+    // with Google. Auto-linking here would hand the attacker's account to
+    // the real owner's Google identity — must be blocked.
+    $parentRoleId = Role::where('name', 'parent')->value('id');
+    $hijackTarget = User::factory()->create([
+        'role_id'             => $parentRoleId,
+        'email'               => 'victim@gmail.com',
+        'email_verified_at'   => null,
+        'google_id'           => null,
+        'registration_status' => 'pending',
+        'is_active'           => true,
+    ]);
+
+    fakeGoogleUser('G-777', 'victim@gmail.com', 'Victim');
+
+    $this->get(route('auth.google.callback'))
+        ->assertRedirect(route('login'));
+
+    $this->assertGuest();
+    expect($hijackTarget->fresh()->google_id)->toBeNull();
 });
