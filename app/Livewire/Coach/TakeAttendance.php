@@ -80,7 +80,10 @@ class TakeAttendance extends Component
             'child_id'      => $e->child_id,
             'enrollment_id' => $e->id,
             'name'          => $e->child->name,
-            'status'        => $existing[$e->child_id] ?? 'present',
+            // No default status: a coach must explicitly mark each child —
+            // silently defaulting everyone to "present" let an untouched
+            // roster burn a session for a kid who never showed up.
+            'status'        => $existing[$e->child_id] ?? null,
         ])->toArray();
     }
 
@@ -101,8 +104,14 @@ class TakeAttendance extends Component
         $this->authorizeCoach();
 
         $coach = Auth::user()->coach;
+        $skipped = 0;
 
         foreach ($this->roster as $row) {
+            if (empty($row['status'])) {
+                $skipped++;
+                continue;
+            }
+
             Attendance::updateOrCreate(
                 [
                     'child_id'    => $row['child_id'],
@@ -114,12 +123,18 @@ class TakeAttendance extends Component
                     'coach_id'      => $coach->id,
                     'status'        => $row['status'],
                     'source'        => 'manual',
+                    'ip_address'    => request()->ip(),
                 ]
             );
         }
 
         $this->saved = true;
-        session()->flash('attendance_success', 'Attendance saved.');
+        session()->flash(
+            'attendance_success',
+            $skipped > 0
+                ? "Attendance saved. {$skipped} student(s) left unmarked — they were not recorded."
+                : 'Attendance saved.'
+        );
     }
 
     private function authorizeCoach(): void

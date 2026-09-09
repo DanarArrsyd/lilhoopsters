@@ -171,3 +171,18 @@ it('excludes pending enrollments from roster', function () {
         ->call('loadRoster')
         ->assertDontSee($pendingChild->name);
 });
+
+it('does not default untouched students to present — save requires an explicit mark', function () {
+    Livewire::actingAs($this->coachUser)
+        ->test(TakeAttendance::class)
+        ->set('scheduleId', $this->schedule->id)
+        ->set('date', now()->toDateString())
+        ->call('loadRoster')
+        // Only child1 gets an explicit mark; child2 is left untouched.
+        ->call('setStatus', $this->child1->id, 'present')
+        ->call('saveAttendance');
+
+    expect(Attendance::count())->toBe(1);
+    expect(Attendance::where('child_id', $this->child1->id)->exists())->toBeTrue();
+    expect(Attendance::where('child_id', $this->child2->id)->exists())->toBeFalse();
+});

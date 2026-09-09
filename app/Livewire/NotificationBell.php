@@ -40,7 +40,12 @@ class NotificationBell extends Component
             ->limit(20)
             ->get();
 
-        $unreadCount = $notifications->where('is_read', false)->count();
+        // Counted separately from the displayed list — the badge must reflect
+        // every unread notification, not just whichever ones fit in the
+        // latest-20 preview.
+        $unreadCount = auth()->user()->appNotifications()
+            ->where('is_read', false)
+            ->count();
 
         return view('livewire.notification-bell', compact('notifications', 'unreadCount'));
     }
