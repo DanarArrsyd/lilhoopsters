@@ -15,6 +15,48 @@ class Attendance extends Model
 
     protected static function booted(): void
     {
+        // A package's quota is only burned by a session the child actually used
+        // (present) or missed without an excuse (no_show). An approved leave
+        // (sick/permit) is compensated separately via a make-up class, so it
+        // must not cost a session — the status decides which side of that
+        // line an attendance record falls on, regardless of who created it.
+        static::creating(function (Attendance $attendance) {
+            $attendance->session_deducted = self::statusDeductsSession($attendance->status);
+        });
+
+        static::created(function (Attendance $attendance) {
+            if ($attendance->session_deducted) {
+                $attendance->enrollment?->consumeSession();
+            }
+        });
+
+        static::updating(function (Attendance $attendance) {
+            if ($attendance->isDirty('status')) {
+                $attendance->session_deducted = self::statusDeductsSession($attendance->status);
+            }
+        });
+
+        static::updated(function (Attendance $attendance) {
+            if (! $attendance->wasChanged('session_deducted')) {
+                return;
+            }
+
+            $enrollment = $attendance->enrollment;
+            if (! $enrollment) {
+                return;
+            }
+
+            $attendance->session_deducted
+                ? $enrollment->consumeSession()
+                : $enrollment->restoreSession();
+        });
+
+        static::deleted(function (Attendance $attendance) {
+            if ($attendance->session_deducted) {
+                $attendance->enrollment?->restoreSession();
+            }
+        });
+
         // Email the parent when their child is checked in (present).
         static::created(function (Attendance $attendance) {
             if ($attendance->status !== 'present') {
@@ -43,6 +85,11 @@ class Attendance extends Model
                 email: true,
             );
         });
+    }
+
+    private static function statusDeductsSession(?string $status): bool
+    {
+        return in_array($status, ['present', 'no_show'], true);
     }
 
     protected $fillable = [

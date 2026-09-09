@@ -67,7 +67,8 @@ class TakeAttendance extends Component
         $this->authorizeCoach();
 
         $enrollments = Enrollment::where('schedule_id', $this->scheduleId)
-            ->where('status', 'approved')
+            ->active()
+            ->where('type', 'program')
             ->with('child')
             ->get();
 

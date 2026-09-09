@@ -34,11 +34,11 @@ beforeEach(function () {
     $this->child1 = Child::factory()->create();
     $this->child2 = Child::factory()->create();
 
-    $this->enrollment1 = Enrollment::factory()->approved()->create([
+    $this->enrollment1 = Enrollment::factory()->program()->approved()->create([
         'child_id'    => $this->child1->id,
         'schedule_id' => $this->schedule->id,
     ]);
-    $this->enrollment2 = Enrollment::factory()->approved()->create([
+    $this->enrollment2 = Enrollment::factory()->program()->approved()->create([
         'child_id'    => $this->child2->id,
         'schedule_id' => $this->schedule->id,
     ]);
@@ -158,7 +158,7 @@ it('pre-fills status from existing attendance when loading roster', function () 
 
 it('excludes pending enrollments from roster', function () {
     $pendingChild = Child::factory()->create();
-    Enrollment::factory()->create([
+    Enrollment::factory()->program()->create([
         'child_id'    => $pendingChild->id,
         'schedule_id' => $this->schedule->id,
         'status'      => 'pending',

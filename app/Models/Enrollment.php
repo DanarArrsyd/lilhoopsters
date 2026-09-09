@@ -38,4 +38,32 @@ class Enrollment extends Model
             && ($this->expires_at === null || $this->expires_at->isFuture())
             && ($this->remaining_sessions === null || $this->remaining_sessions > 0);
     }
+
+    /** SQL-level mirror of isActive() — approved, not expired, quota not exhausted. */
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'approved')
+            ->where(fn($q) => $q->whereNull('expires_at')->orWhereDate('expires_at', '>=', today()))
+            ->where(fn($q) => $q->whereNull('remaining_sessions')->orWhere('remaining_sessions', '>', 0));
+    }
+
+    /** Burn one session from the package quota (session-based packages only). */
+    public function consumeSession(): void
+    {
+        if ($this->remaining_sessions !== null && $this->remaining_sessions > 0) {
+            $this->decrement('remaining_sessions');
+        }
+    }
+
+    /** Give a session back — correcting a record that previously consumed one. */
+    public function restoreSession(): void
+    {
+        if ($this->remaining_sessions === null) {
+            return;
+        }
+
+        if ($this->total_sessions === null || $this->remaining_sessions < $this->total_sessions) {
+            $this->increment('remaining_sessions');
+        }
+    }
 }

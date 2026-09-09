@@ -99,7 +99,7 @@ class QrScanner extends Component
 
         $enrollment = Enrollment::where('child_id', $childId)
             ->where('schedule_id', $this->scheduleId)
-            ->where('status', 'approved')
+            ->active()
             ->where('type', 'program')
             ->first();
 
@@ -137,7 +137,7 @@ class QrScanner extends Component
 
         $enrollment = Enrollment::where('child_id', $childId)
             ->where('schedule_id', $this->scheduleId)
-            ->where('status', 'approved')
+            ->active()
             ->where('type', 'program')
             ->first();
 
@@ -169,10 +169,13 @@ class QrScanner extends Component
 
         $this->authorizeOwnsSchedule();
 
+        // Delete each row through Eloquent (not a bulk query-builder delete)
+        // so the model's `deleted` event fires and restores the session quota.
         Attendance::where('child_id', $childId)
             ->where('schedule_id', $this->scheduleId)
             ->whereDate('attended_at', $this->scanDate)
-            ->delete();
+            ->get()
+            ->each->delete();
     }
 
     public function processQr(string $qrValue): void
@@ -199,13 +202,13 @@ class QrScanner extends Component
 
         $enrollment = $child->enrollments()
             ->where('schedule_id', $this->scheduleId)
-            ->where('status', 'approved')
+            ->active()
             ->where('type', 'program')
             ->first();
 
         if (!$enrollment) {
             $this->lastScanStatus  = 'not_enrolled';
-            $this->lastScanMessage = "{$child->name} is not enrolled in this schedule.";
+            $this->lastScanMessage = "{$child->name} is not enrolled in this schedule, or their package has run out.";
             return;
         }
 
@@ -269,7 +272,7 @@ class QrScanner extends Component
             : null;
 
         $schedules = Schedule::where('is_active', true)
-            ->whereHas('enrollments', fn($q) => $q->where('status', 'approved')->where('type', 'program'))
+            ->whereHas('enrollments', fn($q) => $q->active()->where('type', 'program'))
             ->when($dayOfWeek, fn($q) => $q->where('day_of_week', $dayOfWeek))
             ->where(function ($q) use ($coach) {
                 $q->where('type', 'regular')
@@ -286,9 +289,11 @@ class QrScanner extends Component
         $presentCount = 0;
 
         if ($this->scheduleId && $this->scanDate) {
-            // All approved program enrollments for this schedule
+            // Program enrollments for this schedule that are still active —
+            // an expired/exhausted package drops off the roster so it can't
+            // be scanned or manually marked present anymore.
             $enrollments = Enrollment::where('schedule_id', $this->scheduleId)
-                ->where('status', 'approved')
+                ->active()
                 ->where('type', 'program')
                 ->with('child')
                 ->get();
