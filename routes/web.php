@@ -51,7 +51,11 @@ Route::middleware('auth')->group(function () {
 });
 
 // ─── Admin routes ─────────────────────────────────────────────────────
-Route::middleware(['auth', 'verified', 'role:admin,super_admin', 'registration.status'])
+// No 'verified' gate: admin/coach accounts are only ever created by an
+// already-authenticated staff member through internal forms, never through
+// public self-registration or Google OAuth — the account-hijack path the
+// 'verified' gate defends against doesn't exist for these roles.
+Route::middleware(['auth', 'role:admin,super_admin', 'registration.status'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
@@ -84,7 +88,7 @@ Route::middleware(['auth', 'verified', 'role:admin,super_admin', 'registration.s
     });
 
 // ─── Super Admin routes ───────────────────────────────────────────────
-Route::middleware(['auth', 'verified', 'role:super_admin', 'registration.status'])
+Route::middleware(['auth', 'role:super_admin', 'registration.status'])
     ->prefix('superadmin')
     ->name('superadmin.')
     ->group(function () {
@@ -98,7 +102,7 @@ Route::middleware(['auth', 'verified', 'role:super_admin', 'registration.status'
     });
 
 // ─── Coach routes ─────────────────────────────────────────────────────
-Route::middleware(['auth', 'verified', 'role:coach', 'registration.status'])
+Route::middleware(['auth', 'role:coach', 'registration.status'])
     ->prefix('coach')
     ->name('coach.')
     ->group(function () {
