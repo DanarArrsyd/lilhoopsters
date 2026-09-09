@@ -6,6 +6,7 @@ use App\Models\AuditLog;
 use App\Models\Transaction;
 use App\Services\NotificationService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -24,43 +25,58 @@ class Payments extends Component
 
     public function verify(int $id): void
     {
-        $transaction = Transaction::with(['enrollment.child', 'child', 'package'])->findOrFail($id);
+        $transaction = DB::transaction(function () use ($id) {
+            $transaction = Transaction::with(['enrollment.child', 'child', 'package'])
+                ->lockForUpdate()
+                ->findOrFail($id);
 
-        $transaction->update([
-            'status'      => 'paid',
-            'verified_by' => Auth::id(),
-            'paid_at'     => now(),
-        ]);
+            if ($transaction->status !== 'pending') {
+                return null;
+            }
 
-        AuditLog::record(
-            'payment.verified',
-            $transaction,
-            "Verified payment {$transaction->transaction_code} for " . ($transaction->user?->name ?? 'unknown user'),
-            ['amount' => $transaction->amount],
-        );
-
-        if ($transaction->enrollment) {
-            $transaction->enrollment->update([
-                'status'      => 'approved',
-                'approved_by' => Auth::id(),
-                'approved_at' => now(),
+            $transaction->update([
+                'status'      => 'paid',
+                'verified_by' => Auth::id(),
+                'paid_at'     => now(),
             ]);
 
-            $child = $transaction->enrollment->child;
-        } else {
-            $child = $transaction->child;
-        }
+            AuditLog::record(
+                'payment.verified',
+                $transaction,
+                "Verified payment {$transaction->transaction_code} for " . ($transaction->user?->name ?? 'unknown user'),
+                ['amount' => $transaction->amount],
+            );
 
-        if ($child) {
-            $child->update([
-                'status'        => 'active',
-                'registered_at' => $child->registered_at ?? now(),
-            ]);
-        }
+            if ($transaction->enrollment) {
+                $transaction->enrollment->update([
+                    'status'      => 'approved',
+                    'approved_by' => Auth::id(),
+                    'approved_at' => now(),
+                ]);
 
-        // Event registration paid for by this transaction → confirm it.
-        \App\Models\EventRegistration::where('transaction_id', $transaction->id)
-            ->update(['status' => 'confirmed']);
+                $child = $transaction->enrollment->child;
+            } else {
+                $child = $transaction->child;
+            }
+
+            if ($child) {
+                $child->update([
+                    'status'        => 'active',
+                    'registered_at' => $child->registered_at ?? now(),
+                ]);
+            }
+
+            // Event registration paid for by this transaction → confirm it.
+            \App\Models\EventRegistration::where('transaction_id', $transaction->id)
+                ->update(['status' => 'confirmed']);
+
+            return $transaction;
+        });
+
+        if (! $transaction) {
+            session()->flash('error', 'This payment was already processed.');
+            return;
+        }
 
         if ($transaction->user_id) {
             NotificationService::send(
@@ -90,35 +106,52 @@ class Payments extends Component
 
     public function confirmReject(): void
     {
-        $transaction = Transaction::findOrFail($this->rejectingId);
-        $transaction->update([
-            'status'      => 'rejected',
-            'admin_notes' => $this->adminNote ?: null,
-        ]);
+        $rejectingId = $this->rejectingId;
+        $adminNote   = $this->adminNote;
 
-        AuditLog::record(
-            'payment.rejected',
-            $transaction,
-            "Rejected payment {$transaction->transaction_code} for " . ($transaction->user?->name ?? 'unknown user'),
-            ['note' => $this->adminNote ?: null],
-        );
+        $transaction = DB::transaction(function () use ($rejectingId, $adminNote) {
+            $transaction = Transaction::lockForUpdate()->findOrFail($rejectingId);
 
-        // Event registration paid for by this transaction → cancel it.
-        \App\Models\EventRegistration::where('transaction_id', $this->rejectingId)
-            ->update(['status' => 'cancelled']);
+            if ($transaction->status !== 'pending') {
+                return null;
+            }
 
-        $trx = Transaction::find($this->rejectingId);
-        if ($trx?->user_id) {
-            NotificationService::send(
-                $trx->user_id,
-                'payment_rejected',
-                'Payment Not Verified',
-                "Your payment could not be verified." . ($this->adminNote ? " Note: {$this->adminNote}" : " Please re-upload your proof."),
+            $transaction->update([
+                'status'      => 'rejected',
+                'admin_notes' => $adminNote ?: null,
+            ]);
+
+            AuditLog::record(
+                'payment.rejected',
+                $transaction,
+                "Rejected payment {$transaction->transaction_code} for " . ($transaction->user?->name ?? 'unknown user'),
+                ['note' => $adminNote ?: null],
             );
-        }
+
+            // Event registration paid for by this transaction → cancel it.
+            \App\Models\EventRegistration::where('transaction_id', $transaction->id)
+                ->update(['status' => 'cancelled']);
+
+            return $transaction;
+        });
 
         $this->rejectingId = null;
         $this->adminNote   = '';
+
+        if (! $transaction) {
+            session()->flash('error', 'This payment was already processed.');
+            return;
+        }
+
+        if ($transaction->user_id) {
+            NotificationService::send(
+                $transaction->user_id,
+                'payment_rejected',
+                'Payment Not Verified',
+                "Your payment could not be verified." . ($adminNote ? " Note: {$adminNote}" : " Please re-upload your proof."),
+            );
+        }
+
         session()->flash('success', 'Payment rejected.');
     }
 

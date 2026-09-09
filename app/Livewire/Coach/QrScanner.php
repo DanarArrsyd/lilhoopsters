@@ -179,6 +179,8 @@ class QrScanner extends Component
     {
         $this->resetScanResult();
 
+        $this->authorizeOwnsSchedule();
+
         if ($this->scanDate > today()->toDateString()) {
             $this->lastScanStatus  = 'error';
             $this->lastScanMessage = 'Cannot record attendance for a future date.';
