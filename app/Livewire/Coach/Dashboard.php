@@ -69,7 +69,7 @@ class Dashboard extends Component
             'total_schedules' => $allSchedules->count(),
             'today_schedules' => $allSchedules->where('day_of_week', $today)->count(),
             'active_students' => $allSchedules->sum(
-                fn($s) => $s->enrollments->where('status', 'approved')->where('type', 'program')->count()
+                fn($s) => $s->enrollments->where('type', 'program')->filter->isActive()->count()
             ),
         ];
     }

@@ -6,6 +6,7 @@ use App\Models\Child;
 use App\Models\Coach;
 use App\Models\CoachSession;
 use App\Models\Enrollment;
+use App\Models\LeaveRequest;
 use App\Models\Role;
 use App\Models\Schedule;
 use App\Models\User;
@@ -170,6 +171,48 @@ it('excludes pending enrollments from roster', function () {
         ->set('date', now()->toDateString())
         ->call('loadRoster')
         ->assertDontSee($pendingChild->name);
+});
+
+it('pre-fills sick/permit status from an excused leave request', function () {
+    LeaveRequest::create([
+        'child_id'      => $this->child1->id,
+        'enrollment_id' => $this->enrollment1->id,
+        'schedule_id'   => $this->schedule->id,
+        'leave_date'    => now()->toDateString(),
+        'type'          => 'permit',
+        'status'        => 'approved',
+    ]);
+
+    $component = Livewire::actingAs($this->coachUser)
+        ->test(TakeAttendance::class)
+        ->set('scheduleId', $this->schedule->id)
+        ->set('date', now()->toDateString())
+        ->call('loadRoster');
+
+    $roster = $component->get('roster');
+    $row = collect($roster)->firstWhere('child_id', $this->child1->id);
+    expect($row['status'])->toBe('permit');
+});
+
+it('refuses to save a no_show for a child with an approved leave for that date', function () {
+    LeaveRequest::create([
+        'child_id'      => $this->child1->id,
+        'enrollment_id' => $this->enrollment1->id,
+        'schedule_id'   => $this->schedule->id,
+        'leave_date'    => now()->toDateString(),
+        'type'          => 'sick',
+        'status'        => 'approved',
+    ]);
+
+    Livewire::actingAs($this->coachUser)
+        ->test(TakeAttendance::class)
+        ->set('scheduleId', $this->schedule->id)
+        ->set('date', now()->toDateString())
+        ->call('loadRoster')
+        ->call('setStatus', $this->child1->id, 'no_show')
+        ->call('saveAttendance');
+
+    expect(Attendance::where('child_id', $this->child1->id)->where('status', 'no_show')->exists())->toBeFalse();
 });
 
 it('does not default untouched students to present — save requires an explicit mark', function () {

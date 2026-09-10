@@ -101,7 +101,7 @@ class Dashboard extends Component
             ->keyBy('schedule_id');
 
         $todayActivity = $todaySchedules->map(function ($s) use ($attendanceCounts) {
-            $enrolled = Enrollment::where('schedule_id', $s->id)->where('status', 'approved')->count();
+            $enrolled = Enrollment::where('schedule_id', $s->id)->active()->count();
             $att      = $attendanceCounts->get($s->id);
             return [
                 'schedule' => $s,

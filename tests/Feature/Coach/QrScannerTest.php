@@ -6,6 +6,7 @@ use App\Models\Child;
 use App\Models\Coach;
 use App\Models\CoachSession;
 use App\Models\Enrollment;
+use App\Models\LeaveRequest;
 use App\Models\Role;
 use App\Models\Schedule;
 use App\Models\User;
@@ -68,6 +69,43 @@ it('can activate scanner with valid schedule', function () {
         ->set('scheduleId', $this->schedule->id)
         ->call('activateScanner')
         ->assertSet('scannerActive', true);
+});
+
+it('cannot scan a regular schedule the coach did not check into, even after checking into another one', function () {
+    // The coach checked into $this->schedule in beforeEach, but never
+    // checked into this second regular schedule.
+    $otherSchedule = Schedule::factory()->create([
+        'day_of_week' => strtolower(now()->format('l')),
+        'start_time'  => now()->subMinutes(10)->format('H:i:s'),
+        'end_time'    => now()->addMinutes(50)->format('H:i:s'),
+        'is_active'   => true,
+        'type'        => 'regular',
+    ]);
+
+    Livewire::actingAs($this->coachUser)
+        ->test(QrScanner::class)
+        ->set('scanDate', now()->toDateString())
+        ->set('scheduleId', $otherSchedule->id)
+        ->call('activateScanner')
+        ->assertForbidden();
+});
+
+it('refuses to mark a child no_show when they have an approved leave for that date', function () {
+    LeaveRequest::create([
+        'child_id'      => $this->child->id,
+        'enrollment_id' => $this->enrollment->id,
+        'schedule_id'   => $this->schedule->id,
+        'leave_date'    => now()->toDateString(),
+        'type'          => 'sick',
+        'status'        => 'approved',
+    ]);
+
+    Livewire::actingAs($this->coachUser)
+        ->test(QrScanner::class)
+        ->set('scheduleId', $this->schedule->id)
+        ->call('markNoShow', $this->child->id);
+
+    expect(Attendance::where('child_id', $this->child->id)->count())->toBe(0);
 });
 
 it('cannot activate the scanner after the session has ended today', function () {

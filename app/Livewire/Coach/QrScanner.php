@@ -143,6 +143,9 @@ class QrScanner extends Component
 
         if (!$enrollment) return;
 
+        // An excused absence must not be overridden into a session-burning no_show.
+        if ($this->hasExcusedLeave($childId)) return;
+
         $coach = Auth::user()->coach;
 
         Attendance::updateOrCreate(
@@ -161,6 +164,16 @@ class QrScanner extends Component
                 'longitude'     => $this->longitude,
             ]
         );
+    }
+
+    /** Does this child have an excused (approved/auto_approved/pending) leave for this schedule+date? */
+    private function hasExcusedLeave(int $childId): bool
+    {
+        return LeaveRequest::where('child_id', $childId)
+            ->where('schedule_id', $this->scheduleId)
+            ->where('leave_date', $this->scanDate)
+            ->whereIn('status', ['approved', 'auto_approved', 'pending'])
+            ->exists();
     }
 
     public function undoPresent(int $childId): void
@@ -257,8 +270,17 @@ class QrScanner extends Component
         $schedule = Schedule::find($this->scheduleId);
         if (!$schedule || !$schedule->is_active) abort(403);
 
-        if ($schedule->type === 'private' && $schedule->coach_id !== $coach->id) {
-            abort(403);
+        if ($schedule->type === 'private') {
+            // Private: must be the assigned coach
+            if ($schedule->coach_id !== $coach->id) abort(403);
+        } else {
+            // Regular: must have checked in to this specific schedule today —
+            // checking into schedule A must not grant scan access to schedule B.
+            $hasSession = \App\Models\CoachSession::where('schedule_id', $this->scheduleId)
+                ->where('coach_id', $coach->id)
+                ->whereDate('session_date', today())
+                ->exists();
+            if (!$hasSession) abort(403);
         }
     }
 

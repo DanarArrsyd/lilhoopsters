@@ -5,6 +5,7 @@ namespace App\Livewire\Coach;
 use App\Models\Attendance;
 use App\Models\CoachSession;
 use App\Models\Enrollment;
+use App\Models\LeaveRequest;
 use App\Models\Schedule;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -76,6 +77,13 @@ class TakeAttendance extends Component
             ->whereDate('attended_at', $this->date)
             ->pluck('status', 'child_id');
 
+        // Surface an excused leave so the coach sees it before marking
+        // anything — QrScanner already does this; this page never did.
+        $leaveRequests = LeaveRequest::where('schedule_id', $this->scheduleId)
+            ->where('leave_date', $this->date)
+            ->whereIn('status', ['approved', 'auto_approved', 'pending'])
+            ->pluck('type', 'child_id'); // 'sick' | 'permit'
+
         $this->roster = $enrollments->map(fn($e) => [
             'child_id'      => $e->child_id,
             'enrollment_id' => $e->id,
@@ -83,7 +91,7 @@ class TakeAttendance extends Component
             // No default status: a coach must explicitly mark each child —
             // silently defaulting everyone to "present" let an untouched
             // roster burn a session for a kid who never showed up.
-            'status'        => $existing[$e->child_id] ?? null,
+            'status'        => $existing[$e->child_id] ?? $leaveRequests[$e->child_id] ?? null,
         ])->toArray();
     }
 
@@ -112,6 +120,14 @@ class TakeAttendance extends Component
                 continue;
             }
 
+            // An excused absence must not be overridden into a session-burning
+            // no_show — the coach can still record sick/permit here, just not
+            // no_show for the same child+date.
+            if ($row['status'] === 'no_show' && $this->hasExcusedLeave($row['child_id'])) {
+                $skipped++;
+                continue;
+            }
+
             Attendance::updateOrCreate(
                 [
                     'child_id'    => $row['child_id'],
@@ -135,6 +151,16 @@ class TakeAttendance extends Component
                 ? "Attendance saved. {$skipped} student(s) left unmarked — they were not recorded."
                 : 'Attendance saved.'
         );
+    }
+
+    /** Does this child have an excused (approved/auto_approved/pending) leave for this schedule+date? */
+    private function hasExcusedLeave(int $childId): bool
+    {
+        return LeaveRequest::where('child_id', $childId)
+            ->where('schedule_id', $this->scheduleId)
+            ->where('leave_date', $this->date)
+            ->whereIn('status', ['approved', 'auto_approved', 'pending'])
+            ->exists();
     }
 
     private function authorizeCoach(): void

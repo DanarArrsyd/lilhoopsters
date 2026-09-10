@@ -21,7 +21,7 @@ class Dashboard extends Component
             'total_parents'  => User::whereHas('role', fn($q) => $q->where('name', 'parent'))->count(),
             'total_players'  => Child::count(),
             'active_players' => Child::where('status', 'active')->count(),
-            'enrollments'    => Enrollment::where('status', 'approved')->count(),
+            'enrollments'    => Enrollment::active()->count(),
         ];
 
         return view('livewire.superadmin.dashboard', compact('stats'));

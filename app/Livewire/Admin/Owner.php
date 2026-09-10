@@ -222,7 +222,7 @@ class Owner extends Component
             ->where('is_active', true)
             ->with(['program', 'location'])
             ->withCount(['enrollments as booked' => fn($q) =>
-                $q->where('status', 'approved')->where('type', 'program')
+                $q->active()->where('type', 'program')
             ])
             ->get()
             ->map(fn($s) => [
