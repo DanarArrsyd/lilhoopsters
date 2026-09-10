@@ -1044,7 +1044,7 @@ return [
             'total_outstanding'     => 'Total Tertunggak',
             'pending_transactions'  => 'Transaksi Tertunda',
             'overdue_label'         => 'Lewat Jatuh Tempo',
-            'sub_open_recv'         => 'piutang terbuka',
+            'sub_open_recv'         => 'piutang terbuka, sepanjang waktu',
             'sub_unpaid'            => 'belum dibayar',
             'sub_expired_at'        => 'expired_at telah lewat',
             'invoice_age'           => 'Umur Invoice',

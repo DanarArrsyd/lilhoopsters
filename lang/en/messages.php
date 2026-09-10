@@ -1044,7 +1044,7 @@ return [
             'total_outstanding'     => 'Total Outstanding',
             'pending_transactions'  => 'Pending Transactions',
             'overdue_label'         => 'Overdue',
-            'sub_open_recv'         => 'open receivables',
+            'sub_open_recv'         => 'open receivables, all-time',
             'sub_unpaid'            => 'unpaid',
             'sub_expired_at'        => 'expired_at passed',
             'invoice_age'           => 'Invoice Age',

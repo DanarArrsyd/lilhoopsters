@@ -128,6 +128,37 @@ it('aggregates coach sessions and hours for the selected month', function () {
     expect($payroll->first()['hours'])->toBe(2.0);
 });
 
+it('does not count a still-open coach session toward payroll sessions/hours', function () {
+    $coach    = Coach::factory()->create();
+    $schedule = Schedule::factory()->create(['location_id' => $this->location->id]);
+
+    // Closed session — should count.
+    CoachSession::create([
+        'schedule_id'    => $schedule->id,
+        'coach_id'       => $coach->id,
+        'session_date'   => now()->startOfMonth()->addDays(2)->toDateString(),
+        'role'           => 'primary',
+        'checked_in_at'  => now()->startOfMonth()->addDays(2)->setTime(9, 0),
+        'checked_out_at' => now()->startOfMonth()->addDays(2)->setTime(11, 0),
+    ]);
+
+    // Still-open session (e.g. in progress right now) — must not inflate
+    // "sessions" while contributing nothing to "hours".
+    CoachSession::create([
+        'schedule_id'    => $schedule->id,
+        'coach_id'       => $coach->id,
+        'session_date'   => now()->startOfMonth()->addDays(5)->toDateString(),
+        'role'           => 'primary',
+        'checked_in_at'  => now()->startOfMonth()->addDays(5)->setTime(9, 0),
+        'checked_out_at' => null,
+    ]);
+
+    $payroll = Livewire::actingAs($this->admin)->test(Owner::class)->viewData('payroll');
+
+    expect($payroll->first()['sessions'])->toBe(1);
+    expect($payroll->first()['hours'])->toBe(2.0);
+});
+
 it('computes class capacity utilization', function () {
     $schedule = Schedule::factory()->create([
         'location_id'  => $this->location->id,

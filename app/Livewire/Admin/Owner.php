@@ -198,15 +198,20 @@ class Owner extends Component
             ->get()
             ->groupBy('coach_id')
             ->map(function ($rows) {
-                $minutes = $rows->whereNotNull('checked_out_at')
-                    ->sum(fn($r) => $r->checked_in_at->diffInMinutes($r->checked_out_at));
+                // Only count sessions that have actually been checked out —
+                // a still-open session (in progress, or not yet closed by
+                // the nightly auto-close job) isn't a delivered session yet,
+                // and counting it here while it contributes 0 to "hours"
+                // made the two numbers in the same payroll row disagree.
+                $closed  = $rows->whereNotNull('checked_out_at');
+                $minutes = $closed->sum(fn($r) => $r->checked_in_at->diffInMinutes($r->checked_out_at));
 
                 $coach = $rows->first()->coach;
 
                 return [
                     'coach'    => $coach?->user?->name ?? '—',
-                    'sessions' => $rows->count(),
-                    'days'     => $rows->pluck('session_date')->map->toDateString()->unique()->count(),
+                    'sessions' => $closed->count(),
+                    'days'     => $closed->pluck('session_date')->map->toDateString()->unique()->count(),
                     'hours'    => round($minutes / 60, 1),
                 ];
             })
