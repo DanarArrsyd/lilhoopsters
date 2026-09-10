@@ -25,8 +25,14 @@ class Enrollments extends Component
 
     public function approve(int $id): void
     {
-        DB::transaction(function () use ($id) {
-            $enrollment = Enrollment::with(['child', 'package', 'schedule'])->findOrFail($id);
+        $enrollment = DB::transaction(function () use ($id) {
+            $enrollment = Enrollment::with(['child', 'package', 'schedule', 'transaction'])
+                ->lockForUpdate()
+                ->findOrFail($id);
+
+            if ($enrollment->status !== 'pending') {
+                return null;
+            }
 
             $data = [
                 'status'      => 'approved',
@@ -54,9 +60,28 @@ class Enrollments extends Component
             }
 
             $enrollment->update($data);
+
+            // Approving here is the admin's confirmation that payment was
+            // received (e.g. cash collected in person) — keep the funding
+            // transaction in sync so it doesn't sit "pending" forever and
+            // get auto-expired out from under an already-active enrollment.
+            if ($enrollment->transaction && $enrollment->transaction->status === 'pending') {
+                $enrollment->transaction->update([
+                    'status'      => 'paid',
+                    'verified_by' => Auth::id(),
+                    'paid_at'     => now(),
+                ]);
+            }
+
+            return $enrollment;
         });
 
-        $enrollment = Enrollment::with(['child.user'])->findOrFail($id);
+        if (! $enrollment) {
+            session()->flash('error', 'This enrollment was already processed.');
+            return;
+        }
+
+        $enrollment->load('child.user');
 
         AuditLog::record(
             'enrollment.approved',
@@ -79,8 +104,22 @@ class Enrollments extends Component
 
     public function reject(int $id): void
     {
-        $enrollment = Enrollment::with(['child.user'])->findOrFail($id);
-        $enrollment->update(['status' => 'rejected']);
+        $enrollment = DB::transaction(function () use ($id) {
+            $enrollment = Enrollment::with(['child.user'])->lockForUpdate()->findOrFail($id);
+
+            if ($enrollment->status !== 'pending') {
+                return null;
+            }
+
+            $enrollment->update(['status' => 'rejected']);
+
+            return $enrollment;
+        });
+
+        if (! $enrollment) {
+            session()->flash('error', 'This enrollment was already processed.');
+            return;
+        }
 
         AuditLog::record(
             'enrollment.rejected',

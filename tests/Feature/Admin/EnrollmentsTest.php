@@ -7,6 +7,7 @@ use App\Models\Enrollment;
 use App\Models\Location;
 use App\Models\Package;
 use App\Models\Role;
+use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -145,4 +146,54 @@ it('records an audit log when an enrollment is rejected', function () {
     $log = AuditLog::where('action', 'enrollment.rejected')->first();
     expect($log)->not->toBeNull();
     expect($log->subject_id)->toBe($enrollment->id);
+});
+
+it('marks the funding transaction paid when approving an enrollment', function () {
+    $transaction = Transaction::factory()->create(['status' => 'pending']);
+    $enrollment  = Enrollment::factory()->create([
+        'child_id'       => $this->child->id,
+        'package_id'     => $this->package->id,
+        'type'           => 'registration',
+        'status'         => 'pending',
+        'transaction_id' => $transaction->id,
+    ]);
+
+    Livewire::actingAs($this->admin)
+        ->test(Enrollments::class)
+        ->call('approve', $enrollment->id);
+
+    expect($transaction->fresh()->status)->toBe('paid');
+    expect($transaction->fresh()->verified_by)->toBe($this->admin->id);
+});
+
+it('does not re-run approval side effects when an already-approved enrollment is approved again', function () {
+    $package = Package::factory()->regular()->create([
+        'location_id'   => $this->location->id,
+        'session_count' => 8,
+    ]);
+    $child = Child::factory()->active()->create();
+
+    $enrollment = Enrollment::factory()->program()->approved()->create([
+        'child_id'           => $child->id,
+        'package_id'         => $package->id,
+        'total_sessions'     => 8,
+        'remaining_sessions' => 3, // 5 sessions already consumed by attendance
+    ]);
+
+    Livewire::actingAs($this->admin)
+        ->test(Enrollments::class)
+        ->call('approve', $enrollment->id);
+
+    // Re-approving a non-pending enrollment must not reset the quota back to full.
+    expect($enrollment->fresh()->remaining_sessions)->toBe(3);
+});
+
+it('does not re-process an already-rejected enrollment on a second reject', function () {
+    $enrollment = Enrollment::factory()->create(['status' => 'rejected']);
+
+    Livewire::actingAs($this->admin)
+        ->test(Enrollments::class)
+        ->call('reject', $enrollment->id);
+
+    expect(AuditLog::where('action', 'enrollment.rejected')->count())->toBe(0);
 });

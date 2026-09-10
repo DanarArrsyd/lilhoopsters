@@ -47,14 +47,24 @@ it('shows schedules assigned to the coach', function () {
         ->assertSee($schedule->location->name);
 });
 
-it('does not show schedules from other coaches', function () {
+it('does not show private schedules assigned to other coaches', function () {
     $otherCoachUser = User::factory()->withRole('coach')->approved()->create();
     $otherCoach     = Coach::factory()->create(['user_id' => $otherCoachUser->id]);
-    $schedule       = Schedule::factory()->create(['coach_id' => $otherCoach->id]);
+    $schedule       = Schedule::factory()->create(['coach_id' => $otherCoach->id, 'type' => 'private']);
 
     Livewire::actingAs($this->coachUser)
         ->test(Schedules::class)
         ->assertDontSee($schedule->program->name);
+});
+
+it('shows regular schedules regardless of which coach they belong to', function () {
+    // Regular/group schedules aren't assigned a coach_id — any checked-in
+    // coach can run them — so every coach should see them on this page.
+    $schedule = Schedule::factory()->create(['coach_id' => null, 'type' => 'regular']);
+
+    Livewire::actingAs($this->coachUser)
+        ->test(Schedules::class)
+        ->assertSee($schedule->program->name);
 });
 
 it('groups schedules by day', function () {
