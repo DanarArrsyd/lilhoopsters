@@ -150,17 +150,24 @@ class PrivateSessions extends Component
             return;
         }
 
-        // Capacity check
-        $enrolled = Enrollment::where('schedule_id', $schedule->id)
-            ->where('status', 'approved')
-            ->count();
-        if ($enrolled >= $schedule->max_capacity) {
-            session()->flash('error', 'This time slot is fully booked.');
-            $this->step = 4;
-            return;
-        }
+        $bookingFailed = false;
 
-        DB::transaction(function () use ($user, $child, $package, $schedule) {
+        DB::transaction(function () use ($user, $child, $package, $schedule, &$bookingFailed) {
+            // Lock the schedule row so two concurrent bookings for the same
+            // slot can't both pass the capacity check before either commits.
+            // Pending bookings count too — they're holding the seat until
+            // their payment is verified or TransactionExpiryService expires it.
+            Schedule::query()->whereKey($schedule->id)->lockForUpdate()->first();
+
+            $enrolled = Enrollment::where('schedule_id', $schedule->id)
+                ->whereIn('status', ['pending', 'approved'])
+                ->count();
+
+            if ($enrolled >= $schedule->max_capacity) {
+                $bookingFailed = true;
+                return;
+            }
+
             $transaction = Transaction::create([
                 'user_id'          => $user->id,
                 'child_id'         => $child->id,
@@ -182,6 +189,12 @@ class PrivateSessions extends Component
 
             $transaction->update(['enrollment_id' => $enrollment->id]);
         });
+
+        if ($bookingFailed) {
+            session()->flash('error', 'This time slot is fully booked.');
+            $this->step = 4;
+            return;
+        }
 
         NotificationService::toAdmins(
             'new_enrollment',

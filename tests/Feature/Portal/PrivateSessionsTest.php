@@ -107,6 +107,34 @@ it('reuses the same concrete schedule for the same coach and slot', function () 
     expect(Schedule::where('type', 'private')->where('coach_id', $this->coachA->id)->count())->toBe(1);
 });
 
+it('refuses a second booking for the same slot while the first is still pending (not yet approved)', function () {
+    $bookForChild = function (Child $child) {
+        return Livewire::actingAs($child->user)
+            ->test(PrivateSessions::class)
+            ->call('selectChild', $child->id)
+            ->call('selectLocation', $this->location->id)
+            ->call('selectCoach', $this->coachA->id)
+            ->call('selectDay', 'monday')
+            ->call('selectSchedule', $this->template->id)
+            ->set('selectedPackageId', $this->package->id)
+            ->call('confirmDetails')
+            ->call('submit');
+    };
+
+    // First booking succeeds and sits 'pending' — nobody has verified payment yet.
+    $bookForChild($this->child);
+    expect(Enrollment::where('child_id', $this->child->id)->where('status', 'pending')->exists())->toBeTrue();
+
+    // max_capacity is 1 — a second parent trying the same slot must be
+    // blocked by the still-pending first booking, not just an approved one.
+    $otherParent = User::factory()->withRole('parent')->approved()->create();
+    $otherChild  = Child::factory()->active()->create(['user_id' => $otherParent->id]);
+
+    $bookForChild($otherChild)->assertSet('step', 4);
+
+    expect(Enrollment::where('child_id', $otherChild->id)->exists())->toBeFalse();
+});
+
 it('only lists locations that have private slot templates', function () {
     $emptyLocation = Location::factory()->create(['is_active' => true, 'name' => 'No Private Here']);
 

@@ -2,6 +2,8 @@
 // tests/Feature/Admin/TransactionExpiryTest.php
 
 use App\Models\Enrollment;
+use App\Models\Event;
+use App\Models\EventRegistration;
 use App\Models\Location;
 use App\Models\Package;
 use App\Models\Role;
@@ -75,6 +77,26 @@ it('cascades expiry to the pending enrollment', function () {
     expect($enrollment->fresh()->status)->toBe('expired');
     expect($stats['transactions'])->toBe(1);
     expect($stats['enrollments'])->toBe(1);
+});
+
+it('cascades expiry to a pending event registration funded by the transaction', function () {
+    $t = Transaction::factory()->create([
+        'package_id' => $this->package->id,
+        'created_at' => now()->subDays(10),
+    ]);
+    $event = Event::factory()->create();
+    $registration = EventRegistration::create([
+        'event_id'       => $event->id,
+        'child_id'       => \App\Models\Child::factory()->create()->id,
+        'transaction_id' => $t->id,
+        'status'         => 'pending',
+        'registered_at'  => now(),
+    ]);
+
+    $stats = TransactionExpiryService::run(7);
+
+    expect($registration->fresh()->status)->toBe('cancelled');
+    expect($stats['event_registrations'])->toBe(1);
 });
 
 it('runs via the artisan command with a custom window', function () {

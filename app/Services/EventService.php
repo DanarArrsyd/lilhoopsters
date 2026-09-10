@@ -42,43 +42,55 @@ class EventService
             return 0;
         }
 
-        $days    = $event->dayCount();
-        $already = $event->enrollments()->pluck('enrollments.id')->all();
-        $count   = 0;
+        return DB::transaction(function () use ($event) {
+            // Lock the event row so a concurrent applyFreeze/reverseFreeze on
+            // the SAME event can't read the pivot before this one attaches.
+            $event = Event::query()->lockForUpdate()->findOrFail($event->id);
 
-        foreach (self::affectedEnrollments($event) as $enrollment) {
-            if (in_array($enrollment->id, $already, true)) {
-                continue; // already frozen for this event
+            $days    = $event->dayCount();
+            $already = $event->enrollments()->pluck('enrollments.id')->all();
+            $count   = 0;
+
+            foreach (self::affectedEnrollments($event) as $enrollment) {
+                if (in_array($enrollment->id, $already, true)) {
+                    continue; // already frozen for this event
+                }
+
+                Enrollment::query()->whereKey($enrollment->id)->lockForUpdate()->first();
+
+                $enrollment->update([
+                    'expires_at' => Carbon::parse($enrollment->expires_at)->addDays($days),
+                ]);
+                $event->enrollments()->attach($enrollment->id, ['days_added' => $days]);
+                $count++;
             }
 
-            $enrollment->update([
-                'expires_at' => Carbon::parse($enrollment->expires_at)->addDays($days),
-            ]);
-            $event->enrollments()->attach($enrollment->id, ['days_added' => $days]);
-            $count++;
-        }
-
-        return $count;
+            return $count;
+        });
     }
 
     /** Undo the freeze (e.g. event deleted/deactivated/edited). Returns count. */
     public static function reverseFreeze(Event $event): int
     {
-        $count = 0;
+        return DB::transaction(function () use ($event) {
+            $event = Event::query()->lockForUpdate()->findOrFail($event->id);
 
-        foreach ($event->enrollments()->get() as $enrollment) {
-            $days = (int) $enrollment->pivot->days_added;
-            if ($enrollment->expires_at) {
-                $enrollment->update([
-                    'expires_at' => Carbon::parse($enrollment->expires_at)->subDays($days),
-                ]);
+            $count = 0;
+
+            foreach ($event->enrollments()->get() as $enrollment) {
+                $days = (int) $enrollment->pivot->days_added;
+                if ($enrollment->expires_at) {
+                    $enrollment->update([
+                        'expires_at' => Carbon::parse($enrollment->expires_at)->subDays($days),
+                    ]);
+                }
+                $count++;
             }
-            $count++;
-        }
 
-        $event->enrollments()->detach();
+            $event->enrollments()->detach();
 
-        return $count;
+            return $count;
+        });
     }
 
     /**

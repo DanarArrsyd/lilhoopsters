@@ -19,8 +19,9 @@ class ExpireTransactions extends Command
 
         $stats = TransactionExpiryService::run($days);
 
-        $this->info("Transactions expired: {$stats['transactions']}");
-        $this->info("Enrollments expired:  {$stats['enrollments']}");
+        $this->info("Transactions expired:        {$stats['transactions']}");
+        $this->info("Enrollments expired:          {$stats['enrollments']}");
+        $this->info("Event registrations cancelled: {$stats['event_registrations']}");
 
         return self::SUCCESS;
     }
