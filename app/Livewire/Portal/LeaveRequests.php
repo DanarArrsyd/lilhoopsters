@@ -96,6 +96,7 @@ class LeaveRequests extends Component
 
         $exists = LeaveRequest::where('enrollment_id', $enrollment->id)
             ->where('leave_date', $this->leaveDate)
+            ->where('status', '!=', 'rejected')
             ->exists();
 
         if ($exists) {

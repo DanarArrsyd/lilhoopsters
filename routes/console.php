@@ -22,6 +22,11 @@ Schedule::command('reminders:sessions')->dailyAt('19:00');
 // Auto-mark no_show for enrolled students who missed a coached session.
 Schedule::command('attendance:mark-no-shows')->dailyAt('03:00');
 
+// Auto-approve pending leave requests whose 72h review window has lapsed
+// (LeaveRequest.auto_approve_at) — without this, "pending" could sit
+// forever since nothing else ever transitions it to auto_approved.
+Schedule::command('leaves:auto-approve')->hourly();
+
 // Nightly full backup (DB + storage/app), then prune anything past the
 // 14-day retention window. Requires the server cron already running
 // `php artisan schedule:run` every minute (same requirement as the

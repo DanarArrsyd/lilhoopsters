@@ -83,7 +83,9 @@ class MakeUpClasses extends Component
             return;
         }
 
-        $exists = MakeUpClass::where('leave_request_id', $leaveRequest->id)->exists();
+        $exists = MakeUpClass::where('leave_request_id', $leaveRequest->id)
+            ->where('status', '!=', 'rejected')
+            ->exists();
         if ($exists) {
             $this->step = 1;
             $this->addError('leaveRequestId', 'Make-up class already requested for this leave.');
@@ -122,7 +124,7 @@ class MakeUpClasses extends Component
 
         $approvedLeaves = LeaveRequest::whereIn('child_id', $childIds)
             ->whereIn('status', ['approved', 'auto_approved'])
-            ->whereDoesntHave('makeUpClass')
+            ->whereDoesntHave('makeUpClass', fn($q) => $q->where('status', '!=', 'rejected'))
             ->with(['child', 'schedule.program'])
             ->get();
 

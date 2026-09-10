@@ -77,6 +77,26 @@ it('cannot submit duplicate make-up for same leave request', function () {
         ->assertHasErrors(['leaveRequestId']);
 });
 
+it('allows requesting a new make-up after the previous one was rejected', function () {
+    MakeUpClass::factory()->rejected()->create([
+        'child_id'         => $this->child->id,
+        'enrollment_id'    => $this->enrollment->id,
+        'leave_request_id' => $this->leaveRequest->id,
+    ]);
+
+    Livewire::actingAs($this->parent)
+        ->test(MakeUpClasses::class)
+        ->call('openForm')
+        ->set('leaveRequestId', $this->leaveRequest->id)
+        ->set('targetScheduleId', $this->schedule->id)
+        ->set('targetDate', now()->addDays(7)->toDateString())
+        ->call('submit')
+        ->assertHasNoErrors(['leaveRequestId']);
+
+    expect(MakeUpClass::where('leave_request_id', $this->leaveRequest->id)->count())->toBe(2);
+    expect(MakeUpClass::where('leave_request_id', $this->leaveRequest->id)->where('status', 'pending')->count())->toBe(1);
+});
+
 it('cannot use another parents leave request', function () {
     $otherParent  = User::factory()->withRole('parent')->approved()->create();
     $otherChild   = Child::factory()->create(['user_id' => $otherParent->id]);

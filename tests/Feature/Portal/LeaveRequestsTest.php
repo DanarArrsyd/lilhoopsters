@@ -110,6 +110,33 @@ it('cannot submit a future leave date', function () {
         ->assertHasErrors(['leaveDate']);
 });
 
+it('allows resubmitting a leave request for the same date after the first was rejected', function () {
+    $leaveDate = now()->toDateString();
+
+    LeaveRequest::create([
+        'child_id'      => $this->child->id,
+        'enrollment_id' => $this->enrollment->id,
+        'schedule_id'   => $this->schedule->id,
+        'leave_date'    => $leaveDate,
+        'type'          => 'sick',
+        'status'        => 'rejected',
+    ]);
+
+    Livewire::actingAs($this->parent)
+        ->test(LeaveRequests::class)
+        ->call('openCreate')
+        ->set('selectedChildId', $this->child->id)
+        ->set('enrollmentId', $this->enrollment->id)
+        ->set('leaveDate', $leaveDate)
+        ->set('type', 'sick')
+        ->call('submit')
+        ->assertHasNoErrors(['leaveDate']);
+
+    expect(LeaveRequest::where('enrollment_id', $this->enrollment->id)
+        ->where('leave_date', $leaveDate)
+        ->count())->toBe(2);
+});
+
 it('prevents duplicate leave request for same date and enrollment', function () {
     $leaveDate = now()->addDays(3)->format('Y-m-d');
 
