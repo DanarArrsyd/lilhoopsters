@@ -7,6 +7,7 @@ use App\Models\Coach;
 use App\Models\CoachSession;
 use App\Models\Enrollment;
 use App\Models\LeaveRequest;
+use App\Models\MakeUpClass;
 use App\Models\Role;
 use App\Models\Schedule;
 use App\Models\User;
@@ -213,6 +214,37 @@ it('refuses to save a no_show for a child with an approved leave for that date',
         ->call('saveAttendance');
 
     expect(Attendance::where('child_id', $this->child1->id)->where('status', 'no_show')->exists())->toBeFalse();
+});
+
+it('lists a make-up booking on the roster and records it as make_up on save', function () {
+    $makeUpChild = Child::factory()->create();
+    $originalEnrollment = Enrollment::factory()->program()->approved()->create([
+        'child_id'           => $makeUpChild->id,
+        'total_sessions'     => 8,
+        'remaining_sessions' => 8,
+    ]);
+    $makeUpClass = MakeUpClass::factory()->approved()->create([
+        'child_id'           => $makeUpChild->id,
+        'enrollment_id'      => $originalEnrollment->id,
+        'target_schedule_id' => $this->schedule->id,
+        'target_date'        => now()->toDateString(),
+    ]);
+
+    Livewire::actingAs($this->coachUser)
+        ->test(TakeAttendance::class)
+        ->set('scheduleId', $this->schedule->id)
+        ->set('date', now()->toDateString())
+        ->call('loadRoster')
+        ->assertSee($makeUpChild->name)
+        ->call('setStatus', $makeUpChild->id, 'present')
+        ->call('saveAttendance');
+
+    $attendance = Attendance::where('child_id', $makeUpChild->id)->first();
+    expect($attendance)->not->toBeNull();
+    expect($attendance->status)->toBe('make_up');
+    expect($attendance->make_up_class_id)->toBe($makeUpClass->id);
+    expect($originalEnrollment->fresh()->remaining_sessions)->toBe(7);
+    expect($makeUpClass->fresh()->status)->toBe('completed');
 });
 
 it('does not default untouched students to present — save requires an explicit mark', function () {

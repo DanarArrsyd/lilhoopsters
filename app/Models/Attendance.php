@@ -28,6 +28,12 @@ class Attendance extends Model
             if ($attendance->session_deducted) {
                 $attendance->enrollment?->consumeSession();
             }
+
+            // Attending the make-up session is what the booking was for —
+            // close it out so it stops showing as an open "approved" request.
+            if ($attendance->make_up_class_id) {
+                $attendance->makeUpClass?->update(['status' => 'completed']);
+            }
         });
 
         static::updating(function (Attendance $attendance) {
@@ -54,6 +60,12 @@ class Attendance extends Model
         static::deleted(function (Attendance $attendance) {
             if ($attendance->session_deducted) {
                 $attendance->enrollment?->restoreSession();
+            }
+
+            // Undoing the record reopens the make-up booking — it's not
+            // completed until the child actually shows up.
+            if ($attendance->make_up_class_id) {
+                $attendance->makeUpClass()->where('status', 'completed')->update(['status' => 'approved']);
             }
         });
 
@@ -89,7 +101,9 @@ class Attendance extends Model
 
     private static function statusDeductsSession(?string $status): bool
     {
-        return in_array($status, ['present', 'no_show'], true);
+        // make_up is the delivery of a session an earlier excused absence
+        // deferred — it costs a session same as present/no_show would have.
+        return in_array($status, ['present', 'no_show', 'make_up'], true);
     }
 
     protected $fillable = [

@@ -115,6 +115,22 @@
                                             class="w-6 h-6 flex items-center justify-center rounded-full bg-white border border-[#FECACA] text-[#B91C1C] hover:bg-[#FEF2F2] transition-colors shrink-0 text-xs font-bold">×</button>
                                 </div>
 
+                            @elseif ($status === 'make_up')
+                                {{-- ✅ Make-up attended --}}
+                                <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-[#F0FDF4] border border-[#BBF7D0]">
+                                    <div class="w-7 h-7 rounded-full bg-[#15803D] flex items-center justify-center text-2xs font-bold text-white shrink-0">{{ $init }}</div>
+                                    <span class="text-sm font-semibold text-[#15803D] flex-1 truncate">{{ $child->name }}</span>
+                                    <span class="text-3xs font-bold text-[#15803D] flex items-center gap-1 shrink-0">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                                        Make-Up
+                                    </span>
+                                    <button type="button"
+                                            wire:click="undoPresent({{ $child->id }})"
+                                            wire:confirm="Undo make-up attendance for {{ $child->name }}?"
+                                            title="Undo"
+                                            class="w-6 h-6 flex items-center justify-center rounded-full bg-white border border-[#FECACA] text-[#B91C1C] hover:bg-[#FEF2F2] transition-colors shrink-0 text-xs font-bold">×</button>
+                                </div>
+
                             @elseif ($status === 'no_show')
                                 {{-- ❌ No Show (explicitly recorded) --}}
                                 <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-[#FEF2F2] border border-[#FECACA]">
@@ -160,7 +176,12 @@
                                 {{-- ⬜ No Record --}}
                                 <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-off border border-line">
                                     <div class="w-7 h-7 rounded-full bg-navy/10 flex items-center justify-center text-2xs font-bold text-navy shrink-0">{{ $init }}</div>
-                                    <span class="text-sm text-ink flex-1 truncate">{{ $child->name }}</span>
+                                    <div class="flex-1 min-w-0">
+                                        <span class="text-sm text-ink truncate block">{{ $child->name }}</span>
+                                        @if ($row['is_make_up'] ?? false)
+                                            <span class="text-3xs text-navy/70">Make-up class</span>
+                                        @endif
+                                    </div>
                                     <span class="text-3xs font-semibold text-faint bg-line/60 px-2 py-0.5 rounded-full shrink-0">No Record</span>
                                     <button type="button"
                                             wire:click="markPresent({{ $child->id }})"
@@ -168,12 +189,14 @@
                                             class="text-3xs font-bold text-[#15803D] bg-[#F0FDF4] border border-[#BBF7D0] px-2 py-1 rounded-lg hover:bg-[#DCFCE7] transition-colors shrink-0">
                                         Present
                                     </button>
+                                    @unless ($row['is_make_up'] ?? false)
                                     <button type="button"
                                             wire:click="markNoShow({{ $child->id }})"
                                             title="Mark no show"
                                             class="text-3xs font-bold text-[#B91C1C] bg-[#FEF2F2] border border-[#FECACA] px-2 py-1 rounded-lg hover:bg-[#FEE2E2] transition-colors shrink-0">
                                         No Show
                                     </button>
+                                    @endunless
                                 </div>
                             @endif
 

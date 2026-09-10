@@ -7,6 +7,7 @@ use App\Models\Coach;
 use App\Models\CoachSession;
 use App\Models\Enrollment;
 use App\Models\LeaveRequest;
+use App\Models\MakeUpClass;
 use App\Models\Role;
 use App\Models\Schedule;
 use App\Models\User;
@@ -106,6 +107,68 @@ it('refuses to mark a child no_show when they have an approved leave for that da
         ->call('markNoShow', $this->child->id);
 
     expect(Attendance::where('child_id', $this->child->id)->count())->toBe(0);
+});
+
+it('checks in a child booked for an approved make-up class on this exact schedule + date, burning a session and completing the booking', function () {
+    // A different child, NOT enrolled in $this->schedule, booked to make up
+    // a missed session here today.
+    $makeUpChild = Child::factory()->create();
+    $originalEnrollment = Enrollment::factory()->program()->approved()->create([
+        'child_id'           => $makeUpChild->id,
+        'total_sessions'     => 8,
+        'remaining_sessions' => 8,
+    ]);
+    $makeUpClass = MakeUpClass::factory()->approved()->create([
+        'child_id'           => $makeUpChild->id,
+        'enrollment_id'      => $originalEnrollment->id,
+        'target_schedule_id' => $this->schedule->id,
+        'target_date'        => now()->toDateString(),
+    ]);
+
+    Livewire::actingAs($this->coachUser)
+        ->test(QrScanner::class)
+        ->set('scheduleId', $this->schedule->id)
+        ->call('processQr', $makeUpChild->qr_identifier)
+        ->assertSet('lastScanStatus', 'success');
+
+    $attendance = Attendance::where('child_id', $makeUpChild->id)->first();
+    expect($attendance)->not->toBeNull();
+    expect($attendance->status)->toBe('make_up');
+    expect($attendance->make_up_class_id)->toBe($makeUpClass->id);
+    expect($attendance->enrollment_id)->toBe($originalEnrollment->id);
+
+    // Attending burns a session on the ORIGINAL enrollment, same as present/no_show would.
+    expect($originalEnrollment->fresh()->remaining_sessions)->toBe(7);
+
+    // The booking is closed out — it shouldn't sit "approved" forever.
+    expect($makeUpClass->fresh()->status)->toBe('completed');
+});
+
+it('reopens a make-up booking and restores the session when its attendance is undone', function () {
+    $makeUpChild = Child::factory()->create();
+    $originalEnrollment = Enrollment::factory()->program()->approved()->create([
+        'child_id'           => $makeUpChild->id,
+        'total_sessions'     => 8,
+        'remaining_sessions' => 8,
+    ]);
+    $makeUpClass = MakeUpClass::factory()->approved()->create([
+        'child_id'           => $makeUpChild->id,
+        'enrollment_id'      => $originalEnrollment->id,
+        'target_schedule_id' => $this->schedule->id,
+        'target_date'        => now()->toDateString(),
+    ]);
+
+    $component = Livewire::actingAs($this->coachUser)
+        ->test(QrScanner::class)
+        ->set('scheduleId', $this->schedule->id);
+
+    $component->call('processQr', $makeUpChild->qr_identifier);
+    expect($makeUpClass->fresh()->status)->toBe('completed');
+    expect($originalEnrollment->fresh()->remaining_sessions)->toBe(7);
+
+    $component->call('undoPresent', $makeUpChild->id);
+    expect($makeUpClass->fresh()->status)->toBe('approved');
+    expect($originalEnrollment->fresh()->remaining_sessions)->toBe(8);
 });
 
 it('cannot activate the scanner after the session has ended today', function () {

@@ -84,15 +84,33 @@ class TakeAttendance extends Component
             ->whereIn('status', ['approved', 'auto_approved', 'pending'])
             ->pluck('type', 'child_id'); // 'sick' | 'permit'
 
-        $this->roster = $enrollments->map(fn($e) => [
-            'child_id'      => $e->child_id,
-            'enrollment_id' => $e->id,
-            'name'          => $e->child->name,
+        $roster = $enrollments->map(fn($e) => [
+            'child_id'         => $e->child_id,
+            'enrollment_id'    => $e->id,
+            'make_up_class_id' => null,
+            'name'             => $e->child->name,
             // No default status: a coach must explicitly mark each child —
             // silently defaulting everyone to "present" let an untouched
             // roster burn a session for a kid who never showed up.
-            'status'        => $existing[$e->child_id] ?? $leaveRequests[$e->child_id] ?? null,
-        ])->toArray();
+            'status'           => $existing[$e->child_id] ?? $leaveRequests[$e->child_id] ?? null,
+        ]);
+
+        // Children booked for an approved make-up class on this exact
+        // schedule + date — they aren't enrolled here, but they're expected.
+        $makeUpClasses = \App\Models\MakeUpClass::where('target_schedule_id', $this->scheduleId)
+            ->whereDate('target_date', $this->date)
+            ->where('status', 'approved')
+            ->with('child')
+            ->get()
+            ->map(fn($m) => [
+                'child_id'         => $m->child_id,
+                'enrollment_id'    => $m->enrollment_id,
+                'make_up_class_id' => $m->id,
+                'name'             => $m->child->name,
+                'status'           => $existing[$m->child_id] ?? null,
+            ]);
+
+        $this->roster = $roster->concat($makeUpClasses)->toArray();
     }
 
     public function setStatus(int $childId, string $status): void
@@ -115,7 +133,17 @@ class TakeAttendance extends Component
         $skipped = 0;
 
         foreach ($this->roster as $row) {
+            $isMakeUp = !empty($row['make_up_class_id']);
+
             if (empty($row['status'])) {
+                $skipped++;
+                continue;
+            }
+
+            // A make-up-booked child has only one meaningful outcome here:
+            // they showed up for it. Any other button click is a no-op for
+            // this row — there's no defined "no_show" for a make-up slot.
+            if ($isMakeUp && $row['status'] !== 'present') {
                 $skipped++;
                 continue;
             }
@@ -135,11 +163,12 @@ class TakeAttendance extends Component
                     'attended_at' => $this->date,
                 ],
                 [
-                    'enrollment_id' => $row['enrollment_id'],
-                    'coach_id'      => $coach->id,
-                    'status'        => $row['status'],
-                    'source'        => 'manual',
-                    'ip_address'    => request()->ip(),
+                    'enrollment_id'    => $row['enrollment_id'],
+                    'coach_id'         => $coach->id,
+                    'make_up_class_id' => $row['make_up_class_id'],
+                    'status'           => $isMakeUp ? 'make_up' : $row['status'],
+                    'source'           => 'manual',
+                    'ip_address'       => request()->ip(),
                 ]
             );
         }

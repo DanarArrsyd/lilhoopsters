@@ -42,25 +42,42 @@
                                 <div class="w-8 h-8 bg-navy/8 rounded-full flex items-center justify-center text-navy font-bold text-sm shrink-0">
                                     {{ strtoupper(substr($row['name'], 0, 1)) }}
                                 </div>
-                                <p class="text-sm font-semibold text-ink">{{ $row['name'] }}</p>
+                                <div>
+                                    <p class="text-sm font-semibold text-ink">{{ $row['name'] }}</p>
+                                    @if (!empty($row['make_up_class_id']))
+                                        <p class="text-3xs text-navy/70">Make-up class</p>
+                                    @endif
+                                </div>
                             </div>
 
                             <div class="flex items-center gap-2 flex-wrap justify-end">
-                                @foreach ([
-                                    'present' => ['label' => __('messages.coach.take_attendance.present'), 'active' => 'bg-[#15803D] text-white border-[#15803D]'],
-                                    'no_show' => ['label' => __('messages.coach.take_attendance.no_show'), 'active' => 'bg-[#B91C1C] text-white border-[#B91C1C]'],
-                                    'sick'    => ['label' => __('messages.coach.take_attendance.sick'),    'active' => 'bg-[#1D4ED8] text-white border-[#1D4ED8]'],
-                                    'permit'  => ['label' => __('messages.coach.take_attendance.permit'),  'active' => 'bg-[#B45309] text-white border-[#B45309]'],
-                                ] as $val => $cfg)
+                                @if (!empty($row['make_up_class_id']))
+                                    {{-- Make-up booking: the only meaningful outcome is "attended". --}}
                                     <button type="button"
-                                        wire:click="setStatus({{ $row['child_id'] }}, '{{ $val }}')"
+                                        wire:click="setStatus({{ $row['child_id'] }}, 'present')"
                                         class="text-xs px-3 py-1.5 rounded-xl font-semibold border transition-colors
-                                            {{ ($row['status'] ?? '') === $val
-                                                ? $cfg['active']
+                                            {{ in_array($row['status'] ?? '', ['present', 'make_up'])
+                                                ? 'bg-[#15803D] text-white border-[#15803D]'
                                                 : 'bg-surface text-ink border-line hover:bg-off' }}">
-                                        {{ $cfg['label'] }}
+                                        {{ __('messages.coach.take_attendance.present') }}
                                     </button>
-                                @endforeach
+                                @else
+                                    @foreach ([
+                                        'present' => ['label' => __('messages.coach.take_attendance.present'), 'active' => 'bg-[#15803D] text-white border-[#15803D]'],
+                                        'no_show' => ['label' => __('messages.coach.take_attendance.no_show'), 'active' => 'bg-[#B91C1C] text-white border-[#B91C1C]'],
+                                        'sick'    => ['label' => __('messages.coach.take_attendance.sick'),    'active' => 'bg-[#1D4ED8] text-white border-[#1D4ED8]'],
+                                        'permit'  => ['label' => __('messages.coach.take_attendance.permit'),  'active' => 'bg-[#B45309] text-white border-[#B45309]'],
+                                    ] as $val => $cfg)
+                                        <button type="button"
+                                            wire:click="setStatus({{ $row['child_id'] }}, '{{ $val }}')"
+                                            class="text-xs px-3 py-1.5 rounded-xl font-semibold border transition-colors
+                                                {{ ($row['status'] ?? '') === $val
+                                                    ? $cfg['active']
+                                                    : 'bg-surface text-ink border-line hover:bg-off' }}">
+                                            {{ $cfg['label'] }}
+                                        </button>
+                                    @endforeach
+                                @endif
                             </div>
                         </div>
                     @endforeach

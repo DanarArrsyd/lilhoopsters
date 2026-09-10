@@ -103,7 +103,16 @@ class QrScanner extends Component
             ->where('type', 'program')
             ->first();
 
-        if (!$enrollment) return;
+        $makeUpClass = null;
+        if (!$enrollment) {
+            $makeUpClass = \App\Models\MakeUpClass::where('child_id', $childId)
+                ->where('target_schedule_id', $this->scheduleId)
+                ->whereDate('target_date', $this->scanDate)
+                ->where('status', 'approved')
+                ->first();
+        }
+
+        if (!$enrollment && !$makeUpClass) return;
 
         $already = Attendance::where('child_id', $childId)
             ->where('schedule_id', $this->scheduleId)
@@ -115,16 +124,17 @@ class QrScanner extends Component
         $coach = Auth::user()->coach;
 
         Attendance::create([
-            'child_id'      => $childId,
-            'enrollment_id' => $enrollment->id,
-            'schedule_id'   => $this->scheduleId,
-            'coach_id'      => $coach?->id,
-            'attended_at'   => $this->scanDate,
-            'status'        => 'present',
-            'source'        => 'manual',
-            'ip_address'    => request()->ip(),
-            'latitude'      => $this->latitude,
-            'longitude'     => $this->longitude,
+            'child_id'         => $childId,
+            'enrollment_id'    => $enrollment->id ?? $makeUpClass->enrollment_id,
+            'schedule_id'      => $this->scheduleId,
+            'coach_id'         => $coach?->id,
+            'make_up_class_id' => $makeUpClass?->id,
+            'attended_at'      => $this->scanDate,
+            'status'           => $enrollment ? 'present' : 'make_up',
+            'source'           => 'manual',
+            'ip_address'       => request()->ip(),
+            'latitude'         => $this->latitude,
+            'longitude'        => $this->longitude,
         ]);
     }
 
@@ -219,7 +229,18 @@ class QrScanner extends Component
             ->where('type', 'program')
             ->first();
 
+        // Not enrolled in this schedule directly — maybe they're here for an
+        // approved make-up class booked against this exact schedule + date.
+        $makeUpClass = null;
         if (!$enrollment) {
+            $makeUpClass = \App\Models\MakeUpClass::where('child_id', $child->id)
+                ->where('target_schedule_id', $this->scheduleId)
+                ->whereDate('target_date', $this->scanDate)
+                ->where('status', 'approved')
+                ->first();
+        }
+
+        if (!$enrollment && !$makeUpClass) {
             $this->lastScanStatus  = 'not_enrolled';
             $this->lastScanMessage = "{$child->name} is not enrolled in this schedule, or their package has run out.";
             return;
@@ -239,20 +260,23 @@ class QrScanner extends Component
         $coach = Auth::user()->coach;
 
         Attendance::create([
-            'child_id'      => $child->id,
-            'enrollment_id' => $enrollment->id,
-            'schedule_id'   => $this->scheduleId,
-            'coach_id'      => $coach?->id,
-            'attended_at'   => $this->scanDate,
-            'status'        => 'present',
-            'source'        => 'qr',
-            'ip_address'    => request()->ip(),
-            'latitude'      => $this->latitude,
-            'longitude'     => $this->longitude,
+            'child_id'         => $child->id,
+            'enrollment_id'    => $enrollment->id ?? $makeUpClass->enrollment_id,
+            'schedule_id'      => $this->scheduleId,
+            'coach_id'         => $coach?->id,
+            'make_up_class_id' => $makeUpClass?->id,
+            'attended_at'      => $this->scanDate,
+            'status'           => $enrollment ? 'present' : 'make_up',
+            'source'           => 'qr',
+            'ip_address'       => request()->ip(),
+            'latitude'         => $this->latitude,
+            'longitude'        => $this->longitude,
         ]);
 
         $this->lastScanStatus  = 'success';
-        $this->lastScanMessage = "{$child->name} marked present successfully.";
+        $this->lastScanMessage = $enrollment
+            ? "{$child->name} marked present successfully."
+            : "{$child->name} marked present for their make-up class.";
     }
 
     private function resetScanResult(): void
@@ -346,11 +370,33 @@ class QrScanner extends Component
                     'child'         => $enrollment->child,
                     'enrollment_id' => $enrollment->id,
                     'status'        => $status,
+                    'is_make_up'    => false,
+                ]);
+            }
+
+            // Children booked for an approved make-up class on this exact
+            // schedule + date — they aren't enrolled here, but they're expected.
+            $makeUpClasses = \App\Models\MakeUpClass::where('target_schedule_id', $this->scheduleId)
+                ->whereDate('target_date', $this->scanDate)
+                ->where('status', 'approved')
+                ->with('child')
+                ->get();
+
+            foreach ($makeUpClasses as $makeUpClass) {
+                $childId = $makeUpClass->child_id;
+                $status  = $attendances[$childId] ?? 'not_yet';
+                if ($status === 'make_up') $presentCount++;
+
+                $roster->push([
+                    'child'         => $makeUpClass->child,
+                    'enrollment_id' => $makeUpClass->enrollment_id,
+                    'status'        => $status,
+                    'is_make_up'    => true,
                 ]);
             }
 
             // Sort: present(0) → sick/permit(1) → no_show(2) → not_yet(3)
-            $order = ['present' => 0, 'sick' => 1, 'permit' => 1, 'no_show' => 2, 'not_yet' => 3];
+            $order = ['present' => 0, 'make_up' => 0, 'sick' => 1, 'permit' => 1, 'no_show' => 2, 'not_yet' => 3];
             $roster = $roster->sortBy(fn($r) => $order[$r['status']] ?? 4)->values();
         }
 
